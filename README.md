@@ -1,6 +1,7 @@
-# Tauri + React + Typescript
+# BLUMBOTRON
+## Tauri + React + Typescript
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+This is an app to allow folks to easily create high score tables for their immersive events.
 
 ## Recommended IDE Setup
 
