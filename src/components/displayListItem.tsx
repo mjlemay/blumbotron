@@ -1,0 +1,69 @@
+import { DisplayData } from "../lib/types";
+import { ClockIcon, MixIcon, TableIcon  } from "@radix-ui/react-icons";
+import { Separator } from "radix-ui";
+import Chip from "./chip";
+
+type ComponentProps = {
+    key: string;
+    item: DisplayData;
+}
+
+function DisplayListItem(props: ComponentProps): JSX.Element {
+    const { 
+        key,
+        item: { id, name, description, roster, createdAt, updatedAt, category, handleClick },
+    } = props;
+
+    const handleItemClick = (id: number | string | null) => {
+        if (handleClick) {
+            handleClick(id);
+        }
+    }
+
+    const getIcon = (category: string | undefined) => {
+        switch (category) {
+            case "table":
+                return <TableIcon className="text-slate-100" width="40" height="40" />;
+            case "turn-order":
+                return <ClockIcon className="text-slate-100" width="40" height="40" />;
+            case "tourney-bracket":
+                return <MixIcon className="text-slate-100" width="40" height="40" />;
+            default:
+                return <MixIcon className="text-slate-100" width="40" height="40" />;
+        }
+    }
+
+    const getRosterColor = (inputString: string): string => {
+        const total = Array.from(inputString).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const colorIndex = (total % 10) + 1;
+        const colors = ['red', 'blue', 'gray', 'yellow', 'purple', 'pink', 'green', 'orange', 'teal', 'indigo'];
+        return colors[colorIndex]
+    }
+
+
+    return (
+        <div className="flex flex-col items-start justify-start bg-slate-700 hover:cursor-pointer hover:bg-blue-600/20 rounded-lg shadow-lg p-4 m-2" key={key} onClick={() => handleItemClick(id || null)}>
+            <div className="flex flex-row items-center w-full justify-start">
+                <div className="rounded-full bg-slate-800 p-2 m-2">
+                    {getIcon(category)}
+                </div>
+                <div className="w-full items-start justify-start">
+                    <div className="flex flex-row items-center gap-2">  
+                        {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
+                        {category && (<Chip text={roster || "Everyone"} color={getRosterColor(roster || "Everyone")} icon="roster" handleClick={() => {}} />)}
+                    </div>
+                    {description && (<p>{description}</p>)}
+                    {roster && (<p>Roster: {roster}</p>)}
+                </div>
+            </div>
+            <Separator.Root className="h-[1px] w-full mb-1 h-4 bg-slate-600/50" orientation="horizontal" />
+            <div className="w-full text-slate-400 flex flex row items-center gap-2 justify-end">
+                {createdAt && (<span><label className="text-slate-500">Created</label> {createdAt}</span>)}
+                {createdAt && updatedAt && (<Separator.Root className="w-[1px] h-4 bg-slate-500" orientation="vertical" decorative />)}
+                {updatedAt && (<span><label className="text-slate-500">Updated</label> {updatedAt}</span>)}
+            </div>
+        </div>
+    );
+  }
+  
+  export default DisplayListItem;

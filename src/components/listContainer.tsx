@@ -1,22 +1,37 @@
 import { ScrollArea } from "radix-ui";
+import { DisplayData } from "../lib/types";
 
-type ListItem = {
-    id: number;
-    name: string;
-    description: string;
-    dateCreated: string;
-    lastUpdated: string;
-}
 
 type ListContainerProps ={
-    items?: ListItem[];
-    title?: string;
     children?: React.ReactNode;
+    items?: DisplayData[];
+    listItem?: React.ComponentType<{ item: DisplayData, key: string }>;
+    title?: string;
 }
 
 function ListContainer(props: ListContainerProps): JSX.Element {
-    const { items = [], title, children } = props;
+    const { items = [], listItem, title, children } = props;
 
+    const mapListData = (items: DisplayData[], ListItemComponent?: React.ComponentType<{ item: DisplayData, key: string }> | undefined) => {
+        return items.map((item) => {
+            if (ListItemComponent) {
+                const { id, name } = item;
+                return <ListItemComponent 
+                    key={`${id}_${name}`}
+                    item={item}
+                />;
+            } else {
+                return (
+                    <div key={`${item.id}_${item.name}`} className="flex flex-col items-start justify-start bg-slate-700 rounded-lg shadow-lg p-4 m-2">
+                        <h3 className="text-xl font-bold">{item.name}</h3>
+                        <p>{item.description}</p>
+                        <p>Date Created: {item.createdAt}</p>
+                        <p>Last Updated: {item.updatedAt}</p>
+                    </div>
+                );
+            }
+        });
+    }
 
 
     return (
@@ -35,15 +50,8 @@ function ListContainer(props: ListContainerProps): JSX.Element {
 	                <ScrollArea.Root className="w-full h-[100vh] max-h-[75vh] rounded bg-slate-700/50 overflow-hidden">
 		                <ScrollArea.Viewport className="size-full rounded">
                             <div className="px-5 py-[15px]">
-                                {items.map((item) => (
-                                    <div key={`${item.id}_${item.name}`} className="flex flex-col items-start justify-start bg-slate-700 rounded-lg shadow-lg p-4 m-2">
-                                        <h3 className="text-xl font-bold">{item.name}</h3>
-                                        <p>{item.description}</p>
-                                        <p>Date Created: {item.dateCreated}</p>
-                                        <p>Last Updated: {item.lastUpdated}</p>
-                                    </div>
-                                ))}
-                            </div>
+                                {mapListData(items, listItem)}
+                            </div>                            
 		                </ScrollArea.Viewport>
                         <ScrollArea.Scrollbar
                             className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
