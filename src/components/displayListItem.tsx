@@ -1,7 +1,8 @@
 import { DisplayData } from "../lib/types";
-import { ClockIcon, MixIcon, TableIcon  } from "@radix-ui/react-icons";
+import { ClockIcon, MixIcon, TableIcon, BookmarkIcon, StarIcon  } from "@radix-ui/react-icons";
 import { Separator } from "radix-ui";
 import Chip from "./chip";
+import { bgColors } from "../lib/consts";
 
 type ComponentProps = {
     key: string;
@@ -20,6 +21,14 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
         }
     }
 
+    const getRosterColor = (textSeed: string): string => {
+        const total = Array.from(textSeed).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const colorIndex = (total % 10) + 1;
+        const colors = ['red', 'blue', 'gray', 'yellow', 'purple', 'pink', 'green', 'orange', 'teal', 'indigo', 'slate'];
+        const selectedColor = colors[colorIndex];
+        return bgColors[selectedColor] || bgColors.slate;
+    }
+
     const getIcon = (category: string | undefined) => {
         switch (category) {
             case "table":
@@ -28,29 +37,32 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
                 return <ClockIcon className="text-slate-100" width="40" height="40" />;
             case "tourney-bracket":
                 return <MixIcon className="text-slate-100" width="40" height="40" />;
+            case "roster":
+                return <BookmarkIcon className="text-slate-100" width="40" height="40" />;
+            case "everyone":
+                return <StarIcon className="text-slate-100" width="40" height="40" />;
             default:
                 return <MixIcon className="text-slate-100" width="40" height="40" />;
         }
-    }
-
-    const getRosterColor = (inputString: string): string => {
-        const total = Array.from(inputString).reduce((sum, char) => sum + char.charCodeAt(0), 0);
-        const colorIndex = (total % 10) + 1;
-        const colors = ['red', 'blue', 'gray', 'yellow', 'purple', 'pink', 'green', 'orange', 'teal', 'indigo'];
-        return colors[colorIndex]
     }
 
 
     return (
         <div className="flex flex-col items-start justify-start bg-slate-700 hover:cursor-pointer hover:bg-blue-600/20 rounded-lg shadow-lg p-4 m-2" key={key} onClick={() => handleItemClick(id || null)}>
             <div className="flex flex-row items-center w-full justify-start">
-                <div className="rounded-full bg-slate-800 p-2 m-2">
+                <div className={`rounded-full ${category && category == 'roster' ? getRosterColor(name) : "bg-slate-800"} p-2 m-2`}>
                     {getIcon(category)}
                 </div>
                 <div className="w-full items-start justify-start">
                     <div className="flex flex-row items-center gap-2">  
                         {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
-                        {category && (<Chip text={roster || "Everyone"} color={getRosterColor(roster || "Everyone")} icon="roster" handleClick={() => {}} />)}
+                        {category && category !== 'roster' && (
+                            <Chip 
+                                text={roster || "All Players"}
+                                color={getRosterColor(roster || "Everyone")}
+                                icon={roster ? "roster" : "everyone"}
+                                handleClick={() => {}}
+                            />)}
                     </div>
                     {description && (<p>{description}</p>)}
                     {roster && (<p>Roster: {roster}</p>)}

@@ -67,6 +67,32 @@ const mockData = [
     },
 ];
 
+const mockData2 = [
+    {
+        id: 1,
+        name: "DnD Players",
+        category: "roster",
+        description: "People to play DnD with.",
+        createdAt: "2023-01-01",
+        updatedAt: "2023-01-02",
+    },
+    {
+        id: 2,
+        name: "SmashCon 2006",
+        category: "roster",
+        description: "Smash Bros players.",
+        createdAt: "2023-02-01",
+        updatedAt: "2023-02-02",
+    },
+    {
+        id: 3,
+        name: "LARP Crew",
+        category: "roster",
+        description: "People to LARP with.",
+        createdAt: "2023-01-01",
+        updatedAt: "2023-01-02",}
+];
+
 function ViewHome() {
 
   return (
@@ -86,7 +112,7 @@ function ViewHome() {
         </ListContainer>
       </div>
       <div className="flex-item">
-        <ListContainer items={mockData} listItem={DisplayListItem} title="Player Rosters">
+        <ListContainer items={mockData2} listItem={DisplayListItem} title="Player Rosters">
              <Menubar.Root className="flex rounded-md p-2 m-2">
                     <Menubar.Menu>
                         <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">
