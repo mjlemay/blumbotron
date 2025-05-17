@@ -1,11 +1,11 @@
 import { db } from './sqLiteService';
 import { eq } from 'drizzle-orm';
 import { games } from '../lib/dbSchema';
-import { BasicGame } from '../lib/defaults';
+import { BasicGame } from '../lib/types';
 
 const addGame = async (game:BasicGame) => {
     const { name, description, roster } = game;
-    const values ={
+    const values = {
         name,
         description,
         roster,
@@ -19,7 +19,16 @@ const getGame = async (gameId:number) => {
 }
 
 const getGames = async (limit:number) => {
-    return await db.select().from(games).limit(limit);
+    console.log('getGames called with limit:', limit);
+    try {
+        // Try a direct SQL query first to verify table access
+        const result = await db.select().from(games).limit(limit);
+        console.log('getGames query result:', result);
+        return result;
+    } catch (error) {
+        console.error('Error in getGames:', error);
+        throw error;
+    }
 }
 
 const updateGame = async (game:BasicGame) => {

@@ -1,14 +1,14 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b526ff8c-5fc1-4aa9-b6ec-93f909c0cd8a",
+  "id": "92c1eb91-5419-40b1-9719-54de5563220d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "games": {
       "name": "games",
       "columns": {
-        "projectId": {
-          "name": "projectId",
+        "gameId": {
+          "name": "gameId",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
@@ -28,9 +28,16 @@
           "notNull": false,
           "autoincrement": false
         },
-        "json": {
-          "name": "json",
+        "data": {
+          "name": "data",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "roster": {
+          "name": "roster",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -75,8 +82,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "json": {
-          "name": "json",
+        "data": {
+          "name": "data",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

@@ -1,71 +1,11 @@
 import ListContainer from "./listContainer";
-
-import { Menubar } from "radix-ui";
+import { useEffect } from "react";
+import { useGameStore } from "../stores/gamesStore";
+import * as Menubar from "@radix-ui/react-menubar";
 import { PersonIcon, PlusCircledIcon, TableIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
+import { DisplayData } from "../lib/types";
 
-
-const mockData = [
-    {
-        id: 1,
-        name: "DnD Night",
-        category: "table",
-        description: "This is the first roster.",
-        createdAt: "2023-01-01",
-        updatedAt: "2023-01-02",
-    },
-    {
-        id: 2,
-        name: "Smash Tournament",
-        category: "tourney-bracket",
-        description: "This is the second roster.",
-        createdAt: "2023-02-01",
-        updatedAt: "2023-02-02",
-    },
-    {
-        id: 3,
-        name: "LARP Event",
-        category: "turn-order",
-        description: "This is the third roster.",
-        createdAt: "2023-01-01",
-        updatedAt: "2023-01-02",
-    },
-    {
-        id: 4,
-        name: "Board Game Night",
-        description: "This is the fourth roster.",
-        createdAt: "2023-02-01",
-        updatedAt: "2023-02-02",
-    },
-        {
-        id: 5,
-        name: "Soup Night",
-        description: "This is the fifth roster.",
-        createdAt: "2023-01-01",
-        updatedAt: "2023-01-02",
-    },
-    {
-        id: 6,
-        name: "Big Ol Tournament",
-        description: "This is the sixth roster.",
-        createdAt: "2023-02-01",
-        updatedAt: "2023-02-02",
-    },
-    {
-        id: 7,
-        name: "LARP Event",
-        description: "This is the seventh roster.",
-        createdAt: "2023-01-01",
-        updatedAt: "2023-01-02",
-    },
-    {
-        id: 4,
-        name: "Board Game Party",
-        description: "This is the last roster.",
-        createdAt: "2023-02-01",
-        updatedAt: "2023-02-02",
-    },
-];
 
 const mockData2 = [
     {
@@ -94,11 +34,19 @@ const mockData2 = [
 ];
 
 function ViewHome() {
+  const { games, loading, error, fetchGames } = useGameStore();
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="flex flex-row gap-4">
       <div className="flex-item">
-        <ListContainer items={mockData} listItem={DisplayListItem} title="Tables & Displays">
+        <ListContainer items={games as unknown as DisplayData[]} listItem={DisplayListItem} title="Tables & Displays">
              <Menubar.Root className="flex rounded-md p-2 m-2">
                     <Menubar.Menu>
                         <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">

@@ -5,6 +5,23 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "opener:default"
+    "core:app:default",
+    "core:path:default",
+    "core:event:default",
+    "core:window:default",
+    "core:webview:default",
+    "shell:allow-open",
+    "sql:default",
+    "sql:allow-close",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "core:window:allow-create",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-fullscreen",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-webview-show",
+    "core:webview:allow-internal-toggle-devtools"
   ]
 }

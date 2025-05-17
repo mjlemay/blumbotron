@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "blumbotron",
   "version": "0.1.0",
-  "identifier": "gtron",
+  "identifier": "btron",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "blumbotron",
-        "width": 800,
-        "height": 600
+        "title": "Blumbotron",
+        "width": 1024,
+        "height": 800
       }
     ],
     "security": {

@@ -1,4 +1,4 @@
-import { ScrollArea } from "radix-ui";
+import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { DisplayData } from "../lib/types";
 
 
@@ -15,11 +15,7 @@ function ListContainer(props: ListContainerProps): JSX.Element {
     const mapListData = (items: DisplayData[], ListItemComponent?: React.ComponentType<{ item: DisplayData, key: string }> | undefined) => {
         return items.map((item) => {
             if (ListItemComponent) {
-                const { id, name } = item;
-                return <ListItemComponent 
-                    key={`${id}_${name}`}
-                    item={item}
-                />;
+                return <ListItemComponent key={`item_${item.id}_${item.name}`} item={item} />;
             } else {
                 return (
                     <div key={`${item.id}_${item.name}`} className="flex flex-col items-start justify-start bg-slate-700 rounded-lg shadow-lg p-4 m-2">

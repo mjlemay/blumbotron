@@ -2,10 +2,11 @@ import { sqliteTable, AnySQLiteColumn, integer, text } from "drizzle-orm/sqlite-
   import { sql } from "drizzle-orm"
 
 export const games = sqliteTable("games", {
-	projectId: integer().primaryKey({ autoIncrement: true }).notNull(),
+	gameId: integer().primaryKey({ autoIncrement: true }).notNull(),
 	name: text().notNull(),
 	description: text(),
-	json: text(),
+	data: text(),
+	roster: integer(),
 	createdAt: text("created_at").default("sql`(CURRENT_TIMESTAMP)`"),
 	updatedAt: text("updated_at").default("sql`(CURRENT_TIMESTAMP)`"),
 });
@@ -13,7 +14,7 @@ export const games = sqliteTable("games", {
 export const players = sqliteTable("players", {
 	playerId: integer().primaryKey({ autoIncrement: true }).notNull(),
 	name: text().notNull(),
-	json: text(),
+	data: text(),
 	createdAt: text("created_at").default("sql`(CURRENT_TIMESTAMP)`"),
 	updatedAt: text("updated_at").default("sql`(CURRENT_TIMESTAMP)`"),
 });

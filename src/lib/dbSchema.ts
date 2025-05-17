@@ -2,18 +2,19 @@ import { sql } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const games = sqliteTable('games', {
-    gameId: integer('projectId', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    gameId: integer('gameId').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
     description: text('description'),
-    meta: text('json'),
-    created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
-    updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
+    meta: text('meta'),
+    roster: integer('roster'),
+    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`)
 });
 
 export const players = sqliteTable('players', {
     playerId: integer('playerId', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
-    meta: text('json'),
+    data: text('data'),
     created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
 });
@@ -29,7 +30,7 @@ export const scores = sqliteTable('scores', {
 });
 
 export const rosters = sqliteTable('rosters', {
-    rosterId: integer('rosterId', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    rosterId: integer('rosterId', { mode: 'number' }).primaryKey({ autoIncrement: true }), 
     name: text('name').notNull(),
     description: text('description'),
     data: text('data', { mode: 'json' }).$type<{ allow: number[]; deny: number[] }>(),

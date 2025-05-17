@@ -1,8 +1,9 @@
 CREATE TABLE `games` (
-	`projectId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`gameId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
-	`json` text,
+	`data` text,
+	`roster` integer,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -10,7 +11,7 @@ CREATE TABLE `games` (
 CREATE TABLE `players` (
 	`playerId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`json` text,
+	`data` text,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );

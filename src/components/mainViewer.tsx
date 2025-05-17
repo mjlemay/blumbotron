@@ -23,7 +23,7 @@ function MainViewer() {
   }
   return (
     <main className="text-white">
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen w-screen">
         <Header />
         <div className="flex items-center justify-center h-full bg-slate-800 max-w-screen">
           {showView(view)}
