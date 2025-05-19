@@ -22,12 +22,10 @@ function MainViewer() {
     return selectedView;
   }
   return (
-    <main className="text-white">
-      <div className="flex flex-col h-screen w-screen">
-        <Header />
-        <div className="flex items-center justify-center h-full bg-slate-800 max-w-screen">
-          {showView(view)}
-        </div>
+    <main className="flex flex-col min-h-screen bg-slate-800">
+      <Header />
+      <div className="flex-1 flex items-center h-[calc(100vh-80px)] justify-center">
+        {showView(view)}
       </div>
     </main>
   );

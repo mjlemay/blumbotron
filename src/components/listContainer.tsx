@@ -31,10 +31,10 @@ function ListContainer(props: ListContainerProps): JSX.Element {
 
 
     return (
-        <div className="flex flex-col items-center justify-center h-full bg-slate-900/40 rounded-lg shadow-lg">
-            <div className={`min-w-[46vw] bg-slate-600 
+        <div className="flex flex-col items-center h-[calc(100vh-100px)] bg-slate-900/40 rounded-lg shadow-lg">
+            <div className={`min-w-[46vw] bg-slate-600 shrink
                 ${children ? 'rounded-tr-lg rounded-tl-lg' : 'rounded-lg'} 
-                shadow-md p-4`}>
+                shadow-md p-4 flex flex-col h-full`}>
                 {title && (<h2 className="text-3xl font-thin pl-2 pb-2">{title}</h2>)}
      
                 {items.length === 0 ? 
@@ -43,9 +43,9 @@ function ListContainer(props: ListContainerProps): JSX.Element {
                         <p className="text-center text-slate-400">No items to display</p>
                     </div>
                 ) : (
-	                <ScrollArea.Root className="w-full h-[100vh] max-h-[75vh] rounded bg-slate-700/50 overflow-hidden">
-		                <ScrollArea.Viewport className="size-full rounded">
-                            <div className="px-5 py-[15px]">
+	                <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden">
+		                <ScrollArea.Viewport className="h-full w-full rounded">
+                            <div className={`px-5 py-[15px] ${children && 'max-h-[calc(100vh-300px)]'}`}>
                                 {mapListData(items, listItem)}
                             </div>                            
 		                </ScrollArea.Viewport>
@@ -66,7 +66,7 @@ function ListContainer(props: ListContainerProps): JSX.Element {
                 )}
             </div>
             {children && (
-                <div className="flex flex-row h-[80px] h-min-[80px] w-full items-center justify-center">
+                <div className="flex flex-row h-[80px] shrink-0 h-min-[80px] w-full items-center justify-center">
                     {children}
                 </div>
             )}

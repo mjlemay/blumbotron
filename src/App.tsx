@@ -6,7 +6,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div>
+      <div className="h-screen w-screen overflow-hidden">
         <MainViewer />
       </div>
     </ErrorBoundary>

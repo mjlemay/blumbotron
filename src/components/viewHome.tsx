@@ -42,9 +42,10 @@ function ViewHome() {
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
+    
 
   return (
-    <div className="flex flex-row gap-4">
+    <div className="flex flex-row gap-4 overflow-hidden max-h-ful m-2">
       <div className="flex-item">
         <ListContainer items={games as unknown as DisplayData[]} listItem={DisplayListItem} title="Tables & Displays">
              <Menubar.Root className="flex rounded-md p-2 m-2">
@@ -59,7 +60,7 @@ function ViewHome() {
             </Menubar.Root>
         </ListContainer>
       </div>
-      <div className="flex-item">
+      <div className="flex-item ">
         <ListContainer items={mockData2} listItem={DisplayListItem} title="Player Rosters">
              <Menubar.Root className="flex rounded-md p-2 m-2">
                     <Menubar.Menu>

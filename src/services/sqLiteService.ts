@@ -23,23 +23,6 @@ try {
     sqlite = await Database.load(dbName);
     console.log('SQLite database loaded successfully');
 
-    // Create tables if they don't exist
-    const createTableSQL = `
-        CREATE TABLE IF NOT EXISTS games (
-            gameId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            name TEXT NOT NULL,
-            description TEXT,
-            meta TEXT,
-            roster INTEGER,
-            created_at TEXT DEFAULT (CURRENT_TIMESTAMP),
-            updated_at TEXT DEFAULT (CURRENT_TIMESTAMP)
-        );
-    `;
-    
-    console.log('Creating tables if they don\'t exist...');
-    await sqlite.execute(createTableSQL);
-    console.log('Tables created successfully');
-
     // Test the connection
     const testResult = await sqlite.execute('SELECT 1');
     console.log('Database connection test result:', testResult);
