@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useExperienceStore } from "../stores/experienceStore";
 import ViewHome from "./viewHome";
 import ViewForm from "./viewForm";
+import ViewGame from "./viewGame";
 import Header from "./header";
+import DialogModal from "./dialogModal";
 
 function MainViewer() {
-  const [ view ] = useState("home");
+  const { experience, loading, error } = useExperienceStore();
+  const { view, modal, selected } = experience;
+
+  console.log('modal', modal);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   const showView = (view: string) => {
     let selectedView = <></>;
@@ -14,6 +22,9 @@ function MainViewer() {
         break;
       case "form":
         selectedView = <ViewForm />;
+        break;
+      case "game":
+        selectedView = <ViewGame selected={selected} />;
         break;
       default:
         selectedView = <ViewHome />;
@@ -27,6 +38,7 @@ function MainViewer() {
       <div className="flex-1 flex items-center h-[calc(100vh-80px)] justify-center">
         {showView(view)}
       </div>
+      <DialogModal selectedModal={modal} isOpen={modal !== "none"} />
     </main>
   );
 }

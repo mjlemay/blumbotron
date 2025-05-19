@@ -5,7 +5,10 @@ import * as Menubar from "@radix-ui/react-menubar";
 import { PersonIcon, PlusCircledIcon, TableIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
 import { DisplayData } from "../lib/types";
-
+import { useExperienceStore } from "../stores/experienceStore";
+type ViewHomeProps = {
+    children?: React.ReactNode;
+}
 
 const mockData2 = [
     {
@@ -33,8 +36,9 @@ const mockData2 = [
         updatedAt: "2023-01-02",}
 ];
 
-function ViewHome() {
+function ViewHome(props: ViewHomeProps): JSX.Element  {
   const { games, loading, error, fetchGames } = useGameStore();
+  const { setExpModal } = useExperienceStore();
 
   useEffect(() => {
     fetchGames();
@@ -53,8 +57,15 @@ function ViewHome() {
                         <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">
                             <TableIcon width="20" height="20" /> <span>Manage Tables</span>
                         </Menubar.Trigger>
-                        <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">
-                            <PlusCircledIcon width="20" height="20" /> <span>Create New Game</span>
+                        <Menubar.Trigger 
+                          className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700"
+                        onClick={() => setExpModal("game")}
+                        >
+                            <PlusCircledIcon 
+                              width="20"
+                              height="20"
+                              onClick={() => setExpModal("game")}
+                            /> <span>Create New Game</span>
                         </Menubar.Trigger>
                     </Menubar.Menu>
             </Menubar.Root>
@@ -68,12 +79,16 @@ function ViewHome() {
                             <PersonIcon width="20" height="20" /> <span>Manage Players</span>
                         </Menubar.Trigger>
                         <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">
-                            <PlusCircledIcon width="20" height="20" /> <span>Create New Roster</span>
+                            <PlusCircledIcon
+                              width="20"
+                              height="20"
+                            /> <span>Create New Roster</span>
                         </Menubar.Trigger>
                     </Menubar.Menu>
             </Menubar.Root>
         </ListContainer>
       </div>
+      <>{props.children}</>
     </div>
   );
 }

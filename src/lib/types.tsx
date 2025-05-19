@@ -15,3 +15,15 @@ export type BasicGame = {
     roster?: number | null;
     gameId: number;
 };
+
+export type ListItem = {
+    id: string;
+    name?: string;
+    description?: string;
+}
+
+export type Experience = {
+    view: string;
+    modal: string;
+    selected: Record<string, ListItem>;
+}
