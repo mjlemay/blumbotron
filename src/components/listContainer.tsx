@@ -4,13 +4,15 @@ import { DisplayData } from "../lib/types";
 
 type ListContainerProps ={
     children?: React.ReactNode;
+    form?: React.ReactNode;
     items?: DisplayData[];
     listItem?: React.ComponentType<{ item: DisplayData, key: string }>;
     title?: string;
+    dialog?: React.ReactNode;
 }
 
 function ListContainer(props: ListContainerProps): JSX.Element {
-    const { items = [], listItem, title, children } = props;
+    const { dialog = null, items = [], listItem, title, children } = props;
 
     const mapListData = (items: DisplayData[], ListItemComponent?: React.ComponentType<{ item: DisplayData, key: string }> | undefined) => {
         return items.map((item) => {
@@ -36,7 +38,11 @@ function ListContainer(props: ListContainerProps): JSX.Element {
                 ${children ? 'rounded-tr-lg rounded-tl-lg' : 'rounded-lg'} 
                 shadow-md p-4 flex flex-col h-full`}>
                 {title && (<h2 className="text-3xl font-thin pl-2 pb-2">{title}</h2>)}
-     
+                {dialog && (
+                    <div className="flex flex-col items-center justify-center h-full">
+                        {dialog}
+                    </div>
+                )}
                 {items.length === 0 ? 
                 (
                     <div className="flex flex-col items-center justify-center h-full">

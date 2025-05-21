@@ -58,8 +58,8 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
                             <TableIcon width="20" height="20" /> <span>Manage Tables</span>
                         </Menubar.Trigger>
                         <Menubar.Trigger 
-                          className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700"
-                        onClick={() => setExpModal("game")}
+                        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700"
+                        onClick={() => setExpModal("newGame")}
                         >
                             <PlusCircledIcon 
                               width="20"
