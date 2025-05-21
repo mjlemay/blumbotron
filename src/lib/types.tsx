@@ -1,19 +1,21 @@
-export type DisplayData = {
+export type DataItem = {
     category?: string; // table, turn-order, tourney bracket, etc.
-    createdAt?: string;
+    created_at?: string;
     description?: string | null;
     handleClick?: Function;
     id?: number | string;
     name: string;
-    roster?: string | null;
-    updatedAt?: string;
+    updated_at?: string;
 }
 
-export type BasicGame = {
-    name: string;
-    description?: string | null;
-    roster?: number | null;
+export type GameDataItem = DataItem & {
     gameId: number;
+    roster?: number | null;
+    meta?: string | null;
+};
+
+export type Roster = DataItem & {
+    rosterId: number;
 };
 
 export type ListItem = {

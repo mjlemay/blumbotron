@@ -1,16 +1,16 @@
-import { DisplayData } from "../lib/types";
+import { DataItem, GameDataItem } from "../lib/types";
 import { ClockIcon, MixIcon, TableIcon, BookmarkIcon, StarIcon  } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/react-separator";
 import Chip from "./chip";
 import { bgColors } from "../lib/consts";
 
 type ComponentProps = {
-    item: DisplayData;
+    item: DataItem | GameDataItem;
 }
 
 function DisplayListItem(props: ComponentProps): JSX.Element {
     const { 
-        item: { id, name, description, roster, createdAt, updatedAt, category, handleClick },
+        item: { id, name, description, created_at, updated_at, roster, category, handleClick },
     } = props;
 
     const handleItemClick = (id: number | string | null) => {
@@ -54,7 +54,7 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
                 <div className="w-full items-start justify-start">
                     <div className="flex flex-row items-center gap-2">  
                         {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
-                        {category && category !== 'roster' && (
+                        {(!category || category !== 'roster') && (
                             <Chip 
                                 text={roster || "All Players"}
                                 color={getRosterColor(roster || "Everyone")}
@@ -68,9 +68,9 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
             </div>
             <Separator className="h-[1px] w-full mb-1 h-4 bg-slate-600/50" orientation="horizontal" />
             <div className="w-full text-slate-400 flex flex row items-center gap-2 justify-end">
-                {createdAt && (<span><label className="text-slate-500">Created</label> {createdAt}</span>)}
-                {createdAt && updatedAt && (<Separator className="w-[1px] h-4 bg-slate-500" orientation="vertical" decorative />)}
-                {updatedAt && (<span><label className="text-slate-500">Updated</label> {updatedAt}</span>)}
+                {created_at && (<span><label className="text-slate-500">Created</label> {created_at}</span>)}
+                {created_at && updated_at && (<Separator className="w-[1px] h-4 bg-slate-500" orientation="vertical" decorative />)}
+                {updated_at && (<span><label className="text-slate-500">Updated</label> {updated_at}</span>)}
             </div>
         </div>
     );

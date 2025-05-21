@@ -4,7 +4,7 @@ import { useGameStore } from "../stores/gamesStore";
 import * as Menubar from "@radix-ui/react-menubar";
 import { PersonIcon, PlusCircledIcon, TableIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
-import { DisplayData } from "../lib/types";
+import { GameDataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 type ViewHomeProps = {
     children?: React.ReactNode;
@@ -47,11 +47,17 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     
+    const displayGames = (games: GameDataItem[]): GameDataItem[] => {
+        return games.map((game) => ({
+            ...game,
+            id: game.gameId
+        }));
+    }
 
   return (
     <div className="flex flex-row gap-4 overflow-hidden max-h-ful m-2">
       <div className="flex-item">
-        <ListContainer items={games as unknown as DisplayData[]} listItem={DisplayListItem} title="Tables & Displays">
+        <ListContainer items={displayGames(games)} listItem={DisplayListItem} title="Tables & Displays">
              <Menubar.Root className="flex rounded-md p-2 m-2">
                     <Menubar.Menu>
                         <Menubar.Trigger className="flex select-none items-center justify-between rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700">
@@ -64,7 +70,6 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
                             <PlusCircledIcon 
                               width="20"
                               height="20"
-                              onClick={() => setExpModal("game")}
                             /> <span>Create New Game</span>
                         </Menubar.Trigger>
                     </Menubar.Menu>

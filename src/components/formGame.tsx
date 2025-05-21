@@ -3,7 +3,7 @@ import DialogContainer from "./dialogContainer";
 import Input from "./input";
 import { z } from 'zod';
 import { useGameStore } from "../stores/gamesStore";
-import { BasicGame } from "../lib/types";
+import { GameDataItem } from "../lib/types";
 
 type FormGameProps = {
     gameId?: number;
@@ -39,13 +39,14 @@ function FormGame(props: FormGameProps) {
         return errors[field as keyof typeof errors] || '';
     }
 
-    const validateForm = (formData:BasicGame) => {
+    const createNewGame = (formData:GameDataItem) => {
         const formSchema = z.object({
-          name: z.string().min(1, 'Please supply a game name.'),
+          name: z.string().min(3, 'Please supply a game name.'),
           description: z.string(),
         });
         try {
           formSchema.parse(formData);
+          createGame(form);
         } catch (err) {
           if (err instanceof z.ZodError) {
             let newErrs:Record<string, string> = {};
@@ -58,13 +59,6 @@ function FormGame(props: FormGameProps) {
           }
         }
       }
-
-    const createNewGame = () => {
-        validateForm(form);
-        if (Object.keys(errors).length <= 0) {
-            createGame(form);
-        }
-    }
 
     const formContent = (
         <div className="w-full pr-4 pl-4">
@@ -97,7 +91,7 @@ function FormGame(props: FormGameProps) {
         >
             {loading && (<div>Loading...</div>)}
             {error && (<div>Error: {error}</div>)}
-            {!loading && ! error && action === "new" && (<button onClick={createNewGame}>Create</button>)}
+            {!loading && ! error && action === "new" && (<button onClick={() => createNewGame(form)}>Create</button>)}
       </DialogContainer>
     );
   }

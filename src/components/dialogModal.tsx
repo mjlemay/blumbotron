@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import FormGame from "./formGame";
 import FormRoster from "./formRoster"
 import { useExperienceStore } from "../stores/experienceStore";
+
 type DialogModalProps = {
     children?: React.ReactNode;
     triggerText?: string;
@@ -48,7 +50,11 @@ function DialogModal({  triggerText, selectedModal, isOpen = false }: DialogModa
             )}
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-                <Dialog.Content className="fixed rounded-lg bg-slate-700 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Dialog.Content title="" className="fixed rounded-lg 
+                bg-slate-700 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <VisuallyHidden.Root>
+                        <Dialog.DialogTitle></Dialog.DialogTitle>
+                    </VisuallyHidden.Root>
                     {dialogContent(selectedModal || '')}
                 </Dialog.Content>
             </Dialog.Portal>
