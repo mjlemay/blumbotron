@@ -1,9 +1,9 @@
 import { db } from './sqLiteService';
 import { eq } from 'drizzle-orm';
 import { games } from '../lib/dbSchema';
-import { BasicGame } from '../lib/types';
+import { GameDataItem } from '../lib/types';
 
-const addGame = async (game:BasicGame) => {
+const addGame = async (game:GameDataItem) => {
     const { name, description, roster } = game;
     const values = {
         name,
@@ -31,7 +31,7 @@ const getGames = async (limit:number) => {
     }
 }
 
-const updateGame = async (game:BasicGame) => {
+const updateGame = async (game:GameDataItem) => {
     const { gameId } = game;
     return await db.update(games)
         .set(game)
@@ -39,7 +39,7 @@ const updateGame = async (game:BasicGame) => {
         .returning();
 }
 
-const deleteGame = async (game:BasicGame) => {
+const deleteGame = async (game:GameDataItem) => {
     const { gameId } = game;
     return await db.delete(games)
         .where(eq(games.gameId, gameId))

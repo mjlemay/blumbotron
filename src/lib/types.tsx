@@ -14,8 +14,9 @@ export type GameDataItem = DataItem & {
     meta?: string | null;
 };
 
-export type Roster = DataItem & {
+export type RosterDataItem = DataItem & {
     rosterId: number;
+    data: string;
 };
 
 export type ListItem = {

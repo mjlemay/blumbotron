@@ -24,7 +24,7 @@ function MainViewer() {
         selectedView = <ViewForm />;
         break;
       case "game":
-        selectedView = <ViewGame selected={selected} />;
+        selectedView = <ViewGame />;
         break;
       default:
         selectedView = <ViewHome />;

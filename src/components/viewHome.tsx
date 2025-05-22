@@ -38,7 +38,7 @@ const mockData2 = [
 
 function ViewHome(props: ViewHomeProps): JSX.Element  {
   const { games, loading, error, fetchGames } = useGameStore();
-  const { setExpModal } = useExperienceStore();
+  const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
 
   useEffect(() => {
     fetchGames();
@@ -50,9 +50,20 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
     const displayGames = (games: GameDataItem[]): GameDataItem[] => {
         return games.map((game) => ({
             ...game,
-            id: game.gameId
+            id: game.gameId,
+            handleClick: () => handleGameSelect(game.gameId)
         }));
     }
+
+  const handleGameSelect = (gameId: number) => {
+    const selectedGame: GameDataItem | undefined = displayGames(games).find((game) => gameId === game.gameId);
+    if (selectedGame) {
+      setExpSelected({
+        game: selectedGame
+      });
+      setExpView("game");
+    }
+  }
 
   return (
     <div className="flex flex-row gap-4 overflow-hidden max-h-ful m-2">

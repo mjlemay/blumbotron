@@ -1,17 +1,18 @@
-import { ListItem } from "../lib/types";
+import { useShallow } from 'zustand/react/shallow'
+import { useGameStore } from "../stores/gamesStore";
+import { useExperienceStore } from "../stores/experienceStore";
 
-type ViewGameProps = {
-    selected: Record<string, ListItem>;
-}
-
-function ViewGame(props:ViewGameProps) {
-    const { selected } = props;
-    const name = selected?.name || "No game selected";
+function ViewGame() {
+    const { games } = useGameStore(useShallow((state) => ({ games: state.games })))
+    const { selected, setExpView } = useExperienceStore(useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView })));
+    const { game } = selected;
+    const selectedGame = games.find((gameItem) => gameItem.gameId === game.id as unknown as number);
+    const { name = '', id = '' } = selectedGame || {};
 
     return (
-      <>
-          <h2>Game: {name as unknown as string}</h2>
-      </>
+      <div key={`${id}-${name}`} onClick={() => setExpView("home")}>
+          <h2>Game: {name}</h2>
+      </div>
     );
 }
 

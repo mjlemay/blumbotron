@@ -1,12 +1,12 @@
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import { DisplayData } from "../lib/types";
+import { DataItem } from "../lib/types";
 
 
 type ListContainerProps ={
     children?: React.ReactNode;
     form?: React.ReactNode;
-    items?: DisplayData[];
-    listItem?: React.ComponentType<{ item: DisplayData, key: string }>;
+    items?: DataItem[];
+    listItem?: React.ComponentType<{ item: DataItem, key: string }>;
     title?: string;
     dialog?: React.ReactNode;
 }
@@ -14,17 +14,20 @@ type ListContainerProps ={
 function ListContainer(props: ListContainerProps): JSX.Element {
     const { dialog = null, items = [], listItem, title, children } = props;
 
-    const mapListData = (items: DisplayData[], ListItemComponent?: React.ComponentType<{ item: DisplayData, key: string }> | undefined) => {
+    const mapListData = (items: DataItem[], ListItemComponent?: React.ComponentType<{ item: DataItem, key: string }> | undefined) => {
         return items.map((item) => {
             if (ListItemComponent) {
-                return <ListItemComponent key={`item_${item.id}_${item.name}`} item={item} />;
+                return <ListItemComponent 
+                    key={`item_${item.id}_${item.name}`}
+                    item={item}
+                />;
             } else {
                 return (
                     <div key={`${item.id}_${item.name}`} className="flex flex-col items-start justify-start bg-slate-700 rounded-lg shadow-lg p-4 m-2">
                         <h3 className="text-xl font-bold">{item.name}</h3>
                         <p>{item.description}</p>
-                        <p>Date Created: {item.createdAt}</p>
-                        <p>Last Updated: {item.updatedAt}</p>
+                        <p>Date Created: {item.created_at}</p>
+                        <p>Last Updated: {item.updated_at}</p>
                     </div>
                 );
             }
