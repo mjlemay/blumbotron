@@ -51,7 +51,7 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
         return games.map((game) => ({
             ...game,
             id: game.gameId,
-            handleClick: () => handleGameSelect(game.gameId)
+            handleClick: () => handleGameSelect(game.gameId as unknown as number)
         }));
     }
 

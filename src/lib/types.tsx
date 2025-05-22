@@ -9,7 +9,7 @@ export type DataItem = {
 }
 
 export type GameDataItem = DataItem & {
-    gameId: number;
+    gameId?: number;
     roster?: number | null;
     meta?: string | null;
 };
