@@ -3,6 +3,7 @@ import {
     QuestionMarkCircledIcon,
     PlusCircledIcon,
     MinusCircledIcon,
+    HamburgerMenuIcon,
 } from "@radix-ui/react-icons";
 
 interface UiButtonProps {
@@ -31,6 +32,9 @@ function UiButton(props: UiButtonProps): JSX.Element {
                 break;
             case "remove":
                 icon = <MinusCircledIcon width="40" height="40" />;
+                break;
+            case "menu":
+                icon = <HamburgerMenuIcon width="40" height="40" />;
                 break;
             default:
                 icon = <QuestionMarkCircledIcon width="40" height="40" />;

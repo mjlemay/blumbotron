@@ -22,7 +22,7 @@ export const useExperienceStore = create<ExperienceStore>((set) => ({
     setExpModal: (modal: string) => set((state) => ({ 
         experience: { ...state.experience, modal } 
     })),
-    setExpSelected: (selected: Record<string, ListItem>) => set((state) => ({ 
+    setExpSelected: (selected: Record<string, GameDataItem | ListItem>) => set((state) => ({ 
         experience: { ...state.experience, selected } 
     })),
 }));

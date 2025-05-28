@@ -28,5 +28,5 @@ export type ListItem = {
 export type Experience = {
     view: string;
     modal: string;
-    selected: Record<string, ListItem>;
+    selected: Record<string, ListItem | GameDataItem> | null;
 }
