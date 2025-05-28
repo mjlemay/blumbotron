@@ -4,15 +4,19 @@ import Input from "./input";
 import { z } from 'zod';
 import { useGameStore } from "../stores/gamesStore";
 import { GameDataItem } from "../lib/types";
+import { getSelectedGame } from "../lib/selectedStates";
+import { TrashIcon, PlusCircledIcon, Pencil1Icon, PlusIcon } from "@radix-ui/react-icons";
+import * as Menubar from "@radix-ui/react-menubar";
+
 
 type FormGameProps = {
-    gameId?: number;
     action?: string;
 }
 
 function FormGame(props: FormGameProps) {
-    const { gameId = 0, action = "new" } = props;
-    const { createGame, loading, error } = useGameStore();
+    const { action = "new" } = props;
+    const { createGame, editGame, deleteGame, loading, error } = useGameStore();
+    const game = getSelectedGame();
     const [form, setForm] = useState({
         gameId: 0,
         name: '',
@@ -39,28 +43,78 @@ function FormGame(props: FormGameProps) {
         return errors[field as keyof typeof errors] || '';
     }
 
-    const createNewGame = (formData:GameDataItem) => {
-        const formSchema = z.object({
+    const deleteSelectedGame = (formData:GameDataItem) => {
+      const gameName = game?.name || 'DELETE ME ANYWAY';
+      const formSchema = z.object({
+        name: z.literal(gameName),
+      });
+      try {
+        formSchema.parse(formData);
+        game && deleteGame(game);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          let newErrs:Record<string, string> = {};
+          err.errors.map(errItem => {
+            const { path, message } = errItem;
+            const key = path[0];
+            newErrs[`${key}`] = message;
+          })
+          setErrors(newErrs);
+        }
+      }
+    }
+
+  
+    const createNewGame = (formData:GameDataItem, edit:boolean = false) => {
+      let formSchema = z.object({
+        name: z.string().min(3, 'Please supply a game name.'),
+        description: z.string(),
+      });
+      if (edit) {
+        formSchema = z.object({
           name: z.string().min(3, 'Please supply a game name.'),
           description: z.string(),
         });
-        try {
-          formSchema.parse(formData);
+      }
+      try {
+        formSchema.parse(formData);
+        if (edit) {
+          game && editGame(game, form);
+        } else {
           createGame(form);
-        } catch (err) {
-          if (err instanceof z.ZodError) {
-            let newErrs:Record<string, string> = {};
-            err.errors.map(errItem => {
-              const { path, message } = errItem;
-              const key = path[0];
-              newErrs[`${key}`] = message;
-            })
-            setErrors(newErrs);
-          }
+        }
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          let newErrs:Record<string, string> = {};
+          err.errors.map(errItem => {
+            const { path, message } = errItem;
+            const key = path[0];
+            newErrs[`${key}`] = message;
+          })
+          setErrors(newErrs);
         }
       }
+    }
 
-    const formContent = (
+    const formContent = (action:string) => {
+      let content = <></>;
+      switch (action) {
+        case "delete":
+          content = (
+            <div className="w-full pr-4 pl-4">
+              <Input 
+              label='Type the name of the game to confirm deletion'
+              name='name' value={form.name || ''}
+              changeHandler={handleFormChange}
+              errMsg={getError('name')} 
+          />
+        </div>
+        );
+      break;
+      case "new":
+      case "edit":
+      default:
+        content = (
         <div className="w-full pr-4 pl-4">
             <Input 
                 name='gameId'
@@ -81,17 +135,74 @@ function FormGame(props: FormGameProps) {
                 errMsg={getError('description')}
             />
         </div>
-    );
+        );
+        break;
+    }
+    return content;
+  }
+
+  const submitBar = (action:string) => {
+    let bar = <></>;
+    switch (action) {
+      case "delete":
+        bar = (
+          <Menubar.Trigger 
+          className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+          onClick={() => {deleteSelectedGame(form)}}
+          >
+              <TrashIcon 
+                width="20"
+                height="20"
+              /> <span>Confirm</span>
+          </Menubar.Trigger>
+      );
+    break;
+    case "edit":
+      bar = (
+        <Menubar.Trigger 
+        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+        onClick={() => {createNewGame(form, true)}}
+        >
+            <Pencil1Icon 
+              width="20"
+              height="20"
+            /> <span>Edit</span>
+        </Menubar.Trigger>
+      );
+    break;
+    case "new":
+    default:
+      bar = 
+        <Menubar.Trigger 
+        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+        onClick={() => {createNewGame(form)}}
+        >
+            <PlusCircledIcon 
+              width="20"
+              height="20"
+            /> <span>Lets' Go!</span>
+        </Menubar.Trigger>
+      ;
+      break;
+  }
+  return (
+    <Menubar.Root className="flex rounded-md p-2">
+      <Menubar.Menu>
+       {bar}
+      </Menubar.Menu>
+    </Menubar.Root>
+  );
+}
 
     return (
       <DialogContainer 
         title={formTitle[action as keyof typeof formTitle]}
-        key={`${action}_${gameId}`}
-        content={formContent}
+        key={`${action}_${game?.id || 0}`}
+        content={formContent(action)}
         >
             {loading && (<div>Loading...</div>)}
             {error && (<div>Error: {error}</div>)}
-            {!loading && ! error && action === "new" && (<button onClick={() => createNewGame(form)}>Create</button>)}
+            {!loading && ! error && submitBar(action)}
       </DialogContainer>
     );
   }

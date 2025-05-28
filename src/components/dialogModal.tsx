@@ -19,11 +19,11 @@ function DialogModal({  triggerText, selectedModal, isOpen = false }: DialogModa
     const dialogContent = (selectedModal:string) => {
         const content = {
             "newGame": <FormGame />,
-            "editGame": <FormGame gameId={0} />,
-            "deleteGame": <FormGame gameId={0} action="delete" />,
+            "editGame": <FormGame action="edit" />,
+            "deleteGame": <FormGame action="delete" />,
             "newRoster": <FormRoster />,
-            "editRoster": <FormRoster rosterId={0} />,
-            "deleteRoster": <FormRoster rosterId={0} action="delete" />,
+            "editRoster": <FormRoster action="edit" />,
+            "deleteRoster": <FormRoster  action="delete" />,
         }
         return content[selectedModal as keyof typeof content] || null;
     }

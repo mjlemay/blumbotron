@@ -44,6 +44,32 @@ export const useGameStore = create<GameStore>((set) => ({
     } finally {
       set({ loading: false });
     }
-  }
+  },
+  deleteGame: async (game: GameDataItem) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await gameData.deleteGame(game);
+      console.log('Delete result:', result);
+    } catch (error) {
+      console.error('Failed to delete game:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete game';
+      set({ error: errorMessage });
+    } finally {
+      set({ loading: false });
+    }
+  },
+  editGame: async (form: GameDataItem) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await gameData.updateGame(form);
+      console.log('Edit result:', result);
+    } catch (error) {
+      console.error('Failed to edit game:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to edit game';
+      set({ error: errorMessage });
+    } finally {
+      set({ loading: false });
+    }
+  } 
 
 }));

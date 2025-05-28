@@ -17,8 +17,12 @@ interface HeaderProps {
 
 function Header(props: HeaderProps): JSX.Element {
     const { children } = props;
-    const { setExpView, setExpSelected } = useExperienceStore(
-      useShallow((state) => ({ setExpView: state.setExpView, setExpSelected: state.setExpSelected })));
+    const { setExpView, setExpSelected, setExpModal } = useExperienceStore(
+      useShallow((state) => ({ 
+        setExpView: state.setExpView,
+        setExpSelected: state.setExpSelected,
+        setExpModal: state.setExpModal
+      })));
     const game:GameDataItem | null = getSelectedGame() || null;
     const name = game?.name;
 
@@ -46,16 +50,22 @@ function Header(props: HeaderProps): JSX.Element {
                         </Menubar.Trigger>
                         <Menubar.Portal>
                           <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
-                            <Menubar.Item className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1">
+                            <Menubar.Item 
+                              className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                              onClick={() => setExpModal("editGame")}
+                            >
                               <div className="flex flex-row gap-2 items-center"><Pencil1Icon width="20" height="20" /> Edit</div>
                             </Menubar.Item>
-                            <Menubar.Item className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1">
+                            <Menubar.Item 
+                              className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                              onClick={() => setExpModal("deleteGame")}
+                            >
                               <div className="flex flex-row gap-2 items-center"><TrashIcon width="20" height="20" /> Delete</div>
                             </Menubar.Item>
                           </Menubar.Content>
                         </Menubar.Portal>
                     </Menubar.Menu>
-            </Menubar.Root>
+                  </Menubar.Root>
                 <Separator className="w-[1px] h-10 bg-slate-500" orientation="vertical" decorative />
                 <UiButton uiIcon="back" clickHandler={() => handleBack()} />
               </div>
