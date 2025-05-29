@@ -3,19 +3,21 @@ import DialogContainer from "./dialogContainer";
 import Input from "./input";
 import { z } from 'zod';
 import { useGameStore } from "../stores/gamesStore";
+import { useExperienceStore } from "../stores/experienceStore";
 import { GameDataItem } from "../lib/types";
 import { getSelectedGame } from "../lib/selectedStates";
-import { TrashIcon, PlusCircledIcon, Pencil1Icon, PlusIcon } from "@radix-ui/react-icons";
+import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
-
 
 type FormGameProps = {
     action?: string;
+    onSuccess?: () => void;
 }
 
 function FormGame(props: FormGameProps) {
-    const { action = "new" } = props;
+    const { action = "new", onSuccess } = props;
     const { createGame, editGame, deleteGame, loading, error } = useGameStore();
+    const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
     const game = getSelectedGame();
     const [form, setForm] = useState({
         gameId: 0,
@@ -33,24 +35,41 @@ function FormGame(props: FormGameProps) {
         setForm(clonedForm);
     }
 
+    const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
+      const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.gameId} : { name: '' };
+      console.log('displayGameData', displayGameData);
+      setExpView(view);
+      setExpModal(modal);
+      setExpSelected(gameData ? { game: displayGameData } : {});
+      onSuccess?.();
+    }
+
     const formTitle = {
-        "new": "Create Game",
-        "edit": "Edit Game",
-        "delete": "Delete Game"
+      "new": "Create Game",
+      "edit": "Edit Game",
+      "delete": "Delete Game"
     }
 
     const getError = (field: string) => {
         return errors[field as keyof typeof errors] || '';
     }
 
-    const deleteSelectedGame = (formData:GameDataItem) => {
+    const deleteSelectedGame = async (formData:GameDataItem) => {
       const gameName = game?.name || 'DELETE ME ANYWAY';
       const formSchema = z.object({
         name: z.literal(gameName),
       });
       try {
         formSchema.parse(formData);
-        game && deleteGame(game);
+        if (game) {
+          await deleteGame(game);
+          // If we get here and there's no error in the store, deletion was successful
+          if (!error) {
+            handleSubmitClose();
+            return true;
+          }
+          throw new Error(error || 'Failed to delete game');
+        }
       } catch (err) {
         if (err instanceof z.ZodError) {
           let newErrs:Record<string, string> = {};
@@ -60,12 +79,16 @@ function FormGame(props: FormGameProps) {
             newErrs[`${key}`] = message;
           })
           setErrors(newErrs);
+        } else {
+          // Handle other errors (like deletion failure)
+          setErrors({ name: err instanceof Error ? err.message : 'Failed to delete game' });
         }
+        return false;
       }
     }
 
   
-    const createNewGame = (formData:GameDataItem, edit:boolean = false) => {
+    const createNewGame = async (formData:GameDataItem, edit:boolean = false) => {
       let formSchema = z.object({
         name: z.string().min(3, 'Please supply a game name.'),
         description: z.string(),
@@ -79,9 +102,24 @@ function FormGame(props: FormGameProps) {
       try {
         formSchema.parse(formData);
         if (edit) {
-          game && editGame(game, form);
+          if (game) {
+            await editGame(formData);
+            // If we get here and there's no error in the store, edit was successful
+            if (!error) {
+              handleSubmitClose("game", "none", formData);
+              return true;
+            }
+            throw new Error(error || 'Failed to edit game');
+          }
         } else {
-          createGame(form);
+          const createdGame = await createGame(formData);
+          // If we get here and there's no error in the store, creation was successful
+          if (!error) {
+            console.log('SET TO THIS GAME', createdGame);
+            handleSubmitClose("game", "none", createdGame);
+            return true;
+          }
+          throw new Error(error || 'Failed to create game');
         }
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -92,7 +130,11 @@ function FormGame(props: FormGameProps) {
             newErrs[`${key}`] = message;
           })
           setErrors(newErrs);
+        } else {
+          // Handle other errors (like creation/editing failure)
+          setErrors({ name: err instanceof Error ? err.message : 'Failed to process game' });
         }
+        return false;
       }
     }
 

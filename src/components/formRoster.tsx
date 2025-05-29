@@ -3,6 +3,7 @@ import DialogContainer from "./dialogContainer";
 type FormRosterProps = {
     rosterId?: number;
     action?: string;
+    onSuccess?: () => void;
 }
 
 function FormRoster(props: FormRosterProps) {

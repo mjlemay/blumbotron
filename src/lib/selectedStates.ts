@@ -9,3 +9,10 @@ export const getSelectedGame = () => {
     const selectedGame = games.find((gameItem) => gameItem.gameId === game?.id);
     return selectedGame || null;
 }
+
+export const returnToHome = () => {
+    const { setExpView, setExpModal, setExpSelected } = useExperienceStore(useShallow((state) => ({ setExpView: state.setExpView, setExpModal: state.setExpModal, setExpSelected: state.setExpSelected })));
+    setExpView("home");
+    setExpModal("none");
+    setExpSelected({});
+}

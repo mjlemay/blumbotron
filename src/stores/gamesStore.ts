@@ -7,7 +7,9 @@ type GameStore = {
   loading: boolean;
   error: string | null;
   fetchGames: () => Promise<void>;
-  createGame: (game: GameDataItem) => Promise<void>;
+  createGame: (game: GameDataItem) => Promise<GameDataItem>;
+  editGame: (game: GameDataItem) => Promise<void>;
+  deleteGame: (game: GameDataItem) => Promise<void>;
 };
 
 const MAGIC_LIMIT = 1000;
@@ -36,11 +38,12 @@ export const useGameStore = create<GameStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const result = await gameData.addGame(game);
-      console.log('Create result:', result);
+      return result as GameDataItem;
     } catch (error) {
       console.error('Failed to create game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create game';
       set({ error: errorMessage });
+      throw error;
     } finally {
       set({ loading: false });
     }

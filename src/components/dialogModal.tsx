@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import FormGame from "./formGame";
 import FormRoster from "./formRoster"
+import { refreshData } from "../lib/fetchCalls";
 import { useExperienceStore } from "../stores/experienceStore";
 
 type DialogModalProps = {
@@ -19,17 +20,18 @@ function DialogModal({  triggerText, selectedModal, isOpen = false }: DialogModa
     const dialogContent = (selectedModal:string) => {
         const content = {
             "newGame": <FormGame />,
-            "editGame": <FormGame action="edit" />,
-            "deleteGame": <FormGame action="delete" />,
-            "newRoster": <FormRoster />,
-            "editRoster": <FormRoster action="edit" />,
-            "deleteRoster": <FormRoster  action="delete" />,
+            "editGame": <FormGame action="edit" onSuccess={refreshData} />,
+            "deleteGame": <FormGame action="delete" onSuccess={refreshData} />,
+            "newRoster": <FormRoster onSuccess={refreshData} />,
+            "editRoster": <FormRoster action="edit" onSuccess={refreshData} />,
+            "deleteRoster": <FormRoster  action="delete" onSuccess={refreshData} />,
         }
         return content[selectedModal as keyof typeof content] || null;
     }
     const handleOpenChange = (open: boolean) => {
         if (!open) {
             setExpModal("none");
+            refreshData();
         }
     }
 

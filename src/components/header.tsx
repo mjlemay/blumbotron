@@ -65,7 +65,7 @@ function Header(props: HeaderProps): JSX.Element {
                           </Menubar.Content>
                         </Menubar.Portal>
                     </Menubar.Menu>
-                  </Menubar.Root>
+                </Menubar.Root>
                 <Separator className="w-[1px] h-10 bg-slate-500" orientation="vertical" decorative />
                 <UiButton uiIcon="back" clickHandler={() => handleBack()} />
               </div>

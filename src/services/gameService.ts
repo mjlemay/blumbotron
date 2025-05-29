@@ -1,5 +1,5 @@
 import { db } from './sqLiteService';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { games } from '../lib/dbSchema';
 import { GameDataItem } from '../lib/types';
 
@@ -11,7 +11,11 @@ const addGame = async (game:GameDataItem) => {
         roster,
         meta: JSON.stringify({ "category":"table", "units":["score"] }),
     };
-    return await db.insert(games).values(values);
+    const result = await db.transaction(async (tx) => {
+        await tx.insert(games).values(values);
+        return await tx.select().from(games).orderBy(sql`gameId DESC`).limit(1);
+    });
+    return result[0];
 }
 
 const getGame = async (gameId:number) => {
@@ -32,7 +36,7 @@ const getGames = async (limit:number) => {
 }
 
 const updateGame = async (game:GameDataItem) => {
-    const { gameId } = game;
+    const { gameId = -1 } = game;
     return await db.update(games)
         .set(game)
         .where(eq(games.gameId, gameId))
@@ -40,7 +44,7 @@ const updateGame = async (game:GameDataItem) => {
 }
 
 const deleteGame = async (game:GameDataItem) => {
-    const { gameId } = game;
+    const { gameId = -1 } = game;
     return await db.delete(games)
         .where(eq(games.gameId, gameId))
         .returning();
