@@ -3,6 +3,7 @@ import ViewHome from "./viewHome";
 import ViewForm from "./viewForm";
 import ViewGame from "./viewGame";
 import Header from "./header";
+import Sidebar from "./sidebar";
 import DialogModal from "./dialogModal";
 
 function MainViewer() {
@@ -35,8 +36,13 @@ function MainViewer() {
   return (
     <main className="flex flex-col min-h-screen bg-slate-800">
       <Header />
-      <div className="flex-1 flex items-center h-[calc(100vh-80px)] justify-center">
-        {showView(view)}
+      <div className="flex flex-row">
+        <div className="flex-0 min-w-[80px]">
+          <Sidebar />
+        </div>
+        <div className="flex-1 flex items-center h-[calc(100vh-80px)] w-[calc(100vw-80px)] justify-center">
+          {showView(view)}
+        </div>
       </div>
       <DialogModal selectedModal={modal} isOpen={modal !== "none"} />
     </main>

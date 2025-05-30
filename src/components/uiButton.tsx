@@ -4,6 +4,10 @@ import {
     PlusCircledIcon,
     MinusCircledIcon,
     HamburgerMenuIcon,
+    TableIcon,
+    PersonIcon,
+    MixIcon,
+    BookmarkIcon,
 } from "@radix-ui/react-icons";
 
 interface UiButtonProps {
@@ -36,6 +40,18 @@ function UiButton(props: UiButtonProps): JSX.Element {
             case "menu":
                 icon = <HamburgerMenuIcon width="40" height="40" />;
                 break;
+            case "table":
+                icon = <TableIcon width="40" height="40" />;
+                break;
+            case "game":
+                icon = <MixIcon width="40" height="40" />;
+                break;
+            case "person":
+                icon = <PersonIcon width="40" height="40" />;
+                break;
+            case "roster":
+                icon = <BookmarkIcon width="40" height="40" />;
+                break;
             default:
                 icon = <QuestionMarkCircledIcon width="40" height="40" />;
                 break;
@@ -46,7 +62,7 @@ function UiButton(props: UiButtonProps): JSX.Element {
 
     return (
       <button onClick={() => handleClick()}
-        className="flex items-center justify-center min-w-[40px] min-h-[40px] rounded-full bg-slate-900 hover:bg-slate-800 active:bg-slate-700 focus:outline-none transition duration-200 ease-in-out cursor-pointer"
+        className="flex items-center justify-center min-w-[40px] min-h-[40px] rounded-full p-2 bg-slate-900 hover:bg-blue-500/20 active:bg-slate-700 focus:outline-none transition duration-200 ease-in-out cursor-pointer"
       >
          {setIcon(uiIcon)}
       </button>

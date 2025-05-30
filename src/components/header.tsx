@@ -1,7 +1,5 @@
 import UiButton from "./uiButton";
 import { useShallow } from 'zustand/react/shallow'
-import { getSelectedGame } from "../lib/selectedStates";
-import { GameDataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 import { Separator } from "@radix-ui/react-separator";
 import * as Menubar from "@radix-ui/react-menubar";
