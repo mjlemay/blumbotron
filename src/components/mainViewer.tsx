@@ -1,16 +1,15 @@
 import { useExperienceStore } from "../stores/experienceStore";
 import ViewHome from "./viewHome";
-import ViewForm from "./viewForm";
+import ViewPlayers from "./viewPlayers";
 import ViewGame from "./viewGame";
 import Header from "./header";
 import Sidebar from "./sidebar";
 import DialogModal from "./dialogModal";
+import ViewRosters from "./viewRosters";
 
 function MainViewer() {
   const { experience, loading, error } = useExperienceStore();
-  const { view, modal, selected } = experience;
-
-  console.log('modal', modal);
+  const { view, modal } = experience;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -21,8 +20,11 @@ function MainViewer() {
       case "home":
         selectedView = <ViewHome />;
         break;
-      case "form":
-        selectedView = <ViewForm />;
+      case "players":
+        selectedView = <ViewPlayers />;
+        break;
+      case "rosters":
+        selectedView = <ViewRosters />;
         break;
       case "game":
         selectedView = <ViewGame />;

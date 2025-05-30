@@ -4,8 +4,8 @@ CREATE TABLE `games` (
 	`description` text,
 	`data` text,
 	`roster` integer,
-	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
-	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
+	`created_at` text DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE TABLE `players` (

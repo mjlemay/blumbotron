@@ -7,7 +7,7 @@ import DisplayListItem from "./displayListItem";
 import { GameDataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 
-function ViewHome(): JSX.Element  {
+function ViewPlayers(): JSX.Element  {
   const { games, loading, error, fetchGames } = useGameStore();
   const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
 
@@ -38,10 +38,9 @@ function ViewHome(): JSX.Element  {
 
   return (
     <div className="m-2">
-        <ListContainer
-            items={displayGames(games)}
+        <ListContainer items={displayGames(games)}
             listItem={DisplayListItem}
-            title="Game Tables & Displays"
+            title="Players"
         >
              <Menubar.Root className="flex rounded-md p-2 m-2">
                     <Menubar.Menu>
@@ -52,7 +51,7 @@ function ViewHome(): JSX.Element  {
                             <PlusCircledIcon 
                               width="20"
                               height="20"
-                            /> <span>Create New Game</span>
+                            /> <span>Create New Player</span>
                         </Menubar.Trigger>
                     </Menubar.Menu>
             </Menubar.Root>
@@ -61,4 +60,4 @@ function ViewHome(): JSX.Element  {
   );
 }
 
-export default ViewHome;
+export default ViewPlayers;

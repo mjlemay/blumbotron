@@ -36,7 +36,7 @@ const mockData2 = [
         updatedAt: "2023-01-02",}
 ];
 
-function ViewHome(props: ViewHomeProps): JSX.Element  {
+function ViewRosters(props: ViewHomeProps): JSX.Element  {
   const { games, loading, error, fetchGames } = useGameStore();
   const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
 
@@ -109,4 +109,4 @@ function ViewHome(props: ViewHomeProps): JSX.Element  {
   );
 }
 
-export default ViewHome;
+export default ViewRosters;

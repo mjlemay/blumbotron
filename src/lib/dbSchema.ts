@@ -5,7 +5,7 @@ export const games = sqliteTable('games', {
     gameId: integer('gameId').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
     description: text('description'),
-    meta: text('meta'),
+    data: text('data'),
     roster: integer('roster'),
     created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
     updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`)

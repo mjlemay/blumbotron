@@ -32,17 +32,19 @@ const getRosters = async (limit:number) => {
 
 const updateRoster = async (roster:RosterDataItem) => {
     const { rosterId } = roster;
-    return await db.update(rosters)
-        .set(roster)
-        .where(eq(rosters.rosterId, rosterId))
-        .returning();
+    // return await db.update(rosters)
+    //     .set(roster)
+    //     .where(eq(rosters.rosterId, rosterId))
+    //     .returning();
+    return {rosterId};
 }
 
 const deleteRoster = async (roster:RosterDataItem) => {
     const { rosterId } = roster;
-    return await db.delete(rosters)
-        .where(eq(rosters.rosterId, rosterId))
-        .returning();
+    // return await db.delete(rosters)
+    //     .where(eq(rosters.rosterId, rosterId))
+    //     .returning();
+    return {rosterId};
 }
 
 const rosterData = { 

@@ -11,12 +11,12 @@ export type DataItem = {
 export type GameDataItem = DataItem & {
     gameId?: number;
     roster?: number | null;
-    meta?: string | null;
+    data?: string | null;
 };
 
 export type RosterDataItem = DataItem & {
-    rosterId: number;
-    data: string;
+    rosterId?: number;
+    data?: string;
 };
 
 export type ListItem = {

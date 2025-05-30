@@ -9,7 +9,7 @@ const addGame = async (game:GameDataItem) => {
         name,
         description,
         roster,
-        meta: JSON.stringify({ "category":"table", "units":["score"] }),
+        data: JSON.stringify({ "category":"table", "units":["score"] }),
     };
     const result = await db.transaction(async (tx) => {
         await tx.insert(games).values(values);
