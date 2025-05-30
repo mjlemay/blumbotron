@@ -3,6 +3,11 @@
 
 This is an app to allow folks to easily create high score tables for their immersive events.
 
+## DB Storage
+ - macOS: ~/Library/Application Support/btron/database.sqlite
+ - Windows: %APPDATA%\btron\database.sqlite
+ - Linux: ~/.local/share/btron/database.sqlite
+
 ## Road Map
 
 0.1 Player Rosters and Basic Tables
