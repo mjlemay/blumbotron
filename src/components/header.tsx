@@ -17,14 +17,15 @@ interface HeaderProps {
 
 function Header(props: HeaderProps): JSX.Element {
     const { children } = props;
-    const { setExpView, setExpSelected, setExpModal } = useExperienceStore(
+    const { setExpView, setExpSelected, setExpModal, selected } = useExperienceStore(
       useShallow((state) => ({ 
         setExpView: state.setExpView,
         setExpSelected: state.setExpSelected,
-        setExpModal: state.setExpModal
+        setExpModal: state.setExpModal,
+        selected: state.experience.selected
       })));
-    const game:GameDataItem | null = getSelectedGame() || null;
-    const name = game?.name;
+      const selectedGame = selected?.game || null;
+      const name = selectedGame?.name || "BLUMBOTRON • High Scores Made Easy!";
 
     const handleBack = () => {
         setExpView("home");
@@ -33,9 +34,9 @@ function Header(props: HeaderProps): JSX.Element {
 
     return (
     <div className="min-h-[80px] min-w-full items-center flex flex-row bg-slate-900 gap-4 px-4">
-        <div className=" flex-grow text-2xl font-bold">{name || "BLUMBOTRON • High Scores Made Easy!" }</div>
+        <div className=" flex-grow text-2xl font-bold">{name}</div>
         {children}
-            {game && (
+            {selectedGame && (
               <div className="flex-initial flex flex-row gap-4 items-center">
                   <Menubar.Root className="flex rounded-md p-2">
                     <Menubar.Menu>

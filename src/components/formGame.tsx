@@ -8,6 +8,7 @@ import { GameDataItem } from "../lib/types";
 import { getSelectedGame } from "../lib/selectedStates";
 import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
+import { defaultGame } from "../lib/defaults";
 
 type FormGameProps = {
     action?: string;
@@ -19,11 +20,8 @@ function FormGame(props: FormGameProps) {
     const { createGame, editGame, deleteGame, loading, error } = useGameStore();
     const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
     const game = getSelectedGame();
-    const [form, setForm] = useState({
-        gameId: 0,
-        name: '',
-        description: ''
-    });
+    
+    const [form, setForm] = useState(game || defaultGame);
     const [ errors, setErrors ] = useState({});
 
     const handleFormChange = (Event:React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +35,6 @@ function FormGame(props: FormGameProps) {
 
     const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
       const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.gameId} : { name: '' };
-      console.log('displayGameData', displayGameData);
       setExpView(view);
       setExpModal(modal);
       setExpSelected(gameData ? { game: displayGameData } : {});
