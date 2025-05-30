@@ -15,7 +15,19 @@ fn get_db_path(app: &App) -> PathBuf {
 
 fn run_migrations(db_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
     let conn = rusqlite::Connection::open(db_path)?;
-    conn.execute_batch(MIGRATION_SQL)?;
+    
+    // Check if the games table exists
+    let table_exists: bool = conn.query_row(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='games'",
+        [],
+        |_| Ok(true)
+    ).unwrap_or(false);
+
+    // Only run migrations if the table doesn't exist
+    if !table_exists {
+        conn.execute_batch(MIGRATION_SQL)?;
+    }
+    
     Ok(())
 }
 
