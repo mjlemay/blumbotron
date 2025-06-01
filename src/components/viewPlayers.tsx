@@ -1,44 +1,44 @@
 import ListContainer from "./listContainer";
 import { useEffect } from "react";
-import { useGameStore } from "../stores/gamesStore";
+import { usePlayerStore } from "../stores/playersStore";
 import * as Menubar from "@radix-ui/react-menubar";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
-import { GameDataItem } from "../lib/types";
+import { PlayerDataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 
 function ViewPlayers(): JSX.Element  {
-  const { games, loading, error, fetchGames } = useGameStore();
+  const { players, loading, error, fetchPlayers } = usePlayerStore();
   const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
 
   useEffect(() => {
-    fetchGames();
+    fetchPlayers();
   }, []);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     
-    const displayGames = (games: GameDataItem[]): GameDataItem[] => {
-        return games.map((game) => ({
-            ...game,
-            id: game.gameId,
-            handleClick: () => handleGameSelect(game.gameId as unknown as number)
+    const displayPlayers = (players: PlayerDataItem[]): PlayerDataItem[] => {
+        return players.map((player) => ({
+            ...player,
+            id: player.playerId,
+            handleClick: () => handlePlayerSelect(player.playerId as unknown as number)
         }));
     }
 
-  const handleGameSelect = (gameId: number) => {
-    const selectedGame: GameDataItem | undefined = displayGames(games).find((game) => gameId === game.gameId);
-    if (selectedGame) {
+  const handlePlayerSelect = (playerId: number) => {
+    const selectedPlayer: PlayerDataItem | undefined = displayPlayers(players).find((player) => playerId === player.playerId);
+    if (selectedPlayer) {
       setExpSelected({
-        game: selectedGame
+        player: selectedPlayer
       });
-      setExpView("game");
+      setExpView("player");
     }
   }
 
   return (
     <div className="m-2">
-        <ListContainer items={displayGames(games)}
+        <ListContainer items={displayPlayers(players)}
             listItem={DisplayListItem}
             title="Players"
         >
@@ -46,7 +46,7 @@ function ViewPlayers(): JSX.Element  {
                     <Menubar.Menu>
                         <Menubar.Trigger 
                         className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 gap-1.5 text-lg m-1 font-medium bg-sky-700"
-                        onClick={() => setExpModal("newGame")}
+                        onClick={() => setExpModal("newPlayer")}
                         >
                             <PlusCircledIcon 
                               width="20"

@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useExperienceStore } from "../stores/experienceStore";
 import { Separator } from "@radix-ui/react-separator";
 import * as Menubar from "@radix-ui/react-menubar";
+import { SelectedItem, GameDataItem } from "../lib/types";
 import { 
   HamburgerMenuIcon,
   Pencil1Icon,
@@ -11,6 +12,17 @@ import {
 
 interface HeaderProps {
   children?: React.ReactNode;
+}
+
+const selectedItemModals = {
+  game: {
+    edit: "editGame",
+    delete: "deleteGame"
+  },
+  player: {
+    edit: "editPlayer",
+    delete: "deletePlayer"
+  }
 }
 
 function Header(props: HeaderProps): JSX.Element {
@@ -22,8 +34,14 @@ function Header(props: HeaderProps): JSX.Element {
         setExpModal: state.setExpModal,
         selected: state.experience.selected
       })));
-      const selectedGame = selected?.game || null;
-      const name = selectedGame?.name || "BLUMBOTRON • High Scores Made Easy!";
+      const selectedItem:SelectedItem | null = selected?.game || selected?.player || null;
+      const name = selectedItem?.name || "BLUMBOTRON • High Scores Made Easy!";
+      
+      const isGameDataItem = (item: SelectedItem | null): item is GameDataItem => {
+        return item !== null && 'gameId' in item;
+      };
+      
+      const selectedType = isGameDataItem(selectedItem) ? "game" : "player";
 
     const handleBack = () => {
         setExpView("home");
@@ -34,7 +52,7 @@ function Header(props: HeaderProps): JSX.Element {
     <div className="min-h-[80px] min-w-full items-center flex flex-row bg-slate-900 gap-4 px-4">
         <div className=" flex-grow text-2xl font-bold">{name}</div>
         {children}
-            {selectedGame && (
+            {selectedItem && (
               <div className="flex-initial flex flex-row gap-4 items-center">
                   <Menubar.Root className="flex rounded-md p-2">
                     <Menubar.Menu>
@@ -51,13 +69,13 @@ function Header(props: HeaderProps): JSX.Element {
                           <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
                             <Menubar.Item 
                               className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
-                              onClick={() => setExpModal("editGame")}
+                              onClick={() => setExpModal(selectedItemModals[selectedType].edit)}
                             >
                               <div className="flex flex-row gap-2 items-center"><Pencil1Icon width="20" height="20" /> Edit</div>
                             </Menubar.Item>
                             <Menubar.Item 
                               className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
-                              onClick={() => setExpModal("deleteGame")}
+                              onClick={() => setExpModal(selectedItemModals[selectedType].delete)}
                             >
                               <div className="flex flex-row gap-2 items-center"><TrashIcon width="20" height="20" /> Delete</div>
                             </Menubar.Item>

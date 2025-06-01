@@ -14,10 +14,17 @@ export type GameDataItem = DataItem & {
     data?: string | null;
 };
 
+export type PlayerDataItem = DataItem & {
+    playerId?: number;
+    data?: string | null;
+};
+
 export type RosterDataItem = DataItem & {
     rosterId?: number;
     data?: string;
 };
+
+export type SelectedItem = ListItem | GameDataItem | PlayerDataItem | RosterDataItem;
 
 export type ListItem = {
     id: string;

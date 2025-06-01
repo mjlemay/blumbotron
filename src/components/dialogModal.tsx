@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import FormGame from "./formGame";
 import FormRoster from "./formRoster"
+import FormPlayer from "./formPlayer"
 import { refreshData } from "../lib/fetchCalls";
 import { useExperienceStore } from "../stores/experienceStore";
 
@@ -22,6 +23,9 @@ function DialogModal({  triggerText, selectedModal, isOpen = false }: DialogModa
             "newGame": <FormGame />,
             "editGame": <FormGame action="edit" onSuccess={refreshData} />,
             "deleteGame": <FormGame action="delete" onSuccess={refreshData} />,
+            "newPlayer": <FormPlayer onSuccess={refreshData} />,
+            "editPlayer": <FormPlayer action="edit" onSuccess={refreshData} />,
+            "deletePlayer": <FormPlayer  action="delete" onSuccess={refreshData} />,
             "newRoster": <FormRoster onSuccess={refreshData} />,
             "editRoster": <FormRoster action="edit" onSuccess={refreshData} />,
             "deleteRoster": <FormRoster  action="delete" onSuccess={refreshData} />,

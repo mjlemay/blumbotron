@@ -22,9 +22,7 @@ export const useGameStore = create<GameStore>((set) => ({
   fetchGames: async () => {
     set({ loading: true, error: null });
     try {
-      console.log('Fetching games...');
       const result = await gameData.getGames(MAGIC_LIMIT);
-      console.log('Fetch result:', result);
       set({ games: result as GameDataItem[], error: null });
     } catch (error) {
       console.error('Failed to fetch games:', error);
@@ -51,8 +49,7 @@ export const useGameStore = create<GameStore>((set) => ({
   deleteGame: async (game: GameDataItem) => {
     set({ loading: true, error: null });
     try {
-      const result = await gameData.deleteGame(game);
-      console.log('Delete result:', result);
+      await gameData.deleteGame(game);
     } catch (error) {
       console.error('Failed to delete game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete game';
@@ -64,8 +61,7 @@ export const useGameStore = create<GameStore>((set) => ({
   editGame: async (form: GameDataItem) => {
     set({ loading: true, error: null });
     try {
-      const result = await gameData.updateGame(form);
-      console.log('Edit result:', result);
+      await gameData.updateGame(form);
     } catch (error) {
       console.error('Failed to edit game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to edit game';

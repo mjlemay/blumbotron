@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { Experience, GameDataItem, ListItem } from '../lib/types';
+import { Experience, SelectedItem } from '../lib/types';
 import { defaultExperience } from '../lib/defaults';
+
 
 type ExperienceStore = {
     experience: Experience;
@@ -8,7 +9,7 @@ type ExperienceStore = {
     error: string | null;
     setExpView: (view: string) => void;
     setExpModal: (modal: string) => void;
-    setExpSelected: (selected: Record<string, ListItem | GameDataItem>) => void;
+    setExpSelected: (selected: Record<string, SelectedItem>) => void;
 }
 
 export const useExperienceStore = create<ExperienceStore>((set) => ({
@@ -22,7 +23,7 @@ export const useExperienceStore = create<ExperienceStore>((set) => ({
     setExpModal: (modal: string) => set((state) => ({ 
         experience: { ...state.experience, modal } 
     })),
-    setExpSelected: (selected: Record<string, GameDataItem | ListItem>) => set((state) => ({ 
+    setExpSelected: (selected: Record<string, SelectedItem>) => set((state) => ({ 
         experience: { ...state.experience, selected } 
     })),
 }));

@@ -1,26 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DialogContainer from "./dialogContainer";
 import Input from "./input";
 import { z } from 'zod';
-import { useGameStore } from "../stores/gamesStore";
+import { usePlayerStore } from "../stores/playersStore";
 import { useExperienceStore } from "../stores/experienceStore";
-import { GameDataItem } from "../lib/types";
-import { getSelectedGame } from "../lib/selectedStates";
+import { PlayerDataItem } from "../lib/types";
+import { getSelectedPlayer } from "../lib/selectedStates";
 import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
-import { defaultGame } from "../lib/defaults";
+import { defaultPlayer } from "../lib/defaults";
 
-type FormGameProps = {
+type FormPlayerProps = {
     action?: string;
     onSuccess?: () => void;
 }
 
-function FormGame(props: FormGameProps) {
+function FormPlayer(props: FormPlayerProps) {
     const { action = "new", onSuccess } = props;
-    const { createGame, editGame, deleteGame, loading, error } = useGameStore();
+    const { createPlayer, editPlayer, deletePlayer, loading, error } = usePlayerStore();
     const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-    const game = getSelectedGame();
-    const [form, setForm] = useState(game || defaultGame);
+    const player = getSelectedPlayer();
+    const [form, setForm] = useState(player || defaultPlayer);
     const [ errors, setErrors ] = useState({});
 
     const handleFormChange = (Event:React.ChangeEvent<HTMLInputElement>) => {
@@ -32,39 +32,53 @@ function FormGame(props: FormGameProps) {
         setForm(clonedForm);
     }
 
-    const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
-      const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.gameId} : { name: '' };
+    const handleSubmitClose = (view:string ="players", modal:string = "none", playerData?:PlayerDataItem) => {
+      if (!playerData) {
+        setExpView(view);
+        setExpModal(modal);
+        setExpSelected({});
+        onSuccess?.();
+        return;
+      }
+
+      // Ensure we have both id and playerId
+      const displayPlayerData:PlayerDataItem = {
+        ...playerData,
+        id: playerData.playerId,
+        playerId: playerData.playerId
+      };
+      
       setExpView(view);
       setExpModal(modal);
-      setExpSelected(gameData ? { game: displayGameData } : {});
+      setExpSelected({ player: displayPlayerData });
       onSuccess?.();
     }
 
     const formTitle = {
-      "new": "Create Game",
-      "edit": "Edit Game",
-      "delete": "Delete Game"
+      "new": "Create Player",
+      "edit": "Edit Player",
+      "delete": "Delete Player"
     }
 
     const getError = (field: string) => {
         return errors[field as keyof typeof errors] || '';
     }
 
-    const deleteSelectedGame = async (formData:GameDataItem) => {
-      const gameName = game?.name || 'DELETE ME ANYWAY';
+    const deleteSelectedPlayer = async (formData:PlayerDataItem) => {
+      const playerName = player?.name || 'DELETE ME ANYWAY';
       const formSchema = z.object({
-        name: z.literal(gameName),
+        name: z.literal(playerName),
       });
       try {
         formSchema.parse(formData);
-        if (game) {
-          await deleteGame(game);
+        if (player) {
+          await deletePlayer(player);
           // If we get here and there's no error in the store, deletion was successful
           if (!error) {
             handleSubmitClose();
             return true;
           }
-          throw new Error(error || 'Failed to delete game');
+          throw new Error(error || 'Failed to delete player');
         }
       } catch (err) {
         if (err instanceof z.ZodError) {
@@ -77,47 +91,46 @@ function FormGame(props: FormGameProps) {
           setErrors(newErrs);
         } else {
           // Handle other errors (like deletion failure)
-          setErrors({ name: err instanceof Error ? err.message : 'Failed to delete game' });
+          setErrors({ name: err instanceof Error ? err.message : 'Failed to delete player' });
         }
         return false;
       }
     }
 
   
-    const createNewGame = async (formData:GameDataItem, edit:boolean = false) => {
+    const createNewPlayer = async (formData:PlayerDataItem, edit:boolean = false) => {
       let formSchema = z.object({
-        name: z.string().min(3, 'Please supply a game name.'),
-        description: z.string(),
+        name: z.string().min(3, 'Please supply a player name.'),
       });
       if (edit) {
         formSchema = z.object({
-          name: z.string().min(3, 'Please supply a game name.'),
-          description: z.string(),
+          name: z.string().min(3, 'Please supply a player name.'),
         });
       }
       try {
         formSchema.parse(formData);
         if (edit) {
-          if (game) {
-            await editGame(formData);
+          if (player) {
+            await editPlayer(formData);
             // If we get here and there's no error in the store, edit was successful
             if (!error) {
-              handleSubmitClose("game", "none", formData);
+              handleSubmitClose("player", "none", formData);
               return true;
             }
-            throw new Error(error || 'Failed to edit game');
+            throw new Error(error || 'Failed to edit player');
           }
         } else {
-          const createdGame = await createGame(formData);
+          const createdPlayer = await createPlayer(formData);
           // If we get here and there's no error in the store, creation was successful
-          if (!error) {
-            console.log('SET TO THIS GAME', createdGame);
-            handleSubmitClose("game", "none", createdGame);
+          if (!error && createdPlayer) {
+            console.log('SET TO THIS PLAYER', createdPlayer);
+            handleSubmitClose("player", "none", createdPlayer);
             return true;
           }
-          throw new Error(error || 'Failed to create game');
+          throw new Error(error || 'Failed to create player');
         }
       } catch (err) {
+        console.error('Error in createNewPlayer:', err);
         if (err instanceof z.ZodError) {
           let newErrs:Record<string, string> = {};
           err.errors.map(errItem => {
@@ -128,11 +141,18 @@ function FormGame(props: FormGameProps) {
           setErrors(newErrs);
         } else {
           // Handle other errors (like creation/editing failure)
-          setErrors({ name: err instanceof Error ? err.message : 'Failed to process game' });
+          setErrors({ name: err instanceof Error ? err.message : 'Failed to process player' });
         }
         return false;
       }
     }
+
+    // Reset form when action changes to delete
+    useEffect(() => {
+      if (action === "delete") {
+        setForm({name: ''});
+      }
+    }, [action]);
 
     const formContent = (action:string) => {
       let content = <></>;
@@ -141,7 +161,7 @@ function FormGame(props: FormGameProps) {
           content = (
             <div className="w-full pr-4 pl-4">
               <Input 
-              label='Type the name of the game to confirm deletion'
+              label='Type the name of the player to confirm deletion'
               name='name' value={form.name || ''}
               changeHandler={handleFormChange}
               errMsg={getError('name')} 
@@ -155,22 +175,16 @@ function FormGame(props: FormGameProps) {
         content = (
         <div className="w-full pr-4 pl-4">
             <Input 
-                name='gameId'
-                value={form.gameId || -1} 
+                name='playerId'
+                value={form.playerId || -1} 
                 hidden
                 changeHandler={()=>{}}
             />
             <Input 
-                label='Game Name'
+                label='Player Name'
                 name='name' value={form.name || ''}
                 changeHandler={handleFormChange}
                 errMsg={getError('name')}
-            />
-            <Input
-                label='Description'
-                name='description' value={form.description || ''}
-                changeHandler={handleFormChange}
-                errMsg={getError('description')}
             />
         </div>
         );
@@ -186,7 +200,7 @@ function FormGame(props: FormGameProps) {
         bar = (
           <Menubar.Trigger 
           className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-          onClick={() => {deleteSelectedGame(form)}}
+          onClick={() => {deleteSelectedPlayer(form)}}
           >
               <TrashIcon 
                 width="20"
@@ -199,7 +213,7 @@ function FormGame(props: FormGameProps) {
       bar = (
         <Menubar.Trigger 
         className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-        onClick={() => {createNewGame(form, true)}}
+        onClick={() => {createNewPlayer(form, true)}}
         >
             <Pencil1Icon 
               width="20"
@@ -213,7 +227,7 @@ function FormGame(props: FormGameProps) {
       bar = 
         <Menubar.Trigger 
         className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-        onClick={() => {createNewGame(form)}}
+        onClick={() => {createNewPlayer(form)}}
         >
             <PlusCircledIcon 
               width="20"
@@ -235,7 +249,7 @@ function FormGame(props: FormGameProps) {
     return (
       <DialogContainer 
         title={formTitle[action as keyof typeof formTitle]}
-        key={`${action}_${game?.id || 0}`}
+        key={`${action}_${player?.playerId || 0}`}
         content={formContent(action)}
         >
             {loading && (<div>Loading...</div>)}
@@ -245,4 +259,4 @@ function FormGame(props: FormGameProps) {
     );
   }
   
-  export default FormGame;
+  export default FormPlayer;

@@ -6,6 +6,7 @@ import Header from "./header";
 import Sidebar from "./sidebar";
 import DialogModal from "./dialogModal";
 import ViewRosters from "./viewRosters";
+import ViewPlayer from "./viewPlayer";
 
 function MainViewer() {
   const { experience, loading, error } = useExperienceStore();
@@ -20,6 +21,9 @@ function MainViewer() {
       case "home":
         selectedView = <ViewHome />;
         break;
+      case "player":
+          selectedView = <ViewPlayer />;
+          break;
       case "players":
         selectedView = <ViewPlayers />;
         break;
