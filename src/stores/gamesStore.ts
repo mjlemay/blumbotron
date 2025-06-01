@@ -36,7 +36,15 @@ export const useGameStore = create<GameStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const result = await gameData.addGame(game);
-      return result as GameDataItem;
+      if (!result) {
+        throw new Error('Failed to create game - no result returned');
+      }
+      const newGame = result as GameDataItem;
+      set((state) => ({ 
+        games: [...state.games, newGame],
+        error: null 
+      }));
+      return newGame;
     } catch (error) {
       console.error('Failed to create game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create game';

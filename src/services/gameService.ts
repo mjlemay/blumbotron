@@ -15,7 +15,15 @@ const addGame = async (game:GameDataItem) => {
         await tx.insert(games).values(values);
         return await tx.select().from(games).orderBy(sql`gameId DESC`).limit(1);
     });
-    return result[0];
+    if (!result || !result[0]) {
+        throw new Error('Failed to create game - no result returned');
+    }
+    const newGame = result[0];
+    return {
+        ...newGame,
+        id: newGame.gameId,
+        gameId: newGame.gameId
+    };
 }
 
 const getGame = async (gameId:number) => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DialogContainer from "./dialogContainer";
 import Input from "./input";
 import { z } from 'zod';
@@ -133,6 +133,13 @@ function FormGame(props: FormGameProps) {
         return false;
       }
     }
+
+    // Reset form when action changes to delete
+    useEffect(() => {
+      if (action === "delete") {
+        setForm({name: ''});
+      }
+    }, [action]);
 
     const formContent = (action:string) => {
       let content = <></>;
