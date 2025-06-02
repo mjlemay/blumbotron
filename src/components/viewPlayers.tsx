@@ -19,10 +19,23 @@ function ViewPlayers(): JSX.Element  {
     if (error) return <div>Error: {error}</div>;
     
     const displayPlayers = (players: DataItem[]): DataItem[] => {
-        return players.map((player) => ({
+        return players.map((player, index) => {
+          const firstLetter = player.name.charAt(0).toUpperCase();
+          const prevFirstLetter = index > 0 ? players[index - 1].name.charAt(0).toUpperCase() : '';
+          const newLetter = firstLetter !== prevFirstLetter ? firstLetter : null;
+          const playerData = JSON.parse(player.data || '{}');
+          const stuffedData = JSON.stringify({
+            ...(playerData || {}),
+            newLetter: newLetter
+          });
+
+          return {
             ...player,
+            data: stuffedData,
             handleClick: () => handlePlayerSelect(player.id as unknown as number)
-        }));
+          }
+        }
+      );
     }
 
   const handlePlayerSelect = (id: number) => {

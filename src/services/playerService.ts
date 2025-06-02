@@ -1,5 +1,5 @@
 import { db } from './sqLiteService';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import { players } from '../lib/dbSchema';
 import { DataItem } from '../lib/types';
 import { generateSnowflake } from '../lib/snowflake';
@@ -32,11 +32,10 @@ const getPlayer = async (id:number) => {
 }
 
 const getPlayers = async (limit:number) => {
-    console.log('getPlayers called with limit:', limit);
     try {
         // Try a direct SQL query first to verify table access
-        const result = await db.select().from(players).limit(limit);
-        console.log('getPlayers query result:', result);
+        const result = await db.select().from(players)
+        .orderBy(asc(players.name)).limit(limit);
         return result;
     } catch (error) {
         console.error('Error in getPlayers:', error);
