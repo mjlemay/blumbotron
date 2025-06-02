@@ -147,6 +147,18 @@ function FormGame(props: FormGameProps) {
         case "delete":
           content = (
             <div className="w-full pr-4 pl-4">
+                          <Input 
+                name='id'
+                value={form.id || -1} 
+                hidden
+                changeHandler={()=>{}}
+            />
+            <Input 
+                name='snowflake'
+                value={form.snowflake || 'BAD_ID'} 
+                hidden
+                changeHandler={()=>{}}
+            />
               <Input 
                 label='Type the name of the game to confirm deletion'
                 name='name' value={form.name || ''}

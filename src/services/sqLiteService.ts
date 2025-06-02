@@ -50,8 +50,11 @@ const db = drizzle<typeof schema>(
             if (isSelectQuery(sql)) {
                 rows = await sqlite.select(sql, params);
             } else {
-                // Otherwise, use the execute method
-                rows = await sqlite.execute(sql, params);
+                // For non-SELECT queries, use execute and return the last inserted ID
+                const result = await sqlite.execute(sql, params);
+                if (result && result.lastInsertId) {
+                    return { rows: [{ id: result.lastInsertId }] };
+                }
                 return { rows: [] };
             }
 
@@ -66,7 +69,7 @@ const db = drizzle<typeof schema>(
                 params: params,
                 fullError: error
             });
-            return { rows: [] };
+            throw error;
         }
     
         rows = rows.map((row: any) => {

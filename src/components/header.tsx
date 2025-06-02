@@ -38,7 +38,7 @@ function Header(props: HeaderProps): JSX.Element {
       const name = selectedItem?.name || "BLUMBOTRON • High Scores Made Easy!";
       
       const isGameDataItem = (item: SelectedItem | null): item is GameDataItem => {
-        return item !== null && 'gameId' in item;
+        return item !== null && 'roster' in item;
       };
       
       const selectedType = isGameDataItem(selectedItem) ? "game" : "player";
