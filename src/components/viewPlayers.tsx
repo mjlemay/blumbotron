@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { usePlayerStore } from "../stores/playersStore";
 import * as Menubar from "@radix-ui/react-menubar";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
-import DisplayListItem from "./displayListItem";
+import PlayerListItem from "./playerListItem";
 import { DataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 
@@ -39,7 +39,7 @@ function ViewPlayers(): JSX.Element  {
   return (
     <div className="m-2">
         <ListContainer items={displayPlayers(players)}
-            listItem={DisplayListItem}
+            listItem={PlayerListItem}
             title="Players"
         >
              <Menubar.Root className="flex rounded-md p-2 m-2">
