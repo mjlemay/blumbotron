@@ -1,11 +1,12 @@
 CREATE TABLE `games` (
-	`gameId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`snowflake` text NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
 	`data` text,
-	`roster` integer,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP
+	`roster` text,
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `players` (

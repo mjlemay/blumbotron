@@ -7,7 +7,8 @@ export const defaultExperience: Experience = {
 }
 
 export const defaultGame: GameDataItem = {
-    gameId: -1,
+    id: -1,
+    snowflake: 'BAD_ID',
     name: '',
     description: ''
 }

@@ -33,7 +33,7 @@ function FormGame(props: FormGameProps) {
     }
 
     const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
-      const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.gameId} : { name: '' };
+      const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.id} : { name: '' };
       setExpView(view);
       setExpModal(modal);
       setExpSelected(gameData ? { game: displayGameData } : {});
@@ -148,11 +148,11 @@ function FormGame(props: FormGameProps) {
           content = (
             <div className="w-full pr-4 pl-4">
               <Input 
-              label='Type the name of the game to confirm deletion'
-              name='name' value={form.name || ''}
-              changeHandler={handleFormChange}
-              errMsg={getError('name')} 
-          />
+                label='Type the name of the game to confirm deletion'
+                name='name' value={form.name || ''}
+                changeHandler={handleFormChange}
+                errMsg={getError('name')} 
+            />
         </div>
         );
       break;
@@ -162,8 +162,14 @@ function FormGame(props: FormGameProps) {
         content = (
         <div className="w-full pr-4 pl-4">
             <Input 
-                name='gameId'
-                value={form.gameId || -1} 
+                name='id'
+                value={form.id || -1} 
+                hidden
+                changeHandler={()=>{}}
+            />
+            <Input 
+                name='snowflake'
+                value={form.snowflake || 'BAD_ID'} 
                 hidden
                 changeHandler={()=>{}}
             />

@@ -2,13 +2,14 @@ import { sql } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const games = sqliteTable('games', {
-    gameId: integer('gameId').primaryKey({ autoIncrement: true }),
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    snowflake: text('snowflake').notNull(),
     name: text('name').notNull(),
     description: text('description'),
-    data: text('data'),
-    roster: integer('roster'),
-    created_at: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-    updated_at: text('updated_at').default(sql`CURRENT_TIMESTAMP`)
+    data: text('data', { mode: 'json' }),
+    roster: text('roster'),
+    created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
 });
 
 export const players = sqliteTable('players', {

@@ -9,7 +9,7 @@ export const getSelectedGame = () => {
     const { games } = useGameStore(useShallow((state) => ({ games: state.games })))
     const { selected } = useExperienceStore(useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView })));
     const game = selected?.game || null;
-    const selectedGame = games.find((item) => item.gameId === game?.id);
+    const selectedGame = games.find((item) => item.id === game?.id);
     return selectedGame || null;
 }
 

@@ -1,17 +1,19 @@
-import { DataItem, GameDataItem, RosterDataItem } from "../lib/types";
+import { SelectedItem } from "../lib/types";
 import { ClockIcon, MixIcon, TableIcon, BookmarkIcon, StarIcon  } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/react-separator";
 import Chip from "./chip";
 import { bgColors } from "../lib/consts";
 
 type ComponentProps = {
-    item: DataItem | GameDataItem | RosterDataItem;
+    item: SelectedItem;
 }
 
 function DisplayListItem(props: ComponentProps): JSX.Element {
     const { 
-        item: { id, name, description, created_at, updated_at, category, handleClick },
+        item: { id, name, data, description, created_at, updated_at, handleClick },
     } = props;
+    const itemData:Record<string,string> = data ? JSON.parse(data) : {};
+    const category = itemData ? itemData.category : undefined;
     const roster = 'roster' in props.item ? props.item.roster : undefined;
 
     const handleItemClick = (id: number | string | null) => {

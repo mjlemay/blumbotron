@@ -3,10 +3,11 @@ import { sqliteTable, AnySQLiteColumn, integer, text } from "drizzle-orm/sqlite-
 
 export const games = sqliteTable("games", {
 	gameId: integer().primaryKey({ autoIncrement: true }).notNull(),
+	snowflake: text().notNull(),
 	name: text().notNull(),
 	description: text(),
 	data: text(),
-	roster: integer(),
+	roster: text(),
 	createdAt: text("created_at").default("sql`(CURRENT_TIMESTAMP)`"),
 	updatedAt: text("updated_at").default("sql`(CURRENT_TIMESTAMP)`"),
 });

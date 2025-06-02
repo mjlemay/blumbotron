@@ -50,13 +50,13 @@ function ViewRosters(props: ViewHomeProps): JSX.Element  {
     const displayGames = (games: GameDataItem[]): GameDataItem[] => {
         return games.map((game) => ({
             ...game,
-            id: game.gameId,
-            handleClick: () => handleGameSelect(game.gameId as unknown as number)
+            handleClick: () => handleGameSelect(game.id as unknown as number)
         }));
     }
 
-  const handleGameSelect = (gameId: number) => {
-    const selectedGame: GameDataItem | undefined = displayGames(games).find((game) => gameId === game.gameId);
+  const handleGameSelect = (id: number) => {
+    const selectedGame: GameDataItem | undefined = displayGames(games)
+    .find((game) => id === game.id);
     if (selectedGame) {
       setExpSelected({
         game: selectedGame

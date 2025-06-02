@@ -1,39 +1,30 @@
 export type DataItem = {
-    category?: string; // table, turn-order, tourney bracket, etc.
     created_at?: string;
-    description?: string | null;
+    data?: string;
+    description?: string;
     handleClick?: Function;
-    id?: number | string;
+    id?: number;
     name: string;
+    snowflake?: string;
     updated_at?: string;
 }
 
 export type GameDataItem = DataItem & {
-    gameId?: number;
-    roster?: number | null;
-    data?: string | null;
+    roster?: string | null;
 };
 
 export type PlayerDataItem = DataItem & {
     playerId?: number;
-    data?: string | null;
 };
 
 export type RosterDataItem = DataItem & {
     rosterId?: number;
-    data?: string;
 };
 
-export type SelectedItem = ListItem | GameDataItem | PlayerDataItem | RosterDataItem;
-
-export type ListItem = {
-    id: string;
-    name?: string;
-    description?: string;
-}
+export type SelectedItem = DataItem | GameDataItem | PlayerDataItem | RosterDataItem;
 
 export type Experience = {
     view: string;
     modal: string;
-    selected: Record<string, ListItem | GameDataItem> | null;
+    selected: Record<string, DataItem | SelectedItem> | null;
 }

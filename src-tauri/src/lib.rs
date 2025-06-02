@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::{App, Manager};
 
-const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_glorious_starbolt.sql");
+const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_wise_chronomancer.sql");
 
 fn get_db_path(app: &App) -> PathBuf {
     let app_dir = app

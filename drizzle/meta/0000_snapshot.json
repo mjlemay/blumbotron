@@ -1,18 +1,25 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "92c1eb91-5419-40b1-9719-54de5563220d",
+  "id": "7d8bd1e4-b360-47c1-bd03-dd24ba360afe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "games": {
       "name": "games",
       "columns": {
-        "gameId": {
-          "name": "gameId",
+        "id": {
+          "name": "id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "snowflake": {
+          "name": "snowflake",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -37,7 +44,7 @@
         },
         "roster": {
           "name": "roster",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
