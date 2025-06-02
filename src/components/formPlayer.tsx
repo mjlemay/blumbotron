@@ -4,8 +4,8 @@ import Input from "./input";
 import { z } from 'zod';
 import { usePlayerStore } from "../stores/playersStore";
 import { useExperienceStore } from "../stores/experienceStore";
-import { PlayerDataItem } from "../lib/types";
-import { getSelectedPlayer } from "../lib/selectedStates";
+import { DataItem } from "../lib/types";
+import { getSelected } from "../lib/selectedStates";
 import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
 import { defaultPlayer } from "../lib/defaults";
@@ -17,9 +17,9 @@ type FormPlayerProps = {
 
 function FormPlayer(props: FormPlayerProps) {
     const { action = "new", onSuccess } = props;
-    const { createPlayer, editPlayer, deletePlayer, loading, error } = usePlayerStore();
+    const { createPlayer, editPlayer, deletePlayer, fetchPlayer, loading, error } = usePlayerStore();
     const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-    const player = getSelectedPlayer();
+    const player = getSelected("players") as DataItem;
     const [form, setForm] = useState(player || defaultPlayer);
     const [ errors, setErrors ] = useState({});
 
@@ -32,25 +32,10 @@ function FormPlayer(props: FormPlayerProps) {
         setForm(clonedForm);
     }
 
-    const handleSubmitClose = (view:string ="players", modal:string = "none", playerData?:PlayerDataItem) => {
-      if (!playerData) {
-        setExpView(view);
-        setExpModal(modal);
-        setExpSelected({});
-        onSuccess?.();
-        return;
-      }
-
-      // Ensure we have both id and playerId
-      const displayPlayerData:PlayerDataItem = {
-        ...playerData,
-        id: playerData.playerId,
-        playerId: playerData.playerId
-      };
-      
+    const handleSubmitClose = (view:string ="players", modal:string = "none", playerData?:DataItem) => {      
       setExpView(view);
       setExpModal(modal);
-      setExpSelected({ player: displayPlayerData });
+      setExpSelected(playerData ? { player: playerData } : {});
       onSuccess?.();
     }
 
@@ -64,7 +49,8 @@ function FormPlayer(props: FormPlayerProps) {
         return errors[field as keyof typeof errors] || '';
     }
 
-    const deleteSelectedPlayer = async (formData:PlayerDataItem) => {
+    const deleteSelectedPlayer = async (formData:DataItem) => {
+      //TODO: determine how to reset form player object
       const playerName = player?.name || 'DELETE ME ANYWAY';
       const formSchema = z.object({
         name: z.literal(playerName),
@@ -97,8 +83,7 @@ function FormPlayer(props: FormPlayerProps) {
       }
     }
 
-  
-    const createNewPlayer = async (formData:PlayerDataItem, edit:boolean = false) => {
+    const createNewPlayer = async (formData:DataItem, edit:boolean = false) => {
       let formSchema = z.object({
         name: z.string().min(3, 'Please supply a player name.'),
       });
@@ -149,6 +134,7 @@ function FormPlayer(props: FormPlayerProps) {
 
     // Reset form when action changes to delete
     useEffect(() => {
+      player?.id && fetchPlayer(player?.id as unknown as number);
       if (action === "delete") {
         setForm({name: ''});
       }
@@ -160,6 +146,18 @@ function FormPlayer(props: FormPlayerProps) {
         case "delete":
           content = (
             <div className="w-full pr-4 pl-4">
+              <Input 
+                name='id'
+                value={form.id || -1} 
+                hidden
+                changeHandler={()=>{}}
+              />
+              <Input 
+                  name='snowflake'
+                  value={form.snowflake || 'BAD_ID'} 
+                  hidden
+                  changeHandler={()=>{}}
+              />
               <Input 
               label='Type the name of the player to confirm deletion'
               name='name' value={form.name || ''}
@@ -175,8 +173,14 @@ function FormPlayer(props: FormPlayerProps) {
         content = (
         <div className="w-full pr-4 pl-4">
             <Input 
-                name='playerId'
-                value={form.playerId || -1} 
+                name='id'
+                value={form.id || -1} 
+                hidden
+                changeHandler={()=>{}}
+            />
+            <Input 
+                name='snowflake'
+                value={form.snowflake || 'BAD_ID'} 
                 hidden
                 changeHandler={()=>{}}
             />
@@ -249,7 +253,7 @@ function FormPlayer(props: FormPlayerProps) {
     return (
       <DialogContainer 
         title={formTitle[action as keyof typeof formTitle]}
-        key={`${action}_${player?.playerId || 0}`}
+        key={`${action}_${player?.id || 0}`}
         content={formContent(action)}
         >
             {loading && (<div>Loading...</div>)}

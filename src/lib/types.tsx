@@ -13,15 +13,11 @@ export type GameDataItem = DataItem & {
     roster?: string | null;
 };
 
-export type PlayerDataItem = DataItem & {
-    playerId?: number;
-};
-
 export type RosterDataItem = DataItem & {
     rosterId?: number;
 };
 
-export type SelectedItem = DataItem | GameDataItem | PlayerDataItem | RosterDataItem;
+export type SelectedItem = DataItem | GameDataItem | RosterDataItem;
 
 export type Experience = {
     view: string;

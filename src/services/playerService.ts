@@ -1,31 +1,34 @@
 import { db } from './sqLiteService';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { players } from '../lib/dbSchema';
-import { PlayerDataItem } from '../lib/types';
+import { DataItem } from '../lib/types';
+import { generateSnowflake } from '../lib/snowflake';
 
-const addPlayer = async (player:PlayerDataItem) => {
+const addPlayer = async (player:DataItem) => {
     const { name, data } = player;
+    const snowflake = generateSnowflake();
     const values = {
         name,
+        snowflake: String(snowflake),
         data: JSON.stringify(data),
     };
-    const result = await db.transaction(async (tx) => {
-        await tx.insert(players).values(values);
-        return await tx.select().from(players).orderBy(sql`playerId DESC`).limit(1);
-    });
-    if (!result || !result[0]) {
-        throw new Error('Failed to create player - no result returned');
+    try {
+        await db.insert(players).values(values);
+        const newPlayer = await db.select().from(players)
+        .where(eq(players.snowflake, String(snowflake)));
+        
+        if (!newPlayer || !newPlayer[0]) {
+            throw new Error('Failed to create player - no result returned');
+        }
+        return newPlayer[0];
+    } catch (error) {
+        console.error('Error in addPlayer:', error);
+        throw new Error('Failed to process player');
     }
-    const newPlayer = result[0];
-    return {
-        ...newPlayer,
-        id: newPlayer.playerId,
-        playerId: newPlayer.playerId
-    };
 }
 
-const getPlayer = async (playerId:number) => {
-    return await db.select().from(players).where(eq(players.playerId, playerId));
+const getPlayer = async (id:number) => {
+    return await db.select().from(players).where(eq(players.id, id));
 }
 
 const getPlayers = async (limit:number) => {
@@ -41,18 +44,18 @@ const getPlayers = async (limit:number) => {
     }
 }
 
-const updatePlayer = async (player:PlayerDataItem) => {
-    const { playerId = -1 } = player;
+const updatePlayer = async (player:DataItem) => {
+    const { id = -1 } = player;
     return await db.update(players)
         .set(player)
-        .where(eq(players.playerId, playerId))
+        .where(eq(players.id, id))
         .returning();
 }
 
-const deletePlayer = async (player:PlayerDataItem) => {
-    const { playerId = -1 } = player;
+const deletePlayer = async (player:DataItem) => {
+    const { id = -1 } = player;
     return await db.delete(players)
-        .where(eq(players.playerId, playerId))
+        .where(eq(players.id, id))
         .returning();
 }
 

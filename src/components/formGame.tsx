@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useGameStore } from "../stores/gamesStore";
 import { useExperienceStore } from "../stores/experienceStore";
 import { GameDataItem } from "../lib/types";
-import { getSelectedGame } from "../lib/selectedStates";
+import { getSelected } from "../lib/selectedStates";
 import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
 import { defaultGame } from "../lib/defaults";
@@ -17,9 +17,9 @@ type FormGameProps = {
 
 function FormGame(props: FormGameProps) {
     const { action = "new", onSuccess } = props;
-    const { createGame, editGame, deleteGame, loading, error } = useGameStore();
+    const { createGame, editGame, deleteGame, fetchGame, loading, error } = useGameStore();
     const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-    const game = getSelectedGame();
+    const game = getSelected("games") as GameDataItem;
     const [form, setForm] = useState(game || defaultGame);
     const [ errors, setErrors ] = useState({});
 
@@ -33,7 +33,7 @@ function FormGame(props: FormGameProps) {
     }
 
     const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
-      const displayGameData:GameDataItem = gameData ? {...gameData, id: gameData.id} : { name: '' };
+      const displayGameData:GameDataItem = gameData ? gameData : { name: '' };
       setExpView(view);
       setExpModal(modal);
       setExpSelected(gameData ? { game: displayGameData } : {});
@@ -136,6 +136,7 @@ function FormGame(props: FormGameProps) {
 
     // Reset form when action changes to delete
     useEffect(() => {
+      game?.id && fetchGame(game?.id as unknown as number);
       if (action === "delete") {
         setForm({name: ''});
       }

@@ -7,6 +7,7 @@ type GameStore = {
   loading: boolean;
   error: string | null;
   fetchGames: () => Promise<void>;
+  fetchGame: (id: number) => Promise<void>;
   createGame: (game: GameDataItem) => Promise<GameDataItem>;
   editGame: (game: GameDataItem) => Promise<void>;
   deleteGame: (game: GameDataItem) => Promise<void>;
@@ -28,6 +29,19 @@ export const useGameStore = create<GameStore>((set) => ({
       console.error('Failed to fetch games:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch games';
       set({ error: errorMessage, games: [] });
+    } finally {
+      set({ loading: false });
+    }
+  },
+  fetchGame: async (id: number) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await gameData.getGame(id);
+      set({ games: result as GameDataItem[], error: null });
+    } catch (error) {
+      console.error('Failed to fetch game:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch game';
+      set({ error: errorMessage });
     } finally {
       set({ loading: false });
     }

@@ -3,21 +3,16 @@ import { useGameStore } from "../stores/gamesStore";
 import { usePlayerStore } from "../stores/playersStore";
 import { useShallow } from "zustand/react/shallow";
 
-
-//TODO: Refactor this to "getSelected" for all stores
-export const getSelectedGame = () => {
-    const { games } = useGameStore(useShallow((state) => ({ games: state.games })))
-    const { selected } = useExperienceStore(useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView })));
-    const game = selected?.game || null;
-    const selectedGame = games.find((item) => item.id === game?.id);
-    return selectedGame || null;
-}
-
-export const getSelectedPlayer = () => {
-    const { players } = usePlayerStore(useShallow((state) => ({ players: state.players })))
-    const { selected } = useExperienceStore(useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView })));
-    const game = selected?.player || null;
-    const selectedGame = players.find((item) => item.playerId === game?.id);
+export const getSelected = (store:string) => {
+    const singleStr = store.substring(0, store.length - 1);
+    const selectedStore = {
+        games: useGameStore(useShallow((state) => ( state.games ))),
+        players: usePlayerStore(useShallow((state) => ( state.players )))
+    }
+    const dataStore = selectedStore[store as keyof typeof selectedStore];
+    const selected = useExperienceStore(useShallow((state) => ( state.experience.selected )));
+    const selection = selected ? selected[singleStr] : null;
+    const selectedGame = dataStore.find((item) => item.id === selection?.id);
     return selectedGame || null;
 }
 

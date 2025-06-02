@@ -4,7 +4,7 @@ import { usePlayerStore } from "../stores/playersStore";
 import * as Menubar from "@radix-ui/react-menubar";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
-import { PlayerDataItem } from "../lib/types";
+import { DataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
 
 function ViewPlayers(): JSX.Element  {
@@ -18,16 +18,16 @@ function ViewPlayers(): JSX.Element  {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     
-    const displayPlayers = (players: PlayerDataItem[]): PlayerDataItem[] => {
+    const displayPlayers = (players: DataItem[]): DataItem[] => {
         return players.map((player) => ({
             ...player,
-            id: player.playerId,
-            handleClick: () => handlePlayerSelect(player.playerId as unknown as number)
+            handleClick: () => handlePlayerSelect(player.id as unknown as number)
         }));
     }
 
-  const handlePlayerSelect = (playerId: number) => {
-    const selectedPlayer: PlayerDataItem | undefined = displayPlayers(players).find((player) => playerId === player.playerId);
+  const handlePlayerSelect = (id: number) => {
+    const selectedPlayer: DataItem | undefined = displayPlayers(players)
+    .find((player) => id === player.id);
     if (selectedPlayer) {
       setExpSelected({
         player: selectedPlayer

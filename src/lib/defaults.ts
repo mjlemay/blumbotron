@@ -1,4 +1,4 @@
-import { Experience, GameDataItem, PlayerDataItem } from "./types";
+import { Experience, GameDataItem, DataItem } from "./types";
 
 export const defaultExperience: Experience = {
     view: 'home',
@@ -13,8 +13,9 @@ export const defaultGame: GameDataItem = {
     description: ''
 }
 
-export const defaultPlayer: PlayerDataItem = {
-    playerId: -1,
+export const defaultPlayer: DataItem = {
+    id: -1,
+    snowflake: 'BAD_ID',
     name: '',
     data: ''
 }

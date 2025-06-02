@@ -13,9 +13,10 @@ export const games = sqliteTable('games', {
 });
 
 export const players = sqliteTable('players', {
-    playerId: integer('playerId', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    snowflake: text('snowflake').notNull(),
     name: text('name').notNull(),
-    data: text('data'),
+    data: text('data', { mode: 'json' }),
     created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
 });

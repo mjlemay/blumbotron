@@ -1,5 +1,5 @@
 import { db } from './sqLiteService';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { games } from '../lib/dbSchema';
 import { GameDataItem } from '../lib/types';
 import { generateSnowflake } from '../lib/snowflake';

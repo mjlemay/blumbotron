@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::{App, Manager};
 
-const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_wise_chronomancer.sql");
+const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_robust_the_liberteens.sql");
 
 fn get_db_path(app: &App) -> PathBuf {
     let app_dir = app
@@ -33,7 +33,7 @@ fn run_migrations(db_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
 
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+    format!("Hello, {}! Welcome to Blumbotron!", name)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
