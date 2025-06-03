@@ -2,11 +2,12 @@ import { useExperienceStore } from "../stores/experienceStore";
 import ViewHome from "./viewHome";
 import ViewPlayers from "./viewPlayers";
 import ViewGame from "./viewGame";
+import ViewPlayer from "./viewPlayer";
+import ViewRoster from "./viewRoster";
+import ViewRosters from "./viewRosters";
 import Header from "./header";
 import Sidebar from "./sidebar";
 import DialogModal from "./dialogModal";
-import ViewRosters from "./viewRosters";
-import ViewPlayer from "./viewPlayer";
 
 function MainViewer() {
   const { experience, loading, error } = useExperienceStore();
@@ -26,6 +27,9 @@ function MainViewer() {
           break;
       case "players":
         selectedView = <ViewPlayers />;
+        break;
+      case "roster":
+        selectedView = <ViewRoster />;
         break;
       case "rosters":
         selectedView = <ViewRosters />;

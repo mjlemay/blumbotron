@@ -4,16 +4,13 @@ import { useExperienceStore } from "../stores/experienceStore";
 import { Separator } from "@radix-ui/react-separator";
 import * as Menubar from "@radix-ui/react-menubar";
 import { SelectedItem } from "../lib/types";
-import { returnToParent, findCollectionType } from "../lib/selectedStates";
+import { findAnySelected, returnToParent, findCollectionType } from "../lib/selectedStates";
 import { 
   HamburgerMenuIcon,
   Pencil1Icon,
   TrashIcon
 } from "@radix-ui/react-icons";
 
-interface HeaderProps {
-  children?: React.ReactNode;
-}
 
 const selectedItemModals = {
   game: {
@@ -25,14 +22,13 @@ const selectedItemModals = {
     delete: "deletePlayer"
   },
   roster: {
-    edit: "editPlayer",
-    delete: "deletePlayer"
+    edit: "editRoster",
+    delete: "deleteRoster"
   }
 }
 
 
-function Header(props: HeaderProps): JSX.Element {
-    const { children } = props;
+function Header(): JSX.Element {
     const { setExpModal, selected, setExpView, setExpSelected } = useExperienceStore(
       useShallow((state) => ({ 
         setExpView: state.setExpView,
@@ -40,7 +36,8 @@ function Header(props: HeaderProps): JSX.Element {
         setExpModal: state.setExpModal,
         selected: state.experience.selected
       })));
-      const selectedItem:SelectedItem | null = selected?.game || selected?.player || null;
+
+      const selectedItem:SelectedItem | null = findAnySelected(selected) || null;
       const name = selectedItem?.name || "BLUMBOTRON • High Scores Made Easy!";
       
       const selectedType = findCollectionType(selectedItem);
@@ -52,7 +49,6 @@ function Header(props: HeaderProps): JSX.Element {
     return (
     <div className="min-h-[80px] min-w-full items-center flex flex-row bg-slate-900 gap-4 px-4">
         <div className=" flex-grow text-2xl font-bold">{name}</div>
-        {children}
             {selectedItem && (
               <div className="flex-initial flex flex-row gap-4 items-center">
                   <Menubar.Root className="flex rounded-md p-2">
@@ -79,6 +75,9 @@ function Header(props: HeaderProps): JSX.Element {
                               onClick={() => setExpModal(selectedItemModals[selectedType as keyof typeof selectedItemModals].delete)}
                             >
                               <div className="flex flex-row gap-2 items-center"><TrashIcon width="20" height="20" /> Delete</div>
+                            </Menubar.Item>
+                            <Menubar.Item>
+                              {selectedType}
                             </Menubar.Item>
                           </Menubar.Content>
                         </Menubar.Portal>

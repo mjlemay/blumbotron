@@ -19,6 +19,11 @@ export const getSelected = (store:string) => {
     return selectedGame || null;
 }
 
+export const findAnySelected = (selected: Record<string, SelectedItem> | null) => {
+    return selected && Object.values(selected)[0];
+}
+
+
 export const findCollectionType = (item: SelectedItem | null): string => {
     let type = 'null';
     if (item !== null) {
