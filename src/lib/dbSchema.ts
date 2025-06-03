@@ -22,20 +22,25 @@ export const players = sqliteTable('players', {
 });
 
 export const scores = sqliteTable('scores', {
-    scoreId: integer('scoreId', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-    player: integer('player').notNull(),
-    game: integer('game').notNull(),
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    snowflake: text('snowflake').notNull(),
+    player: text('player').notNull(),
+    game: text('game').notNull(),
     unit: text('unit').notNull(),
-    score: integer('score').notNull(),
+    amount: integer('amount').notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
 });
 
 export const rosters = sqliteTable('rosters', {
-    rosterId: integer('rosterId', { mode: 'number' }).primaryKey({ autoIncrement: true }), 
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    snowflake: text('snowflake').notNull(),
     name: text('name').notNull(),
     description: text('description'),
-    data: text('data', { mode: 'json' }).$type<{ allow: number[]; deny: number[] }>(),
+    allow: text('allow', { mode: 'json' }),
+    deny: text('deny', { mode: 'json' }),
+    opt_in: text('opt_in', { mode: 'json' }),
+    opt_out: text('opt_out', { mode: 'json' }),
     created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`)
 });

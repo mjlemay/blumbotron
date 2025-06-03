@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d68ad739-09d7-4bea-a1a6-521a96898608",
+  "id": "1d891b34-1111-4009-a304-33e8476fe996",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "games": {
@@ -129,12 +129,19 @@
     "rosters": {
       "name": "rosters",
       "columns": {
-        "rosterId": {
-          "name": "rosterId",
+        "id": {
+          "name": "id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "snowflake": {
+          "name": "snowflake",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -150,8 +157,29 @@
           "notNull": false,
           "autoincrement": false
         },
-        "data": {
-          "name": "data",
+        "allow": {
+          "name": "allow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "deny": {
+          "name": "deny",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "opt_in": {
+          "name": "opt_in",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "opt_out": {
+          "name": "opt_out",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -183,23 +211,30 @@
     "scores": {
       "name": "scores",
       "columns": {
-        "scoreId": {
-          "name": "scoreId",
+        "id": {
+          "name": "id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
         },
+        "snowflake": {
+          "name": "snowflake",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "player": {
           "name": "player",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "game": {
           "name": "game",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -211,8 +246,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "score": {
-          "name": "score",
+        "amount": {
+          "name": "amount",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
