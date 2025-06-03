@@ -3,7 +3,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { useExperienceStore } from "../stores/experienceStore";
 import { Separator } from "@radix-ui/react-separator";
 import * as Menubar from "@radix-ui/react-menubar";
-import { SelectedItem, GameDataItem } from "../lib/types";
+import { SelectedItem } from "../lib/types";
+import { returnToParent, findCollectionType } from "../lib/selectedStates";
 import { 
   HamburgerMenuIcon,
   Pencil1Icon,
@@ -22,12 +23,17 @@ const selectedItemModals = {
   player: {
     edit: "editPlayer",
     delete: "deletePlayer"
+  },
+  roster: {
+    edit: "editPlayer",
+    delete: "deletePlayer"
   }
 }
 
+
 function Header(props: HeaderProps): JSX.Element {
     const { children } = props;
-    const { setExpView, setExpSelected, setExpModal, selected } = useExperienceStore(
+    const { setExpModal, selected, setExpView, setExpSelected } = useExperienceStore(
       useShallow((state) => ({ 
         setExpView: state.setExpView,
         setExpSelected: state.setExpSelected,
@@ -37,15 +43,10 @@ function Header(props: HeaderProps): JSX.Element {
       const selectedItem:SelectedItem | null = selected?.game || selected?.player || null;
       const name = selectedItem?.name || "BLUMBOTRON • High Scores Made Easy!";
       
-      const isGameDataItem = (item: SelectedItem | null): item is GameDataItem => {
-        return item !== null && 'roster' in item;
-      };
-      
-      const selectedType = isGameDataItem(selectedItem) ? "game" : "player";
+      const selectedType = findCollectionType(selectedItem);
 
     const handleBack = () => {
-        setExpView("home");
-        setExpSelected({});
+      returnToParent(selectedItem, setExpView, setExpModal, setExpSelected)
     }
 
     return (
@@ -69,13 +70,13 @@ function Header(props: HeaderProps): JSX.Element {
                           <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
                             <Menubar.Item 
                               className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
-                              onClick={() => setExpModal(selectedItemModals[selectedType].edit)}
+                              onClick={() => setExpModal(selectedItemModals[selectedType as keyof typeof selectedItemModals].edit)}
                             >
                               <div className="flex flex-row gap-2 items-center"><Pencil1Icon width="20" height="20" /> Edit</div>
                             </Menubar.Item>
                             <Menubar.Item 
                               className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
-                              onClick={() => setExpModal(selectedItemModals[selectedType].delete)}
+                              onClick={() => setExpModal(selectedItemModals[selectedType as keyof typeof selectedItemModals].delete)}
                             >
                               <div className="flex flex-row gap-2 items-center"><TrashIcon width="20" height="20" /> Delete</div>
                             </Menubar.Item>

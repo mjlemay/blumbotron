@@ -6,6 +6,10 @@ import FormRoster from "./formRoster"
 import FormPlayer from "./formPlayer"
 import { refreshData } from "../lib/fetchCalls";
 import { useExperienceStore } from "../stores/experienceStore";
+import { useGameStore } from "../stores/gamesStore";
+import { usePlayerStore } from "../stores/playersStore";
+import { useRosterStore } from "../stores/rostersStore";
+import { useShallow } from "zustand/react/shallow";
 
 type DialogModalProps = {
     children?: React.ReactNode;
@@ -16,26 +20,29 @@ type DialogModalProps = {
 
 function DialogModal({  triggerText, selectedModal, isOpen = false }: DialogModalProps): JSX.Element {
     const { setExpModal } = useExperienceStore();
+    const { fetchGames } = useGameStore(useShallow((state) => ({ fetchGames: state.fetchGames })));
+    const { fetchPlayers } = usePlayerStore(useShallow((state) => ({ fetchPlayers: state.fetchPlayers })));
+    const { fetchRosters } = useRosterStore(useShallow((state) => ({ fetchRosters: state.fetchRosters })));
     const [open, setOpen] = useState(false);
 
     const dialogContent = (selectedModal:string) => {
         const content = {
             "newGame": <FormGame />,
-            "editGame": <FormGame action="edit" onSuccess={refreshData} />,
-            "deleteGame": <FormGame action="delete" onSuccess={refreshData} />,
-            "newPlayer": <FormPlayer onSuccess={refreshData} />,
-            "editPlayer": <FormPlayer action="edit" onSuccess={refreshData} />,
-            "deletePlayer": <FormPlayer  action="delete" onSuccess={refreshData} />,
-            "newRoster": <FormRoster onSuccess={refreshData} />,
-            "editRoster": <FormRoster action="edit" onSuccess={refreshData} />,
-            "deleteRoster": <FormRoster  action="delete" onSuccess={refreshData} />,
+            "editGame": <FormGame action="edit" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "deleteGame": <FormGame action="delete" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "newPlayer": <FormPlayer onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "editPlayer": <FormPlayer action="edit" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "deletePlayer": <FormPlayer  action="delete" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "newRoster": <FormRoster onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "editRoster": <FormRoster action="edit" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
+            "deleteRoster": <FormRoster  action="delete" onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)} />,
         }
         return content[selectedModal as keyof typeof content] || null;
     }
     const handleOpenChange = (open: boolean) => {
         if (!open) {
             setExpModal("none");
-            refreshData();
+            refreshData(fetchGames, fetchPlayers, fetchRosters);
         }
     }
 

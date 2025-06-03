@@ -14,7 +14,10 @@ export type GameDataItem = DataItem & {
 };
 
 export type RosterDataItem = DataItem & {
-    rosterId?: number;
+    allow?: string[];
+    deny?: string[];
+    opt_in?: string[];
+    opt_out?: string[];
 };
 
 export type SelectedItem = DataItem | GameDataItem | RosterDataItem;

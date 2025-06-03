@@ -1,28 +1,45 @@
 import { db } from './sqLiteService';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import { rosters } from '../lib/dbSchema';
-import { RosterDataItem } from '../lib/types';
+import { DataItem, RosterDataItem } from '../lib/types';
+import { generateSnowflake } from '../lib/snowflake';
 
 const addRoster = async (roster:RosterDataItem) => {
-    const { name, description, data } = roster;
+    const { name, allow, description, deny, opt_in, opt_out } = roster;
+    const snowflake = generateSnowflake();
     const values = {
         name,
+        snowflake: String(snowflake),
         description,
-        data: JSON.stringify(data),
+        allow,
+        deny,
+        opt_in,
+        opt_out
     };
-    return await db.insert(rosters).values(values as any); //TODO: fix this
+    try {
+        await db.insert(rosters).values(values);
+        const newRoster = await db.select().from(rosters)
+        .where(eq(rosters.snowflake, String(snowflake)));
+        
+        if (!newRoster || !newRoster[0]) {
+            throw new Error('Failed to create roster - no result returned');
+        }
+        return newRoster[0];
+    } catch (error) {
+        console.error('Error in addRoster:', error);
+        throw new Error('Failed to process roster');
+    }
 }
 
-const getRoster = async (rosterId:number) => {
-    return await db.select().from(rosters).where(eq(rosters.rosterId, rosterId));
+const getRoster = async (id:number) => {
+    return await db.select().from(rosters).where(eq(rosters.id, id));
 }
 
 const getRosters = async (limit:number) => {
-    console.log('getRosters called with limit:', limit);
     try {
         // Try a direct SQL query first to verify table access
-        const result = await db.select().from(rosters).limit(limit);
-        console.log('getRosters query result:', result);
+        const result = await db.select().from(rosters)
+        .orderBy(asc(rosters.name)).limit(limit);
         return result;
     } catch (error) {
         console.error('Error in getRosters:', error);
@@ -30,21 +47,19 @@ const getRosters = async (limit:number) => {
     }
 }
 
-const updateRoster = async (roster:RosterDataItem) => {
-    const { rosterId } = roster;
-    // return await db.update(rosters)
-    //     .set(roster)
-    //     .where(eq(rosters.rosterId, rosterId))
-    //     .returning();
-    return {rosterId};
+const updateRoster = async (roster:DataItem) => {
+    const { id = -1 } = roster;
+    return await db.update(rosters)
+        .set(roster)
+        .where(eq(rosters.id, id))
+        .returning();
 }
 
-const deleteRoster = async (roster:RosterDataItem) => {
-    const { rosterId } = roster;
-    // return await db.delete(rosters)
-    //     .where(eq(rosters.rosterId, rosterId))
-    //     .returning();
-    return {rosterId};
+const deleteRoster = async (roster:DataItem) => {
+    const { id = -1 } = roster;
+    return await db.delete(rosters)
+        .where(eq(rosters.id, id))
+        .returning();
 }
 
 const rosterData = { 

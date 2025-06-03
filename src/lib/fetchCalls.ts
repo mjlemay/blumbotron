@@ -1,9 +1,9 @@
-import { useGameStore } from "../stores/gamesStore";
-import { usePlayerStore } from "../stores/playersStore";
-
-export const refreshData = async () => {
-    const { fetchGames } = useGameStore();
-    const { fetchPlayers } = usePlayerStore();
+export const refreshData = async (
+    fetchGames: () => Promise<void>,
+    fetchPlayers: () => Promise<void>,
+    fetchRosters: () => Promise<void>
+) => {
     await fetchGames();
     await fetchPlayers();
+    await fetchRosters();
 }
