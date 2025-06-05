@@ -36,7 +36,20 @@ function Chip(props: ComponentProps): JSX.Element {
         <div
             onClick={() => handleClick(id || null)}
             key={`${id}_${text}`}
-            className={`flex flex-row grow-0 text-sm gap-0.5 ${color || "bg-slate-500/50"} p-1 pr-2 pl-2 items-center rounded-full shadow-sm`}
+            className={`
+                flex
+                flex-row
+                grow-0
+                text-sm
+                gap-0.5
+                ${color || "bg-slate-500/50"}
+                p-1
+                pr-2
+                pl-2
+                items-center
+                rounded-full
+                shadow-sm
+            `}
         >
             {getIcon(icon)} {text}
         </div>

@@ -1,5 +1,5 @@
 import { SelectedItem } from "../lib/types";
-import { createAvatar, schema } from '@dicebear/core';
+import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { useMemo } from "react";
 import { Separator } from "@radix-ui/react-separator";
