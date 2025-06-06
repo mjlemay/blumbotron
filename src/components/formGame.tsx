@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import DialogContainer from "./dialogContainer";
+import SelectChip from "./selectChip";
 import Input from "./input";
 import { z } from 'zod';
 import { useGameStore } from "../stores/gamesStore";
 import { useExperienceStore } from "../stores/experienceStore";
-import { GameDataItem } from "../lib/types";
+import { GameDataItem, RosterDataItem } from "../lib/types";
 import { getSelected } from "../lib/selectedStates";
 import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import * as Menubar from "@radix-ui/react-menubar";
 import { defaultGame } from "../lib/defaults";
+import { useRosterStore } from "../stores/rostersStore";
 
 type FormGameProps = {
     action?: string;
@@ -18,6 +20,7 @@ type FormGameProps = {
 function FormGame(props: FormGameProps) {
     const { action = "new", onSuccess } = props;
     const { createGame, editGame, deleteGame, fetchGame, loading, error } = useGameStore();
+    const { rosters, fetchRosters } = useRosterStore();
     const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
     const game = getSelected("games") as GameDataItem;
     const [form, setForm] = useState(game || defaultGame);
@@ -134,6 +137,14 @@ function FormGame(props: FormGameProps) {
       }
     }
 
+    const handleRosterSelect = (value: string) => {
+      if (value == "everyone") {
+        setForm({ ...form, roster: null });
+      } else {
+        setForm({ ...form, roster: value });
+      }
+    }
+
     // Reset form when action changes to delete
     useEffect(() => {
       game?.id && fetchGame(game?.id as unknown as number);
@@ -141,6 +152,13 @@ function FormGame(props: FormGameProps) {
         setForm({name: ''});
       }
     }, [action]);
+
+    useEffect(() => {
+      fetchRosters();
+    }, []);
+
+    const rosterSelections = rosters.map((roster: RosterDataItem) => ({ label: roster.name, value: roster.snowflake, data: {snowflake: roster.snowflake} }));
+    rosterSelections.unshift({ label: "All Players", value: "everyone", data: {snowflake: "everyone"} });
 
     const formContent = (action:string) => {
       let content = <></>;
@@ -197,6 +215,13 @@ function FormGame(props: FormGameProps) {
                 name='description' value={form.description || ''}
                 changeHandler={handleFormChange}
                 errMsg={getError('description')}
+            />
+            <p className="text-lg font-bold pb-1">Roster</p>
+            <SelectChip
+              selectPlaceholder="Select a roster"
+              selections={rosterSelections}
+              defaultValue={form.roster || "everyone"}
+              handleSelect={(value) => handleRosterSelect(value)}
             />
         </div>
         );

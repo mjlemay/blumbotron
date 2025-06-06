@@ -1,6 +1,7 @@
 import ListContainer from "./listContainer";
 import { useEffect } from "react";
 import { useGameStore } from "../stores/gamesStore";
+import { useRosterStore } from "../stores/rostersStore";
 import * as Menubar from "@radix-ui/react-menubar";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import DisplayListItem from "./displayListItem";
@@ -10,9 +11,11 @@ import { useExperienceStore } from "../stores/experienceStore";
 function ViewHome(): JSX.Element  {
   const { games, loading, error, fetchGames } = useGameStore();
   const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
+  const { fetchRosters } = useRosterStore();
 
   useEffect(() => {
     fetchGames();
+    fetchRosters();
   }, []);
 
     if (loading) return <div>Loading...</div>;

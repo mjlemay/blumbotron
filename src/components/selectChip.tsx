@@ -6,24 +6,34 @@ import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 
 type Selections = {
+    data?: any;
     label: string;
     value?: string |number;
-    data?: any;
 }
 
 type ComponentProps = {
+    defaultValue?: string;
+    handleSelect?: (value: string) => void;
+    resetOnSelect?: boolean;
+    selectIcon?: React.ReactNode;
     selections?: Selections[] | null;
     selectLabel?: string;
-    selectPrefix?: string;
     selectPlaceholder?: string;
-    selectIcon?: React.ReactNode;
-    resetOnSelect?: boolean;
-    handleSelect?: (value: string) => void;
+    selectPrefix?: string;
 }
 
 function SelectChip(props: ComponentProps): JSX.Element {
-    const { handleSelect = () =>{}, selections, selectLabel, selectPrefix, selectPlaceholder = "Add", selectIcon = <PlusCircledIcon className="w-4 h-4" />, resetOnSelect = false } = props;
-    const [selected, setSelected] = useState<string | undefined>(undefined);
+    const { 
+        defaultValue,
+        handleSelect = () =>{},
+        resetOnSelect = false,
+        selectIcon,
+        selections,
+        selectLabel,
+        selectPlaceholder = "Add",
+        selectPrefix,
+    } = props;
+    const [selected, setSelected] = useState<string | undefined>(defaultValue || undefined);
 
     const SelectItem = forwardRef(
         ({ children, value }: { children: React.ReactNode, value: string }, forwardedRef: React.Ref<HTMLDivElement>) => {
@@ -39,6 +49,8 @@ function SelectChip(props: ComponentProps): JSX.Element {
                         mb-1
                         text-sm
                         leading-none
+                        cursor-pointer
+                        hover:bg-blue-600/20
                         data-[disabled]:pointer-events-none
                     "
                     ref={forwardedRef}
@@ -78,6 +90,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
         <Select.Root
             onValueChange={(value) => selectAndReset(value)}
             value={selected}
+            defaultValue={defaultValue}
         >
 		<Select.Trigger
 			className="
@@ -102,7 +115,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
 		>
 			<Select.Value placeholder={<div className="p-1 pr-0">{selectPlaceholder}</div>} />
 			<Select.Icon>
-				{selectIcon}
+				{selectIcon || (resetOnSelect ? <PlusCircledIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />)}
 			</Select.Icon>
 		</Select.Trigger>
 		<Select.Portal>
@@ -123,7 +136,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
                                     key={`${selectPrefix ||selectLabel || "select"}-${item.label}`}
                                     value={item.value as string || ''}
                                 >
-                                    <div className="flex flex-row items-center gap-2 text-xl bg-slate-600/75 p-1 rounded-full">
+                                    <div className="flex flex-row items-center gap-2 text-xl p-1 rounded-full">
                                     {item.data?.snowflake && 
                                         <img src={avatar(item.data?.snowflake)}
                                             className="rounded"

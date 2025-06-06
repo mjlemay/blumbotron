@@ -34,6 +34,9 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
     const getLimitedPlayers = (players: string[], allPlayers: DataItem[]): string => {
         const playerLength = players.length;
         const PLAYER_LIMIT = 5;
+        if (playerLength == 0) {
+            return "Everyone";
+        }
         if (playerLength > PLAYER_LIMIT) {
             const firstPlayers = players.slice(0, PLAYER_LIMIT);
             const namedPlayers = firstPlayers.map((player: string) => getPlayerBySnowflake(player, allPlayers)?.name || player);

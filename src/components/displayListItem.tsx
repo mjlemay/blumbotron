@@ -3,6 +3,8 @@ import { ClockIcon, MixIcon, TableIcon, BookmarkIcon, StarIcon  } from "@radix-u
 import { Separator } from "@radix-ui/react-separator";
 import Chip from "./chip";
 import { bgColors } from "../lib/consts";
+import { getPlayerBySnowflake } from "../lib/selectedStates";
+import { useRosterStore } from "../stores/rostersStore";
 
 type ComponentProps = {
     item: SelectedItem;
@@ -12,6 +14,7 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
     const { 
         item: { id, name, data, description, created_at, updated_at, handleClick },
     } = props;
+    const { rosters } = useRosterStore();
     const itemData:Record<string,string> = data ? JSON.parse(data) : {};
     const category = itemData ? itemData.category : undefined;
     const roster = 'roster' in props.item ? props.item.roster : undefined;
@@ -59,14 +62,14 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
                         {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
                         {(!category || category !== 'roster') && (
                             <Chip 
-                                text={roster ? String(roster) : "All Players"}
-                                color={getRosterColor(roster ? String(roster) : "Everyone")}
+                                text={roster ? getPlayerBySnowflake(roster as string, rosters)?.name || roster as string : "All Players"}
+                                color={getRosterColor(roster ? roster as string || roster : "Everyone")}
                                 icon={roster ? "roster" : "everyone"}
                                 handleClick={() => {}}
-                            />)}
+                            />
+                        )}
                     </div>
                     {description && (<p>{description}</p>)}
-                    {roster && (<p>Roster: {String(roster)}</p>)}
                 </div>
             </div>
             <Separator className="h-[1px] w-full mb-1 h-4 bg-slate-600/50" orientation="horizontal" />

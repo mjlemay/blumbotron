@@ -83,7 +83,7 @@ function ViewRoster() {
                   handleClick={() => handleRemovePlayer(playerSnowflake, 'allow')}
                 />
               ))}
-              {allow.length == 0 && <p className="text-slate-400 p-2 text-lg">No players selected.</p>}
+              {allow.length == 0 && <p className="text-slate-400 p-1 text-lg">All non-banned players allowed.</p>}
               <SelectChip 
                 selectPlaceholder="Add Player" 
                 selections={players ? unUsedPlayers.map((item: DataItem) => ({ label: item.name, value: item.snowflake, data: {snowflake: item.snowflake} })) : []} 
@@ -101,7 +101,7 @@ function ViewRoster() {
                   handleClick={() => handleRemovePlayer(playerSnowflake, 'deny')}
                 />
               ))}
-              {deny.length == 0 && <p className="text-slate-400 p-2 text-lg">No players selected.</p>}
+              {deny.length == 0 && <p className="text-slate-400 p-1 text-lg">No players selected.</p>}
               <SelectChip 
                 selectPlaceholder="Add Player" 
                 selections={players ? unUsedPlayers.map((item: DataItem) => ({ label: item.name, value: item.snowflake, data: {snowflake: item.snowflake} })) : []} 
