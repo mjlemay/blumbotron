@@ -29,10 +29,21 @@ function SelectChip(props: ComponentProps): JSX.Element {
         ({ children, value }: { children: React.ReactNode, value: string }, forwardedRef: React.Ref<HTMLDivElement>) => {
             return (
                 <Select.Item
-                    className={"relative flex select-none items-center rounded-lg  bg-slate-600/75 mb-1 text-sm leading-none text-violet11 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-blue-500 data-[highlighted]:outline-none"}
-                        ref={forwardedRef}
-                        value={value}
-                    >
+                    className="
+                        relative
+                        flex
+                        select-none
+                        items-center
+                        rounded-lg
+                        bg-slate-600/75
+                        mb-1
+                        text-sm
+                        leading-none
+                        data-[disabled]:pointer-events-none
+                    "
+                    ref={forwardedRef}
+                    value={value}
+                >
                     <Select.ItemText>{children}</Select.ItemText>
                     <Select.ItemIndicator 
                         className="absolute left-0 inline-flex w-[25px] items-center justify-center"
@@ -82,13 +93,14 @@ function SelectChip(props: ComponentProps): JSX.Element {
                 rounded-full
                 shadow-sm
                 outline-none 
-                hover:bg-blue-500
+                hover:bg-blue-600/20
                 data-[placeholder]:text-slate-300
-                text-xl
+                text-lg
+                cursor-pointer
             "
 			aria-label="items"
 		>
-			<Select.Value placeholder={<div className="p-1">{selectPlaceholder}</div>} />
+			<Select.Value placeholder={<div className="p-1 pr-0">{selectPlaceholder}</div>} />
 			<Select.Icon>
 				{selectIcon}
 			</Select.Icon>

@@ -3,7 +3,7 @@ import { useGameStore } from "../stores/gamesStore";
 import { usePlayerStore } from "../stores/playersStore";
 import { useRosterStore }  from "../stores/rostersStore";
 import { useShallow } from "zustand/react/shallow";
-import { SelectedItem } from "../lib/types";
+import { SelectedItem, DataItem } from "../lib/types";
 
 export const getSelected = (store:string) => {
     const singleStr = store.substring(0, store.length - 1);
@@ -49,4 +49,8 @@ export const returnToParent = (
     setExpView(parents[type]);
     setExpModal('none');
     setExpSelected({});
+}
+
+export const getPlayerBySnowflake = (snowflake: string, players: DataItem[] | null) => {
+    return players?.find((player: DataItem) => player.snowflake === snowflake);
 }

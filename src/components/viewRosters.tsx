@@ -6,14 +6,17 @@ import { PlusCircledIcon } from "@radix-ui/react-icons";
 import RosterListItem from "./rosterListItem";
 import { RosterDataItem } from "../lib/types";
 import { useExperienceStore } from "../stores/experienceStore";
+import { usePlayerStore } from "../stores/playersStore";
 
 
 function ViewRosters(): JSX.Element  {
   const { rosters, loading, error, fetchRosters } = useRosterStore();
+  const { fetchPlayers } = usePlayerStore();
   const { setExpModal, setExpSelected, setExpView} = useExperienceStore();
 
   useEffect(() => {
     fetchRosters();
+    fetchPlayers();
   }, []);
 
     if (loading) return <div>Loading...</div>;

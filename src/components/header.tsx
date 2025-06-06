@@ -76,9 +76,6 @@ function Header(): JSX.Element {
                             >
                               <div className="flex flex-row gap-2 items-center"><TrashIcon width="20" height="20" /> Delete</div>
                             </Menubar.Item>
-                            <Menubar.Item>
-                              {selectedType}
-                            </Menubar.Item>
                           </Menubar.Content>
                         </Menubar.Portal>
                     </Menubar.Menu>

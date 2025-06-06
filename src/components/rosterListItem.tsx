@@ -2,6 +2,10 @@ import { RosterDataItem } from "../lib/types";
 import { BookmarkIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/react-separator";
 import { bgColors } from "../lib/consts";
+import { getPlayerBySnowflake } from "../lib/selectedStates";
+import { PersonIcon } from "@radix-ui/react-icons";
+import { usePlayerStore } from "../stores/playersStore";
+import { DataItem } from "../lib/types";
 
 type ComponentProps = {
     item: RosterDataItem;
@@ -9,8 +13,9 @@ type ComponentProps = {
 
 function DisplayListItem(props: ComponentProps): JSX.Element {
     const { 
-        item: { id, name, description, allow, deny, opt_in, opt_out, created_at, updated_at, handleClick },
+        item: { id, name, description, allow, created_at, updated_at, handleClick },
     } = props;
+    const { players } = usePlayerStore();
 
     const handleItemClick = (id: number | string | null) => {
         if (handleClick) {
@@ -26,6 +31,17 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
         return bgColors[selectedColor] || bgColors.slate;
     }
 
+    const getLimitedPlayers = (players: string[], allPlayers: DataItem[]): string => {
+        const playerLength = players.length;
+        const PLAYER_LIMIT = 5;
+        if (playerLength > PLAYER_LIMIT) {
+            const firstPlayers = players.slice(0, PLAYER_LIMIT);
+            const namedPlayers = firstPlayers.map((player: string) => getPlayerBySnowflake(player, allPlayers)?.name || player);
+            return namedPlayers.join(', ') + ' and ' + (playerLength - PLAYER_LIMIT) + ' more...';
+        }
+        return players.map((player: string) => getPlayerBySnowflake(player, allPlayers)?.name || player).join(', ');
+    }
+
     return (
         <div className="flex flex-col items-start justify-start bg-slate-700 hover:cursor-pointer hover:bg-blue-600/20 rounded-lg shadow-lg p-4 m-2" key={`${id}_${name}`} onClick={() => handleItemClick(id || null)}>
             <div className="flex flex-row items-center w-full justify-start">
@@ -37,11 +53,9 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
                         {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
                     </div>
                     {description && (<p>{description}</p>)}
-                    <div className="overflow-hidden max-w-[70vw]">
-                        <div className="truncate">{allow}</div>
-                        <div className="truncate">{deny}</div>
-                        <div className="truncate">{opt_in}</div>
-                        <div className="truncate">{opt_out}</div>
+                    <div className="overflow-hidden truncate text-slate-300 pb-2 pt-1 items-center text-xs flex flex-row gap-0.75">
+                        <PersonIcon className="w-3 h-3" />
+                        {getLimitedPlayers(allow || [], players || [])}
                     </div>
                 </div>
             </div>
