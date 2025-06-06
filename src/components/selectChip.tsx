@@ -1,3 +1,4 @@
+import { useState } from "react";
 import * as Select  from "@radix-ui/react-select";
 import { PlusCircledIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { forwardRef } from "react";
@@ -16,12 +17,13 @@ type ComponentProps = {
     selectPrefix?: string;
     selectPlaceholder?: string;
     selectIcon?: React.ReactNode;
+    resetOnSelect?: boolean;
     handleSelect?: (value: string) => void;
 }
 
 function SelectChip(props: ComponentProps): JSX.Element {
-    const { handleSelect = () =>{}, selections, selectLabel, selectPrefix, selectPlaceholder = "Add", selectIcon = <PlusCircledIcon className="w-4 h-4" /> } = props;
-
+    const { handleSelect = () =>{}, selections, selectLabel, selectPrefix, selectPlaceholder = "Add", selectIcon = <PlusCircledIcon className="w-4 h-4" />, resetOnSelect = false } = props;
+    const [selected, setSelected] = useState<string | undefined>(undefined);
 
     const SelectItem = forwardRef(
         ({ children, value }: { children: React.ReactNode, value: string }, forwardedRef: React.Ref<HTMLDivElement>) => {
@@ -43,6 +45,15 @@ function SelectChip(props: ComponentProps): JSX.Element {
         },
     );
 
+    const selectAndReset = (value: string) => {
+        handleSelect(value);
+        if (resetOnSelect) {
+            setSelected('');
+        } else {
+            setSelected(value);
+        }
+    }
+
     const avatar = (seed:string) => {
         const options: any = {
             size: '20',
@@ -54,7 +65,8 @@ function SelectChip(props: ComponentProps): JSX.Element {
 
     return (
         <Select.Root
-            onValueChange={(value) => handleSelect(value)}
+            onValueChange={(value) => selectAndReset(value)}
+            value={selected}
         >
 		<Select.Trigger
 			className="

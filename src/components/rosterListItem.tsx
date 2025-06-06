@@ -9,7 +9,7 @@ type ComponentProps = {
 
 function DisplayListItem(props: ComponentProps): JSX.Element {
     const { 
-        item: { id, name, description, allow, deny, opt_in, created_at, updated_at, handleClick },
+        item: { id, name, description, allow, deny, opt_in, opt_out, created_at, updated_at, handleClick },
     } = props;
 
     const handleItemClick = (id: number | string | null) => {
@@ -37,9 +37,12 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
                         {name && (<h3 className="text-2xl font-bold">{name}</h3>)}
                     </div>
                     {description && (<p>{description}</p>)}
-                    {allow}
-                    {deny}
-                    {opt_in}
+                    <div className="overflow-hidden max-w-[70vw]">
+                        <div className="truncate">{allow}</div>
+                        <div className="truncate">{deny}</div>
+                        <div className="truncate">{opt_in}</div>
+                        <div className="truncate">{opt_out}</div>
+                    </div>
                 </div>
             </div>
             <Separator className="h-[1px] w-full mb-1 h-4 bg-slate-600/50" orientation="horizontal" />
