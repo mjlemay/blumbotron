@@ -71,7 +71,20 @@ function ViewRoster() {
 
   return (
     <div key={`${id}-${name}`}>
-        <div className="flex flex-col min-h-[calc(100vh-8rem)] min-w-[calc(100vw-8rem)] bg-slate-600 justify-start rounded-lg p-2 m-2 pt-4 shadow-lg">
+        <div
+          className="
+            flex 
+            flex-col
+            min-h-[calc(100vh-8rem)]
+            min-w-[calc(100vw-8rem)]
+            bg-slate-600
+            justify-start
+            rounded-lg
+            p-2 m-2
+            pt-4
+            shadow-lg
+          "
+        >
             <div className={`min-w-[46vw] bg-slate-600 shrink`}>
             <h2 className="text-3xl font-thin pl-2 pb-2">Participants</h2>
             <div className="flex flex-wrap gap-2 p-1 mb-4">
