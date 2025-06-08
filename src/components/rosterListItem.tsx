@@ -48,7 +48,7 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
     return (
         <div className="flex flex-col items-start justify-start bg-slate-700 hover:cursor-pointer hover:bg-blue-600/20 rounded-lg shadow-lg p-4 m-2" key={`${id}_${name}`} onClick={() => handleItemClick(id || null)}>
             <div className="flex flex-row items-center w-full justify-start">
-                <div className={`rounded-full ${getRosterColor(name)} p-2 m-2`}>
+                <div className={`rounded-xl ${getRosterColor(name)} p-2 m-2`}>
                     <BookmarkIcon className="text-slate-100" width="40" height="40" />
                 </div>
                 <div className="w-full items-start justify-start">
