@@ -42,19 +42,19 @@ function ViewGame() {
           <div className="flex flex-col items-center justify-center p-2"
             onClick={() => handleSubViewSelect("launch")}
           >
-            <UiButton uiIcon="launch" />
+            <UiButton uiIcon="launch" size="30" isSelected={subView === "launch"} />
             <span className="text-sm">Launch</span>
           </div>
           <div className="flex flex-col items-center justify-center p-2"
             onClick={() => handleSubViewSelect("config")}
           >
-            <UiButton uiIcon="config" />
+            <UiButton uiIcon="config" size="30" isSelected={subView === "config"} />
             <span className="text-sm">Config</span>
           </div>
           <div className="flex flex-col items-center justify-center p-2"
             onClick={() => handleSubViewSelect("layout")}
           >
-            <UiButton uiIcon="layout" />
+            <UiButton uiIcon="layout" size="30" isSelected={subView === "layout"} />
             <span className="text-sm">Layout</span>
           </div>
         </div>

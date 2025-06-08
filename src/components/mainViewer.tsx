@@ -48,7 +48,7 @@ function MainViewer() {
       <Header />
       <div className="flex flex-row">
         <div className="flex-0 min-w-[80px]">
-          <Sidebar />
+          <Sidebar view={view} />
         </div>
         <div className="flex-1 flex items-center h-[calc(100vh-80px)] w-[calc(100vw-80px)] justify-center">
           {showView(view)}

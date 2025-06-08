@@ -2,9 +2,12 @@ import UiButton from "./uiButton";
 import { useExperienceStore } from "../stores/experienceStore";
 import { useShallow } from "zustand/react/shallow";
 
+type SidebarProps = {
+  view?: string;
+}
 
-function Sidebar(): JSX.Element {
-  const { setExpView, setExpSelected,} = useExperienceStore(
+function Sidebar({ view }: SidebarProps): JSX.Element {
+  const { setExpView, setExpSelected} = useExperienceStore(
     useShallow((state) => ({ 
       setExpView: state.setExpView,
       setExpSelected: state.setExpSelected,
@@ -22,19 +25,19 @@ function Sidebar(): JSX.Element {
         <div className="flex flex-col items-center justify-center p-2"
           onClick={() => handleViewSelect("home")}
         >
-          <UiButton uiIcon="game" />
+          <UiButton uiIcon="game" isSelected={view === "home"} />
           <span className="text-sm">Games</span>
         </div>
         <div className="flex flex-col items-center justify-center p-2"
             onClick={() => handleViewSelect("players")}
         >
-          <UiButton uiIcon="person" />
+          <UiButton uiIcon="person" isSelected={view === "players"} />
           <span className="text-sm">Players</span>
         </div>
         <div className="flex flex-col items-center justify-center p-2"
             onClick={() => handleViewSelect("rosters")}
         >
-            <UiButton uiIcon="roster" />
+            <UiButton uiIcon="roster" isSelected={view === "rosters"} />
             <span className="text-sm">Rosters</span>
         </div>
       </div>
