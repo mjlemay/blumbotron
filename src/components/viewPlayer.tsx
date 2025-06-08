@@ -10,7 +10,8 @@ function ViewPlayer() {
 
     return (
       <div key={`${id}-${name}`} >
-        <div        className="
+        <div
+          className="
             flex 
             flex-col
             min-h-[calc(100vh-8rem)]
@@ -21,7 +22,7 @@ function ViewPlayer() {
             p-2 m-2
             pt-4
             shadow-lg
-          ">
+        ">
           <div className="w-full rounded bg-slate-700 p-4 mb-4 shadow-lg">
           <h2 className="text-3xl font-thin pl-2 pb-2 flex flex-row items-center gap-2">
             <PersonIcon className="w-8 h-8" />

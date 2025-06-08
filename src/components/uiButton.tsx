@@ -8,6 +8,9 @@ import {
     PersonIcon,
     MixIcon,
     BookmarkIcon,
+    RocketIcon,
+    GearIcon,
+    HobbyKnifeIcon,
 } from "@radix-ui/react-icons";
 
 interface UiButtonProps {
@@ -51,6 +54,15 @@ function UiButton(props: UiButtonProps): JSX.Element {
                 break;
             case "roster":
                 icon = <BookmarkIcon width="40" height="40" />;
+                break;
+            case "launch":
+                icon = <RocketIcon width="30" height="30" />;
+                break;
+            case "config":
+                icon = <GearIcon width="30" height="30" />;
+                break;
+            case "layout":
+                icon = <HobbyKnifeIcon width="30" height="30" />;
                 break;
             default:
                 icon = <QuestionMarkCircledIcon width="40" height="40" />;
