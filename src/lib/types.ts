@@ -13,6 +13,13 @@ export type GameDataItem = DataItem & {
     roster?: string | null;
 };
 
+export type ScoreDataItem = DataItem & {
+    game?: string | null;   
+    player?: string | null;
+    units?: string | null;
+    amount?: number | null;
+};
+
 export type RosterDataItem = DataItem & {
     allow?: string[];
     deny?: string[];
@@ -20,7 +27,7 @@ export type RosterDataItem = DataItem & {
     opt_out?: string[];
 };
 
-export type SelectedItem = DataItem | GameDataItem | RosterDataItem;
+export type SelectedItem = DataItem | GameDataItem | RosterDataItem | ScoreDataItem;
 
 export type Experience = {
     view: string;

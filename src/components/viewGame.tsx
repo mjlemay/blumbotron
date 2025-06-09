@@ -3,6 +3,7 @@ import { useExperienceStore } from "../stores/experienceStore";
 import { useState } from 'react';
 import UiButton from './uiButton';
 import { Separator } from "@radix-ui/react-separator";
+import SubViewLaunch from './subViewLaunch';
 
 function ViewGame() {
     const { selected } = useExperienceStore(useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView })));
@@ -23,12 +24,13 @@ function ViewGame() {
           justify-start
           gap-0
           m-2
-          min-w-[calc(100vw-6rem)]
           overflow-hidden
           flex-nowrap
-          bg-slate-700/50
           shadow-lg
           rounded-lg
+          min-h-[calc(100vh-8rem)]
+          min-w-[calc(100vw-8rem)]
+          bg-slate-700/50
       ">
         <div className="
           flex
@@ -71,11 +73,7 @@ function ViewGame() {
           shadow-l
       ">
         {subView === 'launch' && (
-          <>
-            <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-              {name} Launch Options
-            </h2>
-          </>
+            <SubViewLaunch gameData={selectedGame} />
         )}
         {subView === 'config' && (
            <div className="w-full rounded bg-slate-700 p-4 mb-4 shadow-lg">

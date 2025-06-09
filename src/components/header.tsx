@@ -48,7 +48,10 @@ function Header(): JSX.Element {
 
     return (
     <div className="min-h-[80px] min-w-full items-center flex flex-row bg-slate-900 gap-4 px-4">
-        <div className=" flex-grow text-2xl font-bold">{name}</div>
+        <div className="flex-initial min-w-[80px] flex flex-row gap-4 items-center">
+         
+        </div>
+        <div className=" flex-grow text-3xl font-bold">{name}</div>
             {selectedItem && (
               <div className="flex-initial flex flex-row gap-4 items-center">
                   <Menubar.Root className="flex rounded-md p-2">
