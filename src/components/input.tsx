@@ -1,9 +1,11 @@
 
 interface InputProps {
     changeHandler?: Function;
+    focusHandler?: Function;
     label?: string;
     name: string;
     hidden?: boolean;
+    placeholder?: string;
     value?: string | number | readonly string[];
     errMsg?: string;
     align?: 'left' | 'right';
@@ -15,9 +17,11 @@ interface InputProps {
       align,
       changeHandler = ()=>{},
       errMsg,
+      focusHandler = ()=>{},
       hidden = false,
       label,
       name,
+      placeholder,
       type = 'text',
       value = ''
     } = props;
@@ -34,8 +38,10 @@ interface InputProps {
           `}
           value={value}
           name={name}
+          placeholder={placeholder}
           type={hidden ? 'hidden' : type }
           onChange={(Event) => changeHandler(Event)}
+          onFocus={(Event) => focusHandler(Event)}
         />
         <div className={errMsg ? 'block text-red-400 m1' : 'hidden'}>{errMsg}</div>
       </div>

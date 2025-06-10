@@ -7,6 +7,7 @@ import { DataItem,
         RosterDataItem,
         ScoreDataItem
 } from "../lib/types";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { usePlayerStore } from "../stores/playersStore";
 import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
@@ -20,7 +21,7 @@ type ComponentProps = {
 
 type FormData = {
     units: string;
-    leaderboard_update: number;
+    leaderboard_update: number | string;
     player: string | undefined;
     game: string | undefined;
 }
@@ -33,10 +34,10 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     const { players, fetchPlayers } = usePlayerStore();
     const { rosters } = useRosterStore();
     const { createScore, error } = useScoreStore();
-    const [ formErrors, setFormErrors ] = useState({});
+    const [ formErrors, setFormErrors ] = useState('');
     const [form, setForm] = useState({
         units,
-        leaderboard_update: 0,
+        leaderboard_update: '',
         player: '',
         game: snowflake,
     });
@@ -49,17 +50,18 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     const resetForm = () => {
         setForm({
             units,
-            leaderboard_update: 0,
+            leaderboard_update: '',
             player: '',
             game: snowflake,
         });
     }
-    const createNewScore = async (formData:FormData) => {        
+    const createNewScore = async (formData:FormData) => {
+
         const formSchema = z.object({
-            units: z.string().min(1),
-            leaderboard_update: z.number().min(1),
-            player: z.string().min(18),
-            game: z.string().min(18),
+            units: z.string().min(1, 'Please add an amount to update'),
+            leaderboard_update: z.coerce.number().min(1, 'Please add an amount to update'),
+            player: z.string().min(18, 'Please select a player'),
+            game: z.string().min(18, 'Please select a game' ),
         });
 
         try {
@@ -74,16 +76,10 @@ function UpdateScore(props: ComponentProps): JSX.Element {
         } catch (err) {
           console.error('Error in createNewScore:', err);
           if (err instanceof z.ZodError) {
-            let newErrs:Record<string, string> = {};
-            err.errors.map(errItem => {
-              const { path, message } = errItem;
-              const key = path[0];
-              newErrs[`${key}`] = message;
-            })
-            setFormErrors(newErrs);
+            setFormErrors(err.errors[0].message);
           } else {
             // Handle other errors (like creation/editing failure)
-            setFormErrors({ name: err instanceof Error ? err.message : 'Failed to process player' });
+            setFormErrors('Failed to process player');
           }
           return false;
         }
@@ -98,26 +94,81 @@ function UpdateScore(props: ComponentProps): JSX.Element {
         setForm(clonedForm);
     }
 
+    const handleSelectFormChange = (value:string) => {
+        const clonedForm = JSON.parse(JSON.stringify(form));
+        clonedForm.player = value;
+        setForm(clonedForm);
+    }
+    const handleFormFocus = (Event:React.FocusEvent<HTMLInputElement>) => {
+        const eventTarget = Event?.target;
+        const clonedForm = JSON.parse(JSON.stringify(form));
+        const formKey = eventTarget?.name;
+        clonedForm[`${formKey}`] = '';
+        setForm(clonedForm);
+    }
+
     useEffect(() => {
         fetchPlayers();
     }, []);
 
     return (
         <div className=" bg-slate-700 rounded-lg p-2 shadow-sm">
-            <div className="flex flex-col items-start justify-start p-2">
+            <div className="flex flex-col items-center justify-start p-2 pt-0">
+                <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">{`Update Player ${toTitleCase(units)}`}</h3>
                 <Input
                     name="leaderboard_update"
-                    label={`Update Player ${toTitleCase(units)}`}
                     value={form.leaderboard_update}
                     align="right"
+                    placeholder="0"
                     changeHandler={handleFormChange}
+                    focusHandler={handleFormFocus}
                 />
                 <SelectChip 
+                    moreClasses="min-w-full rounded-md mb-3 min-h-[44px]"
                     selections={players ? usedPlayers.map((item: DataItem) => ({ label: item.name, value: item.snowflake, data: {snowflake: item.snowflake} })) : []} 
-                    defaultValue={form.player} 
-                    handleSelect={() => createNewScore(form)}
+                    defaultValue={form.player}
+                    selectPlaceholder="Select Player"
+                    handleSelect={(value) => handleSelectFormChange(value)}
                 />
-                {formErrors && <p className="text-red-500">{JSON.stringify(formErrors)}</p>}
+                <button
+                    className="
+                        flex select-none
+                        items-center
+                        justify-center
+                        cursor-pointer
+                        rounded
+                        shadow-sm
+                        p-2
+                        w-full
+                        text-lg
+                        gap-1.5
+                        font-medium
+                        bg-sky-700
+                        hover:bg-sky-600/80
+                        active:bg-sky-600/90
+                        disabled:bg-sky-600/50
+                        disabled:cursor-not-allowed
+                        transition-colors
+                        duration-200
+                        mt-2
+                    "
+                    onClick={() => createNewScore(form)}
+                >
+                    <PlusCircledIcon width="20" height="20" /> Add Score
+                </button>
+                {formErrors && (
+                    <p className="
+                    text-red-500
+                    bg-red-500/10
+                    rounded-md
+                    mt-2
+                    p-1
+                    w-full
+                    text-center
+                    ">
+                    {formErrors}
+                </p>
+                )}
             </div>
         </div>
     );

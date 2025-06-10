@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Select  from "@radix-ui/react-select";
 import { PlusCircledIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { forwardRef } from "react";
@@ -14,6 +14,7 @@ type Selections = {
 type ComponentProps = {
     defaultValue?: string;
     handleSelect?: (value: string) => void;
+    moreClasses?: string;
     resetOnSelect?: boolean;
     selectIcon?: React.ReactNode;
     selections?: Selections[] | null;
@@ -26,6 +27,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
     const { 
         defaultValue,
         handleSelect = () =>{},
+        moreClasses = "",
         resetOnSelect = false,
         selectIcon,
         selections,
@@ -86,6 +88,12 @@ function SelectChip(props: ComponentProps): JSX.Element {
         return createAvatar(shapes, {...options}).toDataUri();
       };
 
+    useEffect(() => {
+        if (selections || defaultValue) {
+            setSelected(defaultValue);
+        }
+    }, [selections, defaultValue]);
+
     return (
         <Select.Root
             onValueChange={(value) => selectAndReset(value)}
@@ -93,7 +101,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
             defaultValue={defaultValue}
         >
 		<Select.Trigger
-			className="
+			className={`
                 inline-flex
                 items-center
                 justify-center
@@ -110,7 +118,8 @@ function SelectChip(props: ComponentProps): JSX.Element {
                 data-[placeholder]:text-slate-300
                 text-lg
                 cursor-pointer
-            "
+                ${moreClasses}
+            `}
 			aria-label="items"
 		>
 			<Select.Value placeholder={<div className="p-1 pr-0">{selectPlaceholder}</div>} />
