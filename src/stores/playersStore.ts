@@ -54,9 +54,9 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
         throw new Error('Failed to create player - no result returned');
       }
       const newPlayer = result as DataItem;
-      set((state) => ({ 
+      set((state) => ({
         players: [...state.players, newPlayer],
-        error: null 
+        error: null,
       }));
       return newPlayer;
     } catch (error) {
@@ -91,6 +91,5 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
     } finally {
       set({ loading: false });
     }
-  } 
-
+  },
 }));

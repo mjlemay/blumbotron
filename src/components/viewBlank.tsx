@@ -1,11 +1,9 @@
-
 function ViewBlank() {
+  return (
+    <>
+      <h2>Example View</h2>
+    </>
+  );
+}
 
-    return (
-      <>
-          <h2>Example View</h2>
-      </>
-    );
-  }
-  
-  export default ViewBlank;
+export default ViewBlank;

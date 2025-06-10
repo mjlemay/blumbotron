@@ -1,82 +1,82 @@
-import { 
-    CrossCircledIcon,
-    QuestionMarkCircledIcon,
-    PlusCircledIcon,
-    MinusCircledIcon,
-    HamburgerMenuIcon,
-    TableIcon,
-    PersonIcon,
-    MixIcon,
-    BookmarkIcon,
-    RocketIcon,
-    GearIcon,
-    HobbyKnifeIcon,
-} from "@radix-ui/react-icons";
+import {
+  CrossCircledIcon,
+  QuestionMarkCircledIcon,
+  PlusCircledIcon,
+  MinusCircledIcon,
+  HamburgerMenuIcon,
+  TableIcon,
+  PersonIcon,
+  MixIcon,
+  BookmarkIcon,
+  RocketIcon,
+  GearIcon,
+  HobbyKnifeIcon,
+} from '@radix-ui/react-icons';
 
 interface UiButtonProps {
-    clickHandler?: Function;
-    uiIcon?: string;
-    isSelected?: boolean;
-    size?: string;
-  }
+  clickHandler?: Function;
+  uiIcon?: string;
+  isSelected?: boolean;
+  size?: string;
+}
 
 function UiButton(props: UiButtonProps): JSX.Element {
-    const { clickHandler, uiIcon = "", size = "40", isSelected = false } = props;
+  const { clickHandler, uiIcon = '', size = '40', isSelected = false } = props;
 
-    const handleClick = () => {
-      if (clickHandler) {
-        clickHandler();
-      }
-    };
-
-    const setIcon = (iconName:string) => {
-        let icon = <QuestionMarkCircledIcon />;
-        switch (iconName) {
-            case "back":
-            case "quit":
-                icon = <CrossCircledIcon width={size} height={size} />
-                break;
-            case "add":
-                icon = <PlusCircledIcon width={size} height={size} />;
-                break;
-            case "remove":
-                icon = <MinusCircledIcon width={size} height={size} />;
-                break;
-            case "menu":
-                icon = <HamburgerMenuIcon width={size} height={size} />;
-                break;
-            case "table":
-                icon = <TableIcon width={size} height={size} />;
-                break;
-            case "game":
-                icon = <MixIcon width={size} height={size} />;
-                break;
-            case "person":
-                icon = <PersonIcon width={size} height={size} />;
-                break;
-            case "roster":
-                icon = <BookmarkIcon width={size} height={size} />;
-                break;
-            case "launch":
-                icon = <RocketIcon width={size} height={size} />;
-                break;
-            case "config":
-                icon = <GearIcon width={size} height={size} />;
-                break;
-            case "layout":
-                icon = <HobbyKnifeIcon width={size} height={size} />;
-                break;
-            default:
-                icon = <QuestionMarkCircledIcon width={size} height={size} />;
-                break;
-        }
-        return icon;
+  const handleClick = () => {
+    if (clickHandler) {
+      clickHandler();
     }
+  };
 
+  const setIcon = (iconName: string) => {
+    let icon = <QuestionMarkCircledIcon />;
+    switch (iconName) {
+      case 'back':
+      case 'quit':
+        icon = <CrossCircledIcon width={size} height={size} />;
+        break;
+      case 'add':
+        icon = <PlusCircledIcon width={size} height={size} />;
+        break;
+      case 'remove':
+        icon = <MinusCircledIcon width={size} height={size} />;
+        break;
+      case 'menu':
+        icon = <HamburgerMenuIcon width={size} height={size} />;
+        break;
+      case 'table':
+        icon = <TableIcon width={size} height={size} />;
+        break;
+      case 'game':
+        icon = <MixIcon width={size} height={size} />;
+        break;
+      case 'person':
+        icon = <PersonIcon width={size} height={size} />;
+        break;
+      case 'roster':
+        icon = <BookmarkIcon width={size} height={size} />;
+        break;
+      case 'launch':
+        icon = <RocketIcon width={size} height={size} />;
+        break;
+      case 'config':
+        icon = <GearIcon width={size} height={size} />;
+        break;
+      case 'layout':
+        icon = <HobbyKnifeIcon width={size} height={size} />;
+        break;
+      default:
+        icon = <QuestionMarkCircledIcon width={size} height={size} />;
+        break;
+    }
+    return icon;
+  };
 
-    return (
-      <button onClick={() => handleClick()}
-        className={`
+  return (
+    <button
+      onClick={() => handleClick()}
+      className={`
             flex
             items-center
             justify-center
@@ -93,10 +93,10 @@ function UiButton(props: UiButtonProps): JSX.Element {
             ease-in-out 
             cursor-pointer
         `}
-      >
-         {setIcon(uiIcon)}
-      </button>
-    );
-  }
-  
-  export default UiButton;
+    >
+      {setIcon(uiIcon)}
+    </button>
+  );
+}
+
+export default UiButton;

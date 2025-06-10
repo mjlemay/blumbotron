@@ -1,13 +1,13 @@
-import { useExperienceStore } from "../stores/experienceStore";
-import ViewHome from "./viewHome";
-import ViewPlayers from "./viewPlayers";
-import ViewGame from "./viewGame";
-import ViewPlayer from "./viewPlayer";
-import ViewRoster from "./viewRoster";
-import ViewRosters from "./viewRosters";
-import Header from "./header";
-import Sidebar from "./sidebar";
-import DialogModal from "./dialogModal";
+import { useExperienceStore } from '../stores/experienceStore';
+import ViewHome from './viewHome';
+import ViewPlayers from './viewPlayers';
+import ViewGame from './viewGame';
+import ViewPlayer from './viewPlayer';
+import ViewRoster from './viewRoster';
+import ViewRosters from './viewRosters';
+import Header from './header';
+import Sidebar from './sidebar';
+import DialogModal from './dialogModal';
 
 function MainViewer() {
   const { experience, loading, error } = useExperienceStore();
@@ -19,22 +19,22 @@ function MainViewer() {
   const showView = (view: string) => {
     let selectedView = <></>;
     switch (view) {
-      case "home":
+      case 'home':
         selectedView = <ViewHome />;
         break;
-      case "player":
-          selectedView = <ViewPlayer />;
-          break;
-      case "players":
+      case 'player':
+        selectedView = <ViewPlayer />;
+        break;
+      case 'players':
         selectedView = <ViewPlayers />;
         break;
-      case "roster":
+      case 'roster':
         selectedView = <ViewRoster />;
         break;
-      case "rosters":
+      case 'rosters':
         selectedView = <ViewRosters />;
         break;
-      case "game":
+      case 'game':
         selectedView = <ViewGame />;
         break;
       default:
@@ -42,7 +42,7 @@ function MainViewer() {
         break;
     }
     return selectedView;
-  }
+  };
   return (
     <main className="flex flex-col min-h-screen bg-slate-800">
       <Header />
@@ -54,7 +54,7 @@ function MainViewer() {
           {showView(view)}
         </div>
       </div>
-      <DialogModal selectedModal={modal} isOpen={modal !== "none"} />
+      <DialogModal selectedModal={modal} isOpen={modal !== 'none'} />
     </main>
   );
 }

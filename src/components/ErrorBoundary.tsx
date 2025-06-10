@@ -34,9 +34,7 @@ class ErrorBoundary extends React.Component<Props, State> {
           <h2 className="text-lg font-bold mb-2">Something went wrong</h2>
           <details className="text-sm">
             <summary>Error details</summary>
-            <pre className="mt-2 p-2 bg-red-50 rounded">
-              {this.state.error?.toString()}
-            </pre>
+            <pre className="mt-2 p-2 bg-red-50 rounded">{this.state.error?.toString()}</pre>
           </details>
         </div>
       );
@@ -46,4 +44,4 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
-export default ErrorBoundary; 
+export default ErrorBoundary;

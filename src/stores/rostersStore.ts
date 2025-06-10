@@ -54,9 +54,9 @@ export const useRosterStore = create<RostersStore>((set) => ({
         throw new Error('Failed to create roster - no result returned');
       }
       const newRoster = result as RosterDataItem;
-      set((state) => ({ 
+      set((state) => ({
         rosters: [...state.rosters, newRoster],
-        error: null 
+        error: null,
       }));
       return newRoster;
     } catch (error) {
@@ -88,11 +88,11 @@ export const useRosterStore = create<RostersStore>((set) => ({
         throw new Error('Failed to update roster - no result returned');
       }
       const updatedRoster = result as RosterDataItem;
-      set((state) => ({ 
-        rosters: state.rosters.map(roster => 
+      set((state) => ({
+        rosters: state.rosters.map((roster) =>
           roster.snowflake === updatedRoster.snowflake ? updatedRoster : roster
         ),
-        error: null 
+        error: null,
       }));
       return updatedRoster;
     } catch (error) {
@@ -104,5 +104,4 @@ export const useRosterStore = create<RostersStore>((set) => ({
       set({ loading: false });
     }
   },
-  
 }));

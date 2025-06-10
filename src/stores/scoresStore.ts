@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { scoreData } from "../services/scoreService.ts";
+import { scoreData } from '../services/scoreService.ts';
 import { ScoreDataItem } from '../lib/types';
 
 type ScoresStore = {
@@ -52,9 +52,9 @@ export const useScoreStore = create<ScoresStore>((set) => ({
         throw new Error('Failed to create Score - no result returned');
       }
       const newScore = result as ScoreDataItem;
-      set((state) => ({ 
+      set((state) => ({
         Scores: [...state.Scores, newScore],
-        error: null 
+        error: null,
       }));
       return newScore;
     } catch (error) {

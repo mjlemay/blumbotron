@@ -54,9 +54,9 @@ export const useGameStore = create<GameStore>((set) => ({
         throw new Error('Failed to create game - no result returned');
       }
       const newGame = result as GameDataItem;
-      set((state) => ({ 
+      set((state) => ({
         games: [...state.games, newGame],
-        error: null 
+        error: null,
       }));
       return newGame;
     } catch (error) {
@@ -91,6 +91,5 @@ export const useGameStore = create<GameStore>((set) => ({
     } finally {
       set({ loading: false });
     }
-  } 
-
+  },
 }));

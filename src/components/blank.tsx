@@ -1,15 +1,11 @@
 type ComponentProps = {
-    children?: React.ReactNode;
-}
+  children?: React.ReactNode;
+};
 
 function Blank(props: ComponentProps): JSX.Element {
-    const { children } = props;
+  const { children } = props;
 
-    return (
-    <div className="bg-white">
-        {children}
-      </div>
-    );
-  }
-  
-  export default Blank;
+  return <div className="bg-white rounded-md">{children}</div>;
+}
+
+export default Blank;

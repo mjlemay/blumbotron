@@ -1,299 +1,298 @@
-import { useState, useEffect } from "react";
-import DialogContainer from "./dialogContainer";
-import SelectChip from "./selectChip";
-import Input from "./input";
+import { useState, useEffect } from 'react';
+import DialogContainer from './dialogContainer';
+import SelectChip from './selectChip';
+import Input from './input';
 import { z } from 'zod';
-import { useGameStore } from "../stores/gamesStore";
-import { useExperienceStore } from "../stores/experienceStore";
-import { GameDataItem, RosterDataItem } from "../lib/types";
-import { getSelected } from "../lib/selectedStates";
-import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
-import * as Menubar from "@radix-ui/react-menubar";
-import { defaultGame } from "../lib/defaults";
-import { useRosterStore } from "../stores/rostersStore";
+import { useGameStore } from '../stores/gamesStore';
+import { useExperienceStore } from '../stores/experienceStore';
+import { GameDataItem, RosterDataItem } from '../lib/types';
+import { getSelected } from '../lib/selectedStates';
+import { TrashIcon, PlusCircledIcon, Pencil1Icon } from '@radix-ui/react-icons';
+import * as Menubar from '@radix-ui/react-menubar';
+import { defaultGame } from '../lib/defaults';
+import { useRosterStore } from '../stores/rostersStore';
 
 type FormGameProps = {
-    action?: string;
-    onSuccess?: () => void;
-}
+  action?: string;
+  onSuccess?: () => void;
+};
 
 function FormGame(props: FormGameProps) {
-    const { action = "new", onSuccess } = props;
-    const { createGame, editGame, deleteGame, fetchGame, loading, error } = useGameStore();
-    const { rosters, fetchRosters } = useRosterStore();
-    const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-    const game = getSelected("games") as GameDataItem;
-    const [form, setForm] = useState(game || defaultGame);
-    const [ errors, setErrors ] = useState({});
+  const { action = 'new', onSuccess } = props;
+  const { createGame, editGame, deleteGame, fetchGame, loading, error } = useGameStore();
+  const { rosters, fetchRosters } = useRosterStore();
+  const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
+  const game = getSelected('games') as GameDataItem;
+  const [form, setForm] = useState(game || defaultGame);
+  const [errors, setErrors] = useState({});
 
-    const handleFormChange = (Event:React.ChangeEvent<HTMLInputElement>) => {
-        const eventTarget = Event?.target;
-        const clonedForm = JSON.parse(JSON.stringify(form));
-        const formKey = eventTarget?.name;
-        const formValue = eventTarget?.value;
-        clonedForm[`${formKey}`] = formValue;
-        setForm(clonedForm);
-    }
+  const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
+    const eventTarget = Event?.target;
+    const clonedForm = JSON.parse(JSON.stringify(form));
+    const formKey = eventTarget?.name;
+    const formValue = eventTarget?.value;
+    clonedForm[`${formKey}`] = formValue;
+    setForm(clonedForm);
+  };
 
-    const handleSubmitClose = (view:string = "home", modal:string = "none", gameData?:GameDataItem) => {
-      const displayGameData:GameDataItem = gameData ? gameData : { name: '' };
-      setExpView(view);
-      setExpModal(modal);
-      setExpSelected(gameData ? { game: displayGameData } : {});
-      onSuccess?.();
-    }
+  const handleSubmitClose = (
+    view: string = 'home',
+    modal: string = 'none',
+    gameData?: GameDataItem
+  ) => {
+    const displayGameData: GameDataItem = gameData ? gameData : { name: '' };
+    setExpView(view);
+    setExpModal(modal);
+    setExpSelected(gameData ? { game: displayGameData } : {});
+    onSuccess?.();
+  };
 
-    const formTitle = {
-      "new": "Create Game",
-      "edit": "Edit Game",
-      "delete": "Delete Game"
-    }
+  const formTitle = {
+    new: 'Create Game',
+    edit: 'Edit Game',
+    delete: 'Delete Game',
+  };
 
-    const getError = (field: string) => {
-        return errors[field as keyof typeof errors] || '';
-    }
+  const getError = (field: string) => {
+    return errors[field as keyof typeof errors] || '';
+  };
 
-    const deleteSelectedGame = async (formData:GameDataItem) => {
-      const gameName = game?.name || 'DELETE ME ANYWAY';
-      const formSchema = z.object({
-        name: z.literal(gameName),
-      });
-      try {
-        formSchema.parse(formData);
-        if (game) {
-          await deleteGame(game);
-          // If we get here and there's no error in the store, deletion was successful
-          if (!error) {
-            handleSubmitClose();
-            return true;
-          }
-          throw new Error(error || 'Failed to delete game');
+  const deleteSelectedGame = async (formData: GameDataItem) => {
+    const gameName = game?.name || 'DELETE ME ANYWAY';
+    const formSchema = z.object({
+      name: z.literal(gameName),
+    });
+    try {
+      formSchema.parse(formData);
+      if (game) {
+        await deleteGame(game);
+        // If we get here and there's no error in the store, deletion was successful
+        if (!error) {
+          handleSubmitClose();
+          return true;
         }
-      } catch (err) {
-        if (err instanceof z.ZodError) {
-          let newErrs:Record<string, string> = {};
-          err.errors.map(errItem => {
-            const { path, message } = errItem;
-            const key = path[0];
-            newErrs[`${key}`] = message;
-          })
-          setErrors(newErrs);
-        } else {
-          // Handle other errors (like deletion failure)
-          setErrors({ name: err instanceof Error ? err.message : 'Failed to delete game' });
-        }
-        return false;
+        throw new Error(error || 'Failed to delete game');
       }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        let newErrs: Record<string, string> = {};
+        err.errors.map((errItem) => {
+          const { path, message } = errItem;
+          const key = path[0];
+          newErrs[`${key}`] = message;
+        });
+        setErrors(newErrs);
+      } else {
+        // Handle other errors (like deletion failure)
+        setErrors({ name: err instanceof Error ? err.message : 'Failed to delete game' });
+      }
+      return false;
     }
+  };
 
-  
-    const createNewGame = async (formData:GameDataItem, edit:boolean = false) => {
-      let formSchema = z.object({
+  const createNewGame = async (formData: GameDataItem, edit: boolean = false) => {
+    let formSchema = z.object({
+      name: z.string().min(3, 'Please supply a game name.'),
+      description: z.string(),
+    });
+    if (edit) {
+      formSchema = z.object({
         name: z.string().min(3, 'Please supply a game name.'),
         description: z.string(),
       });
+    }
+    try {
+      formSchema.parse(formData);
       if (edit) {
-        formSchema = z.object({
-          name: z.string().min(3, 'Please supply a game name.'),
-          description: z.string(),
-        });
-      }
-      try {
-        formSchema.parse(formData);
-        if (edit) {
-          if (game) {
-            await editGame(formData);
-            // If we get here and there's no error in the store, edit was successful
-            if (!error) {
-              handleSubmitClose("game", "none", formData);
-              return true;
-            }
-            throw new Error(error || 'Failed to edit game');
-          }
-        } else {
-          const createdGame = await createGame(formData);
-          // If we get here and there's no error in the store, creation was successful
+        if (game) {
+          await editGame(formData);
+          // If we get here and there's no error in the store, edit was successful
           if (!error) {
-            console.log('SET TO THIS GAME', createdGame);
-            handleSubmitClose("game", "none", createdGame);
+            handleSubmitClose('game', 'none', formData);
             return true;
           }
-          throw new Error(error || 'Failed to create game');
+          throw new Error(error || 'Failed to edit game');
         }
-      } catch (err) {
-        if (err instanceof z.ZodError) {
-          let newErrs:Record<string, string> = {};
-          err.errors.map(errItem => {
-            const { path, message } = errItem;
-            const key = path[0];
-            newErrs[`${key}`] = message;
-          })
-          setErrors(newErrs);
-        } else {
-          // Handle other errors (like creation/editing failure)
-          setErrors({ name: err instanceof Error ? err.message : 'Failed to process game' });
-        }
-        return false;
-      }
-    }
-
-    const handleRosterSelect = (value: string) => {
-      if (value == "everyone") {
-        setForm({ ...form, roster: null });
       } else {
-        setForm({ ...form, roster: value });
+        const createdGame = await createGame(formData);
+        // If we get here and there's no error in the store, creation was successful
+        if (!error) {
+          console.log('SET TO THIS GAME', createdGame);
+          handleSubmitClose('game', 'none', createdGame);
+          return true;
+        }
+        throw new Error(error || 'Failed to create game');
       }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        let newErrs: Record<string, string> = {};
+        err.errors.map((errItem) => {
+          const { path, message } = errItem;
+          const key = path[0];
+          newErrs[`${key}`] = message;
+        });
+        setErrors(newErrs);
+      } else {
+        // Handle other errors (like creation/editing failure)
+        setErrors({ name: err instanceof Error ? err.message : 'Failed to process game' });
+      }
+      return false;
     }
+  };
 
-    // Reset form when action changes to delete
-    useEffect(() => {
-      game?.id && fetchGame(game?.id as unknown as number);
-      if (action === "delete") {
-        setForm({name: ''});
-      }
-    }, [action]);
+  const handleRosterSelect = (value: string) => {
+    if (value == 'everyone') {
+      setForm({ ...form, roster: null });
+    } else {
+      setForm({ ...form, roster: value });
+    }
+  };
 
-    useEffect(() => {
-      fetchRosters();
-    }, []);
+  // Reset form when action changes to delete
+  useEffect(() => {
+    game?.id && fetchGame(game?.id as unknown as number);
+    if (action === 'delete') {
+      setForm({ name: '' });
+    }
+  }, [action]);
 
-    const rosterSelections = rosters.map((roster: RosterDataItem) => ({ label: roster.name, value: roster.snowflake, data: {snowflake: roster.snowflake} }));
-    rosterSelections.unshift({ label: "All Players", value: "everyone", data: {snowflake: "everyone"} });
+  useEffect(() => {
+    fetchRosters();
+  }, []);
 
-    const formContent = (action:string) => {
-      let content = <></>;
-      switch (action) {
-        case "delete":
-          content = (
-            <div className="w-full pr-4 pl-4">
-                          <Input 
-                name='id'
-                value={form.id || -1} 
-                hidden
-                changeHandler={()=>{}}
-            />
-            <Input 
-                name='snowflake'
-                value={form.snowflake || 'BAD_ID'} 
-                hidden
-                changeHandler={()=>{}}
-            />
-              <Input 
-                label='Type the name of the game to confirm deletion'
-                name='name' value={form.name || ''}
-                changeHandler={handleFormChange}
-                errMsg={getError('name')} 
-            />
-        </div>
-        );
-      break;
-      case "new":
-      case "edit":
-      default:
+  const rosterSelections = rosters.map((roster: RosterDataItem) => ({
+    label: roster.name,
+    value: roster.snowflake,
+    data: { snowflake: roster.snowflake },
+  }));
+  rosterSelections.unshift({
+    label: 'All Players',
+    value: 'everyone',
+    data: { snowflake: 'everyone' },
+  });
+
+  const formContent = (action: string) => {
+    let content = <></>;
+    switch (action) {
+      case 'delete':
         content = (
-        <div className="w-full pr-4 pl-4">
-            <Input 
-                name='id'
-                value={form.id || -1} 
-                hidden
-                changeHandler={()=>{}}
-            />
-            <Input 
-                name='snowflake'
-                value={form.snowflake || 'BAD_ID'} 
-                hidden
-                changeHandler={()=>{}}
-            />
-            <Input 
-                label='Game Name'
-                name='name' value={form.name || ''}
-                changeHandler={handleFormChange}
-                errMsg={getError('name')}
+          <div className="w-full pr-4 pl-4">
+            <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
+            <Input
+              name="snowflake"
+              value={form.snowflake || 'BAD_ID'}
+              hidden
+              changeHandler={() => {}}
             />
             <Input
-                label='Description'
-                name='description' value={form.description || ''}
-                changeHandler={handleFormChange}
-                errMsg={getError('description')}
+              label="Type the name of the game to confirm deletion"
+              name="name"
+              value={form.name || ''}
+              changeHandler={handleFormChange}
+              errMsg={getError('name')}
+            />
+          </div>
+        );
+        break;
+      case 'new':
+      case 'edit':
+      default:
+        content = (
+          <div className="w-full pr-4 pl-4">
+            <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
+            <Input
+              name="snowflake"
+              value={form.snowflake || 'BAD_ID'}
+              hidden
+              changeHandler={() => {}}
+            />
+            <Input
+              label="Game Name"
+              name="name"
+              value={form.name || ''}
+              changeHandler={handleFormChange}
+              errMsg={getError('name')}
+            />
+            <Input
+              label="Description"
+              name="description"
+              value={form.description || ''}
+              changeHandler={handleFormChange}
+              errMsg={getError('description')}
             />
             <p className="text-lg font-bold pb-1">Roster</p>
             <SelectChip
               selectPlaceholder="Select a roster"
               selections={rosterSelections}
-              defaultValue={form.roster || "everyone"}
+              defaultValue={form.roster || 'everyone'}
               handleSelect={(value) => handleRosterSelect(value)}
             />
-        </div>
+          </div>
         );
         break;
     }
     return content;
-  }
+  };
 
-  const submitBar = (action:string) => {
+  const submitBar = (action: string) => {
     let bar = <></>;
     switch (action) {
-      case "delete":
+      case 'delete':
         bar = (
-          <Menubar.Trigger 
-          className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-          onClick={() => {deleteSelectedGame(form)}}
+          <Menubar.Trigger
+            className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+            onClick={() => {
+              deleteSelectedGame(form);
+            }}
           >
-              <TrashIcon 
-                width="20"
-                height="20"
-              /> <span>Confirm</span>
+            <TrashIcon width="20" height="20" /> <span>Confirm</span>
           </Menubar.Trigger>
-      );
-    break;
-    case "edit":
-      bar = (
-        <Menubar.Trigger 
-        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-        onClick={() => {createNewGame(form, true)}}
-        >
-            <Pencil1Icon 
-              width="20"
-              height="20"
-            /> <span>Edit</span>
-        </Menubar.Trigger>
-      );
-    break;
-    case "new":
-    default:
-      bar = 
-        <Menubar.Trigger 
-        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-        onClick={() => {createNewGame(form)}}
-        >
-            <PlusCircledIcon 
-              width="20"
-              height="20"
-            /> <span>Lets' Go!</span>
-        </Menubar.Trigger>
-      ;
-      break;
-  }
+        );
+        break;
+      case 'edit':
+        bar = (
+          <Menubar.Trigger
+            className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+            onClick={() => {
+              createNewGame(form, true);
+            }}
+          >
+            <Pencil1Icon width="20" height="20" /> <span>Edit</span>
+          </Menubar.Trigger>
+        );
+        break;
+      case 'new':
+      default:
+        bar = (
+          <Menubar.Trigger
+            className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+            onClick={() => {
+              createNewGame(form);
+            }}
+          >
+            <PlusCircledIcon width="20" height="20" /> <span>Lets' Go!</span>
+          </Menubar.Trigger>
+        );
+        break;
+    }
+    return (
+      <Menubar.Root className="flex rounded-md p-2">
+        <Menubar.Menu>{bar}</Menubar.Menu>
+      </Menubar.Root>
+    );
+  };
+
   return (
-    <Menubar.Root className="flex rounded-md p-2">
-      <Menubar.Menu>
-       {bar}
-      </Menubar.Menu>
-    </Menubar.Root>
+    <DialogContainer
+      title={formTitle[action as keyof typeof formTitle]}
+      key={`${action}_${game?.id || 0}`}
+      content={formContent(action)}
+    >
+      {loading && <div>Loading...</div>}
+      {error && <div>Error: {error}</div>}
+      {!loading && !error && submitBar(action)}
+    </DialogContainer>
   );
 }
 
-    return (
-      <DialogContainer 
-        title={formTitle[action as keyof typeof formTitle]}
-        key={`${action}_${game?.id || 0}`}
-        content={formContent(action)}
-        >
-            {loading && (<div>Loading...</div>)}
-            {error && (<div>Error: {error}</div>)}
-            {!loading && ! error && submitBar(action)}
-      </DialogContainer>
-    );
-  }
-  
-  export default FormGame;
+export default FormGame;
