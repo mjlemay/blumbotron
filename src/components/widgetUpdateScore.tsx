@@ -21,7 +21,7 @@ type ComponentProps = {
 
 type FormData = {
     units: string;
-    leaderboard_update: number | string;
+    amount: number | string;
     player: string | undefined;
     game: string | undefined;
 }
@@ -37,7 +37,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     const [ formErrors, setFormErrors ] = useState('');
     const [form, setForm] = useState({
         units,
-        leaderboard_update: '',
+        amount: '',
         player: '',
         game: snowflake,
     });
@@ -50,7 +50,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     const resetForm = () => {
         setForm({
             units,
-            leaderboard_update: '',
+            amount: '',
             player: '',
             game: snowflake,
         });
@@ -59,7 +59,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
 
         const formSchema = z.object({
             units: z.string().min(1, 'Please add an amount to update'),
-            leaderboard_update: z.coerce.number().min(1, 'Please add an amount to update'),
+            amount: z.coerce.number().min(1, 'Please add an amount to update'),
             player: z.string().min(18, 'Please select a player'),
             game: z.string().min(18, 'Please select a game' ),
         });
@@ -116,8 +116,8 @@ function UpdateScore(props: ComponentProps): JSX.Element {
             <div className="flex flex-col items-center justify-start p-2 pt-0">
                 <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">{`Update Player ${toTitleCase(units)}`}</h3>
                 <Input
-                    name="leaderboard_update"
-                    value={form.leaderboard_update}
+                    name="amount"
+                    value={form.amount}
                     align="right"
                     placeholder="0"
                     changeHandler={handleFormChange}
