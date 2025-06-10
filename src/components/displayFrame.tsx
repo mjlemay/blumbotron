@@ -1,12 +1,23 @@
-import { EnterFullScreenIcon, OpenInNewWindowIcon, AllSidesIcon } from '@radix-ui/react-icons';
+import { 
+  EnterFullScreenIcon,
+  OpenInNewWindowIcon,
+  AllSidesIcon
+} from '@radix-ui/react-icons';
+import DisplayTable from './displayTable';
+import { useExperienceStore } from '../stores/experienceStore';
 
 type ComponentProps = {
-  children?: React.ReactNode;
   height?: number;
+  game?: string;
 };
 
 function DisplayFrame(props: ComponentProps): JSX.Element {
-  const { children, height = 300 } = props;
+  const { game, height = 300 } = props;
+  const { setExpModal } = useExperienceStore();
+
+  const handleAllSidesClick = () => {
+    setExpModal('displayTable');
+  };
 
   return (
     <div
@@ -18,32 +29,41 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                 bg-black
                 rounded-md
                 overflow-hidden
+                relative
             "
     >
+      <div className="absolute inset-0 flex items-center justify-center">
+        <DisplayTable game={game} fetchIntervalSeconds={60} />
+      </div>
       <div
         className={`
+            absolute
+            bottom-0
+            right-0
             flex
-            flex-col-reverse
-            items-end
-            justify-start
-            min-h-full
+            flex-row
+            items-center
+            justify-end
+            gap-2
+            p-2
             opacity-50
             hover:opacity-100
             transition-opacity
             duration-200
         `}
       >
-        <div className="flex flex-row items-center justify-end gap-2 p-2">
-          <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
-            <EnterFullScreenIcon width="20" height="20" />
-          </button>
-          <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
-            <OpenInNewWindowIcon width="20" height="20" />
-          </button>
-          <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
-            <AllSidesIcon width="20" height="20" />
-          </button>
-        </div>
+        <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
+          <EnterFullScreenIcon width="20" height="20" />
+        </button>
+        <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
+          <OpenInNewWindowIcon width="20" height="20" />
+        </button>
+        <button 
+          onClick={handleAllSidesClick}
+          className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          <AllSidesIcon width="20" height="20" />
+        </button>
       </div>
     </div>
   );

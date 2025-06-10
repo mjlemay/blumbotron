@@ -3,7 +3,7 @@ import { scoreData } from '../services/scoreService.ts';
 import { ScoreDataItem } from '../lib/types';
 
 type ScoresStore = {
-  Scores: ScoreDataItem[];
+  scores: ScoreDataItem[];
   loading: boolean;
   error: string | null;
   fetchScores: () => Promise<void>;
@@ -14,7 +14,7 @@ type ScoresStore = {
 const MAGIC_LIMIT = 1000;
 
 export const useScoreStore = create<ScoresStore>((set) => ({
-  Scores: [],
+  scores: [],
   loading: false,
   error: null,
 
@@ -22,11 +22,11 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const result = await scoreData.getScores(MAGIC_LIMIT);
-      set({ Scores: result as ScoreDataItem[], error: null });
+      set({ scores: result as ScoreDataItem[], error: null });
     } catch (error) {
       console.error('Failed to fetch Scores:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Scores';
-      set({ error: errorMessage, Scores: [] });
+      set({ error: errorMessage, scores: [] });
     } finally {
       set({ loading: false });
     }
@@ -35,7 +35,7 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const result = await scoreData.getScore(id);
-      set({ Scores: result as ScoreDataItem[], error: null });
+      set({ scores: result as ScoreDataItem[], error: null });
     } catch (error) {
       console.error('Failed to fetch Score:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Score';
@@ -53,7 +53,7 @@ export const useScoreStore = create<ScoresStore>((set) => ({
       }
       const newScore = result as ScoreDataItem;
       set((state) => ({
-        Scores: [...state.Scores, newScore],
+        Scores: [...state.scores, newScore],
         error: null,
       }));
       return newScore;

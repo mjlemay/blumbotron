@@ -39,7 +39,7 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
             ref={containerRef}
             className="p-4 overflow-y-hidden min-h-[calc(50vh-120px)] max-h-[calc(50vh-120px)]"
           >
-            <DisplayFrame height={containerHeight} />
+            <DisplayFrame height={containerHeight} game={gameData?.snowflake} />
           </div>
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar

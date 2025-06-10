@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import FormGame from './formGame';
 import FormRoster from './formRoster';
 import FormPlayer from './formPlayer';
+import DisplayTable from './displayTable';
 import { refreshData } from '../lib/fetchCalls';
 import { useExperienceStore } from '../stores/experienceStore';
 import { useGameStore } from '../stores/gamesStore';
@@ -16,14 +18,17 @@ type DialogModalProps = {
   triggerText?: string;
   selectedModal?: string;
   isOpen?: boolean;
+  game?: string;
 };
 
 function DialogModal({
   triggerText,
   selectedModal,
   isOpen = false,
+  game,
 }: DialogModalProps): JSX.Element {
-  const { setExpModal } = useExperienceStore();
+  const { setExpModal, experience: { selected } } = useExperienceStore();
+  const gameSelected = selected && selected.game;
   const { fetchGames } = useGameStore(useShallow((state) => ({ fetchGames: state.fetchGames })));
   const { fetchPlayers } = usePlayerStore(
     useShallow((state) => ({ fetchPlayers: state.fetchPlayers }))
@@ -78,9 +83,11 @@ function DialogModal({
           onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
         />
       ),
+      displayTable: <DisplayTable game={gameSelected?.snowflake} fetchIntervalSeconds={60} />,
     };
     return content[selectedModal as keyof typeof content] || null;
   };
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setExpModal('none');
@@ -108,8 +115,25 @@ function DialogModal({
         <Dialog.Content
           title=""
           className="fixed rounded-lg 
-                bg-slate-700 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                bg-slate-700 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                max-w-[90vw] max-h-[90vh] overflow-auto"
         >
+          <div className="absolute top-2 right-2">
+            <Dialog.Close asChild>
+              <button
+                className="
+                  flex select-none items-center justify-center
+                  cursor-pointer rounded-full p-1
+                  text-slate-400 hover:text-white
+                  hover:bg-slate-600/50
+                  transition-colors duration-200
+                "
+                aria-label="Close"
+              >
+                <Cross2Icon width="20" height="20" />
+              </button>
+            </Dialog.Close>
+          </div>
           <VisuallyHidden.Root>
             <Dialog.DialogTitle></Dialog.DialogTitle>
           </VisuallyHidden.Root>
