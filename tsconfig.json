@@ -19,10 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    "indentSize": 2,
-    "tabSize": 2,
-    "useTabs": false
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

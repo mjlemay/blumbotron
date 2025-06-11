@@ -5,6 +5,7 @@ import {
 } from '@radix-ui/react-icons';
 import DisplayTable from './displayTable';
 import { useExperienceStore } from '../stores/experienceStore';
+import { Window } from '@tauri-apps/api/window';
 
 type ComponentProps = {
   height?: number;
@@ -17,6 +18,16 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
 
   const handleAllSidesClick = () => {
     setExpModal('displayTable');
+  };
+
+  const handleFullScreenClick = async () => {
+    setExpModal('displayTable');
+    try {
+      const appWindow = await Window.getCurrent();
+      await appWindow.setFullscreen(true);
+    } catch (error) {
+      console.error('Failed to toggle fullscreen:', error);
+    }
   };
 
   return (
@@ -32,7 +43,14 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                 relative
             "
     >
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className={`
+        display-table-${game}
+        absolute
+        inset-0
+        flex
+        items-center
+        justify-center
+      `}>
         <DisplayTable game={game} fetchIntervalSeconds={60} />
       </div>
       <div
@@ -52,7 +70,10 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
             duration-200
         `}
       >
-        <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
+        <button 
+          onClick={handleFullScreenClick}
+          className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
           <EnterFullScreenIcon width="20" height="20" />
         </button>
         <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">

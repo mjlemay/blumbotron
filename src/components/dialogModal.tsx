@@ -1,3 +1,4 @@
+import { Window } from '@tauri-apps/api/window';
 import { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
@@ -48,7 +49,7 @@ function DialogModal({
     }
     timeoutRef.current = setTimeout(() => {
       setIsActive(false);
-    }, 5000);
+    }, 3000);
   };
 
   const handleMouseMove = (state: string) => {
@@ -125,8 +126,13 @@ function DialogModal({
     return content[selectedModal as keyof typeof content] || null;
   };
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = async (open: boolean) => {
     if (!open) {
+      const appWindow = await Window.getCurrent();
+      const isFullscreen = await appWindow.isFullscreen();
+      if (isFullscreen) {
+        await appWindow.setFullscreen(false);
+      }
       setExpModal('none');
       refreshData(fetchGames, fetchPlayers, fetchRosters);
     }
@@ -205,6 +211,7 @@ function DialogModal({
                   hover:text-white
                   transition-opacity
                   duration-600
+                  focus:outline-none
                 "
                 aria-label="Close"
               >
