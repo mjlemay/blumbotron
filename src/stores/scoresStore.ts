@@ -6,6 +6,8 @@ type ScoresStore = {
   scores: ScoreDataItem[];
   loading: boolean;
   error: string | null;
+  gameScores: Record<string, ScoreDataItem[]>;
+  fetchUniqueScoresByGame: (game: string) => Promise<void>;
   fetchScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;
   createScore: (Score: ScoreDataItem) => Promise<ScoreDataItem>;
@@ -17,7 +19,7 @@ export const useScoreStore = create<ScoresStore>((set) => ({
   scores: [],
   loading: false,
   error: null,
-
+  gameScores: {},
   fetchScores: async () => {
     set({ loading: true, error: null });
     try {
@@ -44,6 +46,19 @@ export const useScoreStore = create<ScoresStore>((set) => ({
       set({ loading: false });
     }
   },
+  fetchUniqueScoresByGame: async (game: string) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await scoreData.getUniqueScoresByGame(game, MAGIC_LIMIT);
+      set((state) => ({ gameScores: { ...state.gameScores, [game]: result as ScoreDataItem[] }, error: null }));
+    } catch (error) {
+      console.error('Failed to fetch Unique Scores by Game:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Unique Scores by Game';
+      set({ error: errorMessage });
+    } finally {
+      set({ loading: false });
+    }
+  },  
   createScore: async (Score: ScoreDataItem) => {
     set({ loading: true, error: null });
     try {

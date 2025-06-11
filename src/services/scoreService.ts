@@ -1,5 +1,5 @@
 import { db } from './sqLiteService';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, desc, sql } from 'drizzle-orm';
 import { scores } from '../lib/dbSchema';
 import { ScoreDataItem } from '../lib/types';
 import { generateSnowflake } from '../lib/snowflake';
@@ -47,6 +47,29 @@ const getScores = async (limit: number) => {
   }
 };
 
+const getUniqueScoresByGame = async (game:string, limit: number) => {
+  try {
+    const result = await db
+      .select()
+      .from(scores)
+      .where(
+        sql`${scores.id} in (
+          select max(id) 
+          from ${scores} 
+          where ${scores.game} = ${game}
+          group by ${scores.player}
+        )`
+      )
+      .orderBy(sql`${scores.player} COLLATE NOCASE asc`, asc(scores.amount))
+      .limit(limit);
+
+    return result;
+  } catch (error) {
+    console.error('Error in getUniqueScoresByGame:', error);
+    throw error;
+  }
+};
+
 const updateScore = async (score: ScoreDataItem) => {
   const { id = -1, snowflake = 'BAD_ID', name, game, player, units, amount } = score;
   const values = {
@@ -84,6 +107,7 @@ const scoreData = {
   deleteScore,
   getScore,
   getScores,
+  getUniqueScoresByGame,
   updateScore,
 };
 
