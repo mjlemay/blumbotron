@@ -20,6 +20,7 @@
     "@radix-ui/react-scroll-area": "^1.2.8",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.6",
+    "@rc-component/color-picker": "^3.0.1",
     "@sapphire/snowflake": "^3.5.5",
     "@tailwindcss/vite": "^4.1.5",
     "@tauri-apps/api": "^2.0.3",
@@ -32,6 +33,7 @@
     "react-dom": "^18.3.1",
     "screenfull": "^6.0.2",
     "tailwindcss": "^4.1.5",
+    "use-immer": "^0.11.0",
     "zod": "^3.25.17",
     "zustand": "^5.0.4"
   },

@@ -2,6 +2,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useExperienceStore } from '../stores/experienceStore';
 import { useState } from 'react';
 import UiButton from './uiButton';
+import FormGameStyles from './formGameStyles';
 import { Separator } from '@radix-ui/react-separator';
 import SubViewLaunch from './subViewLaunch';
 
@@ -116,6 +117,7 @@ function ViewGame() {
             <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
               {name} Layout & Styles
             </h2>
+            <FormGameStyles />
           </>
         )}
       </div>

@@ -6,11 +6,18 @@ export const defaultExperience: Experience = {
   selected: {},
 };
 
+export const defaultGameMetaData = {
+  colors: {
+    background: '#000000',
+  },
+};
+
 export const defaultGame: GameDataItem = {
   id: -1,
   snowflake: 'BAD_ID',
   name: '',
   description: '',
+  data: defaultGameMetaData,
 };
 
 export const defaultPlayer: DataItem = {

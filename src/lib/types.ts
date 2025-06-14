@@ -1,6 +1,6 @@
 export type DataItem = {
   created_at?: string;
-  data?: string;
+  data?: string | Record<string, unknown>;
   description?: string;
   handleClick?: Function;
   id?: number;
@@ -11,6 +11,11 @@ export type DataItem = {
 
 export type GameDataItem = DataItem & {
   roster?: string | null;
+  data?: {
+    colors?: {
+      background?: string;
+    };
+  };
 };
 
 export type ScoreDataItem = DataItem & {

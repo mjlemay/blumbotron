@@ -9,10 +9,17 @@ type ComponentProps = {
   game?: string;
   fetchIntervalSeconds?: number;
   isFullScreen?: boolean;
+  numberOfScores?: number;
 };
 
+type TableDataItem = {
+  player?: string;
+  score?: number;
+  rank?: number | string;
+}
+
 function DisplayTable(props: ComponentProps): JSX.Element {
-  const { fetchIntervalSeconds = 60, game, isFullScreen = false } = props;
+  const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
   const { players } = usePlayerStore();
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
@@ -45,12 +52,58 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     }, fetchIntervalSeconds * 1000);
   }, []);
 
-
+  const tableDataSortedLimited = () => {
+    let limitedTableData = [];
+    let limitedTableRows = null;
+    if (tableDataSorted && tableDataSorted.length > numberOfScores) {
+      limitedTableData = tableDataSorted.slice(0, numberOfScores);
+    } else {
+      limitedTableData = tableDataSorted;
+    }
+    limitedTableRows = limitedTableData.map((scoreItem, index) => (
+      <div key={`${scoreItem.player}-${index}`} className="flex flex-row items-stretch justify-between w-full flex-1">
+        <div className={`
+          flex-1
+          text-white
+          font-bold
+          text-center
+          flex
+          items-center
+          justify-center
+          ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+        `}>
+          {scoreItem.player}
+        </div>
+        <div className={`
+          flex-1
+          text-white
+          font-bold
+          text-center
+          flex
+          items-center
+          justify-center
+          ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+        `}>
+          {scoreItem.score}
+        </div>
+      </div>
+    ));
+    if (limitedTableData.length < numberOfScores) {
+      for (let i = limitedTableData.length; i < numberOfScores; i++) {
+        limitedTableRows.push(
+          <div key={`empty-${i}`} className="flex flex-row items-stretch justify-between w-full flex-1">
+            <div className="flex-1 text-white text-center flex items-center justify-center"/>
+          </div>
+        );
+      }
+    }
+    return limitedTableRows;
+  }
 
   return (
     <div className={`
-      ${isFullScreen ? 'top-0 left-0 min-w-[100vw] min-h-[100vh] overflow-hidden' : 'rounded-md w-full h-full'}
-      bg-black flex items-center justify-center
+      ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'rounded-md w-full h-full'}
+      bg-black flex items-start justify-center
       `}>
       {!gameData && (
         <div className="min-h-full min-w-full flex items-center justify-center">
@@ -58,27 +111,39 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         </div>
       )}
       {gameData && gameScores[game || ''] && (
-        <div className="flex flex-col items-center justify-start w-full h-full transform scale-90">
-          <div className="flex flex-row items-center justify-start w-full">
-            <div className="flex flex-col items-center justify-start w-full">
-              <h2 className="text-white text-2xl font-bold">High Scores</h2>
-              {tableData &&tableDataSorted.map((scoreItem) => (
-                <div key={scoreItem.player} className="flex flex-row items-center justify-between w-full gap-2">
-                  <div className="flex-1 text-white bg-gray-700 rounded-md p-1 text-center">
-                    {scoreItem.player}
-                  </div>
-                  <div className="flex-1 text-white bg-gray-500 rounded-md p-1 text-center">
-                    {scoreItem.score}
+        <div data-table-container 
+          className={`
+            flex flex-col
+            items-center
+            justify-start
+            ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full'}
+          `}>
+          <div className="flex flex-row grow min-w-full min-h-full">
+            <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
+              <div className="flex flex-col justify-start min-w-full min-h-full">
+                <div className="flex flex-row items-stretch justify-start w-full flex-1">
+                  <div className={`
+                    flex-1
+                    text-white
+                    font-bold
+                    text-center
+                    flex
+                    items-center
+                    justify-center
+                    ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+                  `}>
+                    High Scores
                   </div>
                 </div>
-              ))}
-              {!tableDataSorted && (
-                <div className="flex flex-row items-center justify-start w-full gap-2">
-                  <div className="flex-1 text-white bg-gray-700 rounded-md p-1 text-center">
-                    No scores found
+                {tableDataSortedLimited()}
+                {!tableDataSorted && (
+                  <div className="flex flex-row items-stretch justify-start w-full flex-1">
+                    <div className="flex-1 text-white rounded-md p-1 text-center flex items-center justify-center">
+                      No scores found
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
