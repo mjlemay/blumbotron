@@ -1,6 +1,6 @@
 export type DataItem = {
   created_at?: string;
-  data?: string | Record<string, unknown>;
+  data?: Record<string, unknown>;
   description?: string;
   handleClick?: Function;
   id?: number;

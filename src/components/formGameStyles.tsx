@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useImmer } from "use-immer";
+import { useImmer } from 'use-immer';
 import Input from './input';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
@@ -16,39 +15,63 @@ type FormGameStylesProps = {
   onSuccess?: () => void;
 };
 
+
+
+const setNestedValue = (obj: any, keyString: string, value: any) => {
+  const keys = keyString.split('.');
+  let current = obj;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      if (!current[key] || typeof current[key] !== 'object') {
+          current[key] = {};
+      }
+      current = current[key];
+  }
+  current[keys[keys.length - 1]] = value;
+  return obj;
+}
+
+
 function FormGameStyles(props: FormGameStylesProps) {
   const {  onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
-  const [form, setForm] = useImmer(game || defaultGame);
+  
+  interface GameData extends Record<string, unknown> {
+    colors?: {
+      background?: string;
+    };
+  }
+  
+  let gameData: GameData = {};
+  try {
+    if (typeof game?.data === 'string') {
+      gameData = JSON.parse(game.data);
+    } else if (game?.data) {
+      gameData = game.data as GameData;
+    }
+  } catch (error) {
+    gameData = {};
+  }
+  
+  const fullForm = { ...game, data: gameData };
+  const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
-  const [colorPicker, setColorPicker] = useImmer('');
 
-  const updateFromInput = (formKey: string, formValue: string) => {
-    const clonedForm = JSON.parse(JSON.stringify(form));
-    const formKeyParts = formKey.split('.');
-    let keyPointer = {};
-    formKeyParts.map((part, index) => {
-      if (index === 0) {
-        keyPointer = clonedForm[part as keyof typeof clonedForm];
-      } else {
-        if (typeof keyPointer === 'undefined') {
-          keyPointer = {};
-        }
-          keyPointer = keyPointer[part as keyof typeof keyPointer];
-      }
+  const updateFormInput = (formKey: string, formValue: string) => {
+    setForm(form => {
+      setNestedValue(form, formKey, formValue);
     });
-    keyPointer = formValue;
-    console.log('clonedForm', clonedForm);
-    setForm(clonedForm);
+    console.log('form', form);
   };
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
     const eventTarget = Event?.target;
     const formKey = eventTarget?.name;
     const formValue = eventTarget?.value;
-    updateFromInput(formKey, formValue);
+    updateFormInput(formKey, formValue);
   };
 
   const handleSubmitClose = (
@@ -64,7 +87,7 @@ function FormGameStyles(props: FormGameStylesProps) {
   };
 
   const handleColorChange = (formKey: string, color: string) => {
-    updateFromInput(formKey as string, color as string);
+    updateFormInput(formKey as string, color as string);
   };
 
   const getError = (field: string) => {
@@ -107,11 +130,6 @@ function FormGameStyles(props: FormGameStylesProps) {
     }
   };
 
-  useEffect(() => {
-    updateFromInput('data.colors.background', colorPicker);
-    console.log('colorPicker', colorPicker);
-    console.log('form', form.data?.colors?.background);
-  }, [colorPicker]);
 
   return (
     <div
@@ -159,15 +177,15 @@ function FormGameStyles(props: FormGameStylesProps) {
         <Input
           name="data.colors.background"
           label="Background Color"
-          value={form?.data?.colors?.background || ''}
+          value={form?.data?.colors?.background || '#000000'}
           changeHandler={handleFormChange}
           preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.background || 'transparent' }}/>
+            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.background || '#000000' }}/>
           }
           actionButton={
             <ButtonColorPicker
-              color={colorPicker}
-              setColor={setColorPicker}
+              color={form?.data?.colors?.background || ''}
+              setColor={(color: string) => handleColorChange('data.colors.background', color)}
             />
           }
         />

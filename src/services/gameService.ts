@@ -12,7 +12,7 @@ const addGame = async (game: GameDataItem) => {
     snowflake: String(snowflake),
     description,
     roster,
-    data: JSON.stringify({ category: 'table', units: ['score'] }),
+    data: { category: 'table', units: ['score'] },
   };
   try {
     await db.insert(games).values(values);

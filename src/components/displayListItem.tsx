@@ -15,7 +15,7 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
     item: { id, name, data, description, created_at, updated_at, handleClick },
   } = props;
   const { rosters } = useRosterStore();
-  const itemData: Record<string, string> = data ? JSON.parse(data) : {};
+  const itemData: Record<string, unknown> = data || {};
   const category = itemData ? itemData.category : undefined;
   const roster = 'roster' in props.item ? props.item.roster : undefined;
 
@@ -72,7 +72,7 @@ function DisplayListItem(props: ComponentProps): JSX.Element {
         <div
           className={`rounded-xl ${category && category == 'roster' ? getRosterColor(name) : 'bg-slate-800'} p-2 m-2`}
         >
-          {getIcon(category)}
+          {getIcon(category as string)}
         </div>
         <div className="w-full items-start justify-start">
           <div className="flex flex-row items-center gap-2">

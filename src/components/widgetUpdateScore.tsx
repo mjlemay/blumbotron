@@ -23,15 +23,16 @@ type FormData = {
 
 function UpdateScore(props: ComponentProps): JSX.Element {
   const { gameData } = props;
-  const { data } = gameData ? gameData : {};
-  const { snowflake, roster } = gameData ? gameData : {};
-  const units: string = data ? JSON.parse(data as string).units[0] : 'Score';
+  const { data, snowflake, roster } = gameData || {};
+
+  const { units } = data || { units: ['Score'] };
+  const firstUnit = (units as string[])[0] || 'Score';
   const { players, fetchPlayers } = usePlayerStore();
-  const { rosters } = useRosterStore();
+  const { rosters } = useRosterStore(); 
   const { createScore, error } = useScoreStore();
-  const [formErrors, setFormErrors] = useState('');
+  const [formErrors, setFormErrors] = useState<string>('');
   const [form, setForm] = useState({
-    units,
+    units:firstUnit,
     amount: '',
     player: '',
     game: snowflake,
@@ -46,7 +47,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
 
   const resetForm = () => {
     setForm({
-      units,
+      units: firstUnit,
       amount: '',
       player: '',
       game: snowflake,
@@ -110,7 +111,9 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   return (
     <div className=" bg-slate-700 rounded-lg p-2 shadow-sm">
       <div className="flex flex-col items-center justify-start p-2 pt-0">
-        <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">{`Update Player ${toTitleCase(units)}`}</h3>
+        <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">
+          {`Update Player ${toTitleCase(firstUnit)}`}
+        </h3>
         <Input
           name="amount"
           value={form.amount}

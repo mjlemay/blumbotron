@@ -12,9 +12,8 @@ function PlayerListItem(props: ComponentProps): JSX.Element {
   const {
     item: { id, name, data, snowflake = 'default', handleClick },
   } = props;
-  const itemData: Record<string, string> = data ? JSON.parse(data) : {};
-  const newLetter = itemData ? itemData.newLetter : undefined;
-  const bio = itemData ? itemData.bio : undefined;
+  const itemData = data as { newLetter?: string; bio?: string } || {};
+  const { newLetter, bio } = itemData;
 
   const handleItemClick = (id: number | string | null) => {
     if (handleClick) {
@@ -35,7 +34,7 @@ function PlayerListItem(props: ComponentProps): JSX.Element {
     <>
       {newLetter && (
         <>
-          <div className="p-3 pb-0 text-xl font-bold">{newLetter}</div>
+          <div className="p-3 pb-0 text-xl font-bold">{newLetter as string}</div>
           <Separator className="h-[1px] w-full mb-0 h-4 bg-slate-300/50" orientation="horizontal" />
         </>
       )}
@@ -52,7 +51,7 @@ function PlayerListItem(props: ComponentProps): JSX.Element {
             <div className="flex flex-row items-center gap-2">
               {name && <h3 className="text-3xl font-bold">{name}</h3>}
             </div>
-            {bio && <p>{bio}</p>}
+            {bio && <p>{bio as string}</p>}
           </div>
         </div>
       </div>

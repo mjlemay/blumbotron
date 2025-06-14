@@ -5,19 +5,23 @@ import { DataItem } from '../lib/types';
 import { generateSnowflake } from '../lib/snowflake';
 
 const addPlayer = async (player: DataItem) => {
-  const { name, data } = player;
+  const { name } = player;
   const snowflake = generateSnowflake();
   const values = {
     name,
     snowflake: String(snowflake),
-    data: JSON.stringify(data),
+    data: {bio: ''},
   };
   try {
+    // First insert the player
     await db.insert(players).values(values);
+    
+    // Then fetch the newly created player
     const newPlayer = await db
       .select()
       .from(players)
-      .where(eq(players.snowflake, String(snowflake)));
+      .where(eq(players.snowflake, String(snowflake)))
+      .limit(1);
 
     if (!newPlayer || !newPlayer[0]) {
       throw new Error('Failed to create player - no result returned');

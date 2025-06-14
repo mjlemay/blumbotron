@@ -24,7 +24,7 @@ export const defaultPlayer: DataItem = {
   id: -1,
   snowflake: 'BAD_ID',
   name: '',
-  data: '',
+  data: {},
 };
 
 export const defaultRoster: RosterDataItem = {

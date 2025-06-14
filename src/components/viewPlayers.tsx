@@ -23,15 +23,13 @@ function ViewPlayers(): JSX.Element {
       const firstLetter = player.name.charAt(0).toUpperCase();
       const prevFirstLetter = index > 0 ? players[index - 1].name.charAt(0).toUpperCase() : '';
       const newLetter = firstLetter !== prevFirstLetter ? firstLetter : null;
-      const playerData = JSON.parse(player.data || '{}');
-      const stuffedData = JSON.stringify({
-        ...(playerData || {}),
-        newLetter: newLetter,
-      });
-
+      const playerData = typeof player.data === 'object' ? player.data : {};
       return {
         ...player,
-        data: stuffedData,
+        data: {
+          ...playerData,
+          newLetter,
+        },
         handleClick: () => handlePlayerSelect(player.id as unknown as number),
       };
     });
