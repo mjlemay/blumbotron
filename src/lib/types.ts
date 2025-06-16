@@ -18,6 +18,9 @@ export type GameDataItem = DataItem & {
       primary?: string;
       secondary?: string;
       tertiary?: string;
+      tableHeader?: string;
+      tableRow?: string;
+      tableAlt?: string;
     };
   };
 };

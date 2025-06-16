@@ -30,7 +30,7 @@ export default function Input(props: InputProps): JSX.Element {
   } = props;
 
   return (
-    <div className="my-2">
+    <div className={`my-2 ${hidden && 'hidden'}`}>
       <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">{label}</label>
       <div className="flex flex-row items-center justify-between">
       {preview && <div className="mr-2">{preview}</div>}

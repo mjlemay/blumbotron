@@ -10,6 +10,7 @@ import '@rc-component/color-picker/assets/index.css';
 import ButtonColorPicker from './buttonColorPicker';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 
 type FormGameStylesProps = {
   onSuccess?: () => void;
@@ -22,6 +23,9 @@ interface GameData extends Record<string, unknown> {
     primary?: string;
     secondary?: string;
     tertiary?: string;
+    tableHeader?: string;
+    tableRow?: string;
+    tableAlt?: string;
   };
 }
 
@@ -116,15 +120,12 @@ function FormGameStyles(props: FormGameStylesProps) {
       
       // Merge existing data with new changes
       const existingData = game?.data || {};
+      const newColors = formData.data?.colors || {};
       const mergedData = {
         ...existingData,
         colors: {
           ...existingData.colors,
-          background: formData.data?.colors?.background || existingData.colors?.background || '#000000',
-          text: formData.data?.colors?.text || existingData.colors?.text || '#ffffff',
-          primary: formData.data?.colors?.primary || existingData.colors?.primary || '#ff0000',
-          secondary: formData.data?.colors?.secondary || existingData.colors?.secondary || '#00ff00',
-          tertiary: formData.data?.colors?.tertiary || existingData.colors?.tertiary || '#0000ff',
+         ...newColors
         }
       };
       
@@ -180,137 +181,221 @@ function FormGameStyles(props: FormGameStylesProps) {
 
 
   return (
-    <div
-      className="
-        flex
-        flex-col
-        items-center
-        justify-start
-        text-lg
-        font-medium
-        bg-slate-700
-        rounded-lg
-        p-2
-        shadow-sm
-        max-w-lg
-      "
-    >
-      <div className="w-full pr-4 pl-4">
-        <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
-        <Input
-          name="snowflake"
-          value={form.snowflake || 'BAD_ID'}
-          hidden
-          changeHandler={() => {}}
-        />
-        <Input
-          name="name"
-          value={form.name || ''}
-          hidden
-          changeHandler={() => {}}
-        />
-        <Input
-          name="description"
-          value={form.description || ''}
-          hidden
-          changeHandler={() => {}}
-        />
-        <Input
-          name="roster"
-          value={form.roster || ''}
-          hidden
-          changeHandler={() => {}}
-        />
-        <div className="flex flex-col items-start justify-between">
-        <Input
-          name="data.colors.background"
-          label="Background Color"
-          value={form?.data?.colors?.background || '#000000'}
-          changeHandler={handleFormChange}
-          preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.background || '#000000' }}/>
-          }
-          actionButton={
-            <ButtonColorPicker
-              color={form?.data?.colors?.background || ''}
-              setColor={(color: string) => handleColorChange('data.colors.background', color)}
-            />
-          }
-        />
-        <Input
-          name="data.colors.text"
-          label="Text Color"
-          value={form?.data?.colors?.text || '#000000'}
-          changeHandler={handleFormChange}
-          preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.text || '#000000' }}/>
-          }
-          actionButton={
-            <ButtonColorPicker
-              color={form?.data?.colors?.text || ''}
-              setColor={(color: string) => handleColorChange('data.colors.text', color)}
-            />
-          }
-        />
-        <Input
-          name="data.colors.primary"
-          label="Primary Color"
-          value={form?.data?.colors?.primary || '#000000'}
-          changeHandler={handleFormChange}
-          preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.primary || '#000000' }}/>
-          }
-          actionButton={
-            <ButtonColorPicker
-              color={form?.data?.colors?.primary || ''}
-              setColor={(color: string) => handleColorChange('data.colors.primary', color)}
-            />
-          }
-        />
-        <Input
-          name="data.colors.secondary"
-          label="Secondary Color"
-          value={form?.data?.colors?.secondary || '#000000'}
-          changeHandler={handleFormChange}
-          preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.secondary || '#000000' }}/>
-          }
-          actionButton={
-            <ButtonColorPicker
-              color={form?.data?.colors?.secondary || ''}
-              setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
-            />
-          }
-        />
-        <Input
-          name="data.colors.tertiary"
-          label="Tertiary Color"
-          value={form?.data?.colors?.tertiary || '#000000'}
-          changeHandler={handleFormChange}
-          preview={
-            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.tertiary || '#000000' }}/>
-          }
-          actionButton={
-            <ButtonColorPicker
-              color={form?.data?.colors?.tertiary || ''}
-              setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
-            />
-          }
-        />
-        </div>
-      </div>
+    <div className="flex flex-col items-center bg-slate-900 rounded-lg shadow-lg">
+      <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
+        <ScrollArea.Viewport className="h-full w-full">
+          <div className="px-5 py-[15px] min-h-[calc(100vh-250px)] max-h-[calc(100vh-250px)]">
+            <div className="flex flex-row items-center justify-start">
+              <div className="flex flex-col items-center justify-start text-lg font-medium rounded-lg max-w-lg">
+                <div className="w-full pr-4 pl-4">
+                  <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
+                  <Input
+                    name="snowflake"
+                    value={form.snowflake || 'BAD_ID'}
+                    hidden
+                    changeHandler={() => {}}
+                  />
+                  <Input
+                    name="name"
+                    value={form.name || ''}
+                    hidden
+                    changeHandler={() => {}}
+                  />
+                  <Input
+                    name="description"
+                    value={form.description || ''}
+                    hidden
+                    changeHandler={() => {}}
+                  />
+                  <Input
+                    name="roster"
+                    value={form.roster || ''}
+                    hidden
+                    changeHandler={() => {}}
+                  />
+                  <div className="flex flex-col items-start justify-between">
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Basic Colors
+                    </h3>
+                    <Input
+                      name="data.colors.background"
+                      label="Background Color"
+                      value={form?.data?.colors?.background || '#000000'}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.background || '#000000' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.background || '#000000'}
+                          setColor={(color: string) => handleColorChange('data.colors.background', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.text"
+                      label="Text Color"
+                      value={form?.data?.colors?.text || '#ffffff'}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.text || '#ffffff' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.text || '#ffffff'}
+                          setColor={(color: string) => handleColorChange('data.colors.text', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.primary"
+                      label="Primary Color"
+                      value={form?.data?.colors?.primary || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.primary || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.primary || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.primary', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.secondary"
+                      label="Secondary Color"
+                      value={form?.data?.colors?.secondary || '#000000'}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.secondary || '' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.secondary || 'transparent'}
+                          setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.tertiary"
+                      label="Tertiary Color"
+                      value={form?.data?.colors?.tertiary || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.tertiary || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.tertiary || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
+                        />
+                      }
+                    />
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Table Colors
+                    </h3>
+                    <Input
+                      name="data.colors.tableHeader"
+                      label="Table Header Color"
+                      value={form?.data?.colors?.tableHeader || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.tableHeader || '' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.tableHeader || 'transparent'}
+                          setColor={(color: string) => handleColorChange('data.colors.tableHeader', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.tableRow"
+                      label="Row Color"
+                      value={form?.data?.colors?.tableRow || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.tableRow || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.tableRow || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.tableRow', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.tableAlt"
+                      label="Alternate Row Color"
+                      value={form?.data?.colors?.tableAlt || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.tableAlt || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.tableAlt || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.tableAlt', color)}
+                        />
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar
+          className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+          orientation="vertical"
+        >
+          <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+        </ScrollArea.Scrollbar>
+        <ScrollArea.Scrollbar
+          className="flex touch-none select-none bg-blackA3 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-blackA5 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+          orientation="horizontal"
+        >
+          <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-mauve10 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+        </ScrollArea.Scrollbar>
+        <ScrollArea.Corner />
+      </ScrollArea.Root>
       <Menubar.Root className="flex rounded-md p-2">
         <Menubar.Menu>
-        {loading && <div>Loading...</div>}
-        {error && <div>Error: {error}</div>}
-        {!loading && !error && (
-        <Menubar.Trigger
-            className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
-            onClick={() => {
-              editGameData(form);
-            }}
-          >
-            <Pencil1Icon width="20" height="20" /> <span>Edit</span>
+          {loading && <div>Loading...</div>}
+          {error && <div>Error: {error}</div>}
+          {!loading && !error && (
+            <Menubar.Trigger
+              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+              onClick={() => {
+                editGameData(form);
+              }}
+            >
+              <Pencil1Icon width="20" height="20" /> <span>Edit</span>
             </Menubar.Trigger>
           )}
         </Menubar.Menu>

@@ -47,6 +47,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     primary: null,
     secondary: null,
     tertiary: null,
+    tableHeader: null,
+    tableRow: null,
+    tableAlt: null,
   };
 
   const tableDataSorted = tableData && tableData.length > 0 ? tableData.sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
@@ -68,7 +71,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       limitedTableData = tableDataSorted;
     }
     limitedTableRows = limitedTableData.map((scoreItem, index) => (
-      <div key={`${scoreItem.player}-${index}`} className="flex flex-row items-stretch justify-between w-full flex-1">
+      <div 
+        key={`${scoreItem.player}-${index}`} 
+        className="flex flex-row items-stretch justify-between w-full flex-1"
+        style={{
+          backgroundColor: index % 2 === 0 ? colors.tableAlt || 'transparent' : colors.tableRow || 'transparent',
+        }}
+      >
         <div className={`
           flex-1
           text-white
@@ -154,6 +163,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                   `}
                   style={{
                     color: colors.primary || colors.text,
+                    backgroundColor: colors.tableHeader || 'transparent',
                   }}
                   >
                     High Scores
