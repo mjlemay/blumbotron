@@ -41,7 +41,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   const allowList = roster
     ? rosters.find((rosterItem: RosterDataItem) => rosterItem.snowflake === roster)?.allow
     : null;
-  const usedPlayers = allowList
+  const usedPlayers = allowList && allowList.length > 0
     ? players?.filter((player: DataItem) => allowList?.includes(player?.snowflake || ''))
     : players;
 

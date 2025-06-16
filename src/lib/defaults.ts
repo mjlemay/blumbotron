@@ -9,6 +9,10 @@ export const defaultExperience: Experience = {
 export const defaultGameMetaData = {
   colors: {
     background: '#000000',
+    text: '#ffffff',
+    primary: '#ff0000',
+    secondary: '#00ff00',
+    tertiary: '#0000ff',
   },
 };
 

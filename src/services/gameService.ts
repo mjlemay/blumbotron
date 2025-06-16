@@ -48,7 +48,58 @@ const getGames = async (limit: number) => {
 
 const updateGame = async (game: GameDataItem) => {
   const { id = -1 } = game;
-  return await db.update(games).set(game).where(eq(games.id, id)).returning();
+  try {
+    console.log('Starting updateGame with ID:', id);
+    console.log('Update data:', game);
+
+    // Ensure we're only updating the necessary fields
+    const updateData = {
+      name: game.name,
+      description: game.description,
+      data: game.data, // Drizzle will handle JSON serialization
+      roster: game.roster,
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('Prepared update data:', updateData);
+
+    // First update the game
+    console.log('Attempting database update...');
+    const updateResult = await db.update(games)
+      .set(updateData)
+      .where(eq(games.id, id));
+    console.log('Update result:', updateResult);
+    
+    // Add a small delay to prevent lock contention
+    console.log('Waiting before fetch...');
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Then fetch the updated game
+    console.log('Attempting to fetch updated game...');
+    const updatedGame = await db
+      .select()
+      .from(games)
+      .where(eq(games.id, id))
+      .limit(1);
+    console.log('Fetch result:', updatedGame);
+
+    if (!updatedGame || !updatedGame[0]) {
+      throw new Error('Failed to update game - no result returned');
+    }
+
+    // Drizzle will automatically deserialize the JSON data
+    console.log('Update successful, returning:', updatedGame[0]);
+    return updatedGame[0];
+  } catch (error) {
+    console.error('Detailed error in updateGame:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined,
+      gameId: id,
+      gameData: game
+    });
+    throw new Error('Failed to process game');
+  }
 };
 
 const deleteGame = async (game: GameDataItem) => {

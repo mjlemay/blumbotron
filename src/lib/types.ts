@@ -14,6 +14,10 @@ export type GameDataItem = DataItem & {
   data?: {
     colors?: {
       background?: string;
+      text?: string;
+      primary?: string;
+      secondary?: string;
+      tertiary?: string;
     };
   };
 };

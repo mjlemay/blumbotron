@@ -41,6 +41,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       score: scoreItem?.amount,
     };
   });
+  const colors = gameData?.data?.colors || {
+    background: 'black',
+    text: 'white',
+    primary: null,
+    secondary: null,
+    tertiary: null,
+  };
 
   const tableDataSorted = tableData && tableData.length > 0 ? tableData.sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
 
@@ -71,7 +78,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           items-center
           justify-center
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-        `}>
+        `}
+        style={{
+          color: colors.secondary || colors.text,
+        }}
+        >
           {scoreItem.player}
         </div>
         <div className={`
@@ -83,7 +94,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           items-center
           justify-center
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-        `}>
+        `}
+        style={{
+          color: colors.text || colors.secondary || colors.text,
+        }}
+        >
           {scoreItem.score}
         </div>
       </div>
@@ -103,8 +118,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   return (
     <div className={`
       ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'rounded-md w-full h-full'}
-      bg-black flex items-start justify-center
-      `}>
+       flex items-start justify-center
+      `}
+      style={{
+        backgroundColor: colors.background,
+        color: colors.text,
+      }}
+    >
       {!gameData && (
         <div className="min-h-full min-w-full flex items-center justify-center">
           Table not found
@@ -131,7 +151,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                     items-center
                     justify-center
                     ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-                  `}>
+                  `}
+                  style={{
+                    color: colors.primary || colors.text,
+                  }}
+                  >
                     High Scores
                   </div>
                 </div>

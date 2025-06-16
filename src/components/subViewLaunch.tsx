@@ -2,6 +2,7 @@ import * as ScrollArea from '@radix-ui/react-scroll-area';
 import UpdateScore from './widgetUpdateScore';
 import DisplayFrame from './displayFrame';
 import { DataItem } from '../lib/types';
+import { useGameStore } from '../stores/gamesStore';
 import { useRef, useEffect, useState } from 'react';
 
 type LaunchProps = {
@@ -10,6 +11,7 @@ type LaunchProps = {
 
 function SubViewLaunch(props: LaunchProps): JSX.Element {
   const { gameData } = props;
+  const { fetchGames } = useGameStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
@@ -29,6 +31,10 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
     return () => {
       resizeObserver.disconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    fetchGames();
   }, []);
 
   return (

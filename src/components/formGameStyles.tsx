@@ -15,7 +15,15 @@ type FormGameStylesProps = {
   onSuccess?: () => void;
 };
 
-
+interface GameData extends Record<string, unknown> {
+  colors?: {
+    background?: string;
+    text?: string;
+    primary?: string;
+    secondary?: string;
+    tertiary?: string;
+  };
+}
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
   const keys = keyString.split('.');
@@ -39,12 +47,7 @@ function FormGameStyles(props: FormGameStylesProps) {
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
   
-  interface GameData extends Record<string, unknown> {
-    colors?: {
-      background?: string;
-    };
-  }
-  
+
   let gameData: GameData = {};
   try {
     if (typeof game?.data === 'string') {
@@ -95,6 +98,8 @@ function FormGameStyles(props: FormGameStylesProps) {
   };
 
   const editGameData = async (formData: GameDataItem) => {
+    console.log('Starting editGameData with form data:', formData);
+    
     let formSchema = z.object({
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
@@ -105,15 +110,55 @@ function FormGameStyles(props: FormGameStylesProps) {
       }),
     });
     try {
+      console.log('Validating form data...');
       formSchema.parse(formData);
-      await editGame(formData);
+      console.log('Form validation successful');
+      
+      // Merge existing data with new changes
+      const existingData = game?.data || {};
+      const mergedData = {
+        ...existingData,
+        colors: {
+          ...existingData.colors,
+          background: formData.data?.colors?.background || existingData.colors?.background || '#000000',
+          text: formData.data?.colors?.text || existingData.colors?.text || '#ffffff',
+          primary: formData.data?.colors?.primary || existingData.colors?.primary || '#ff0000',
+          secondary: formData.data?.colors?.secondary || existingData.colors?.secondary || '#00ff00',
+          tertiary: formData.data?.colors?.tertiary || existingData.colors?.tertiary || '#0000ff',
+        }
+      };
+      
+      // Ensure we're sending the correct data structure
+      const updateData: GameDataItem = {
+        id: formData.id,
+        snowflake: formData.snowflake,
+        name: formData.name,
+        description: formData.description,
+        data: mergedData,
+        roster: formData.roster
+      };
+      console.log('Prepared update data:', updateData);
+
+      console.log('Calling editGame...');
+      await editGame(updateData);
+      console.log('editGame completed');
+      
       // If we get here and there's no error in the store, edit was successful
       if (!error) {
-        handleSubmitClose('game', 'none', formData);
+        console.log('Update successful, closing form...');
+        handleSubmitClose('game', 'none', updateData);
         return true;
       }
+      console.error('Store error after update:', error);
       throw new Error(error || 'Failed to edit game');
     } catch (err) {
+      console.error('Error in editGameData:', {
+        error: err,
+        errorMessage: err instanceof Error ? err.message : 'Unknown error',
+        errorStack: err instanceof Error ? err.stack : undefined,
+        formData
+      });
+      
       if (err instanceof z.ZodError) {
         let newErrs: Record<string, string> = {};
         err.errors.map((errItem) => {
@@ -121,10 +166,13 @@ function FormGameStyles(props: FormGameStylesProps) {
           const key = path[0];
           newErrs[`${key}`] = message;
         });
+        console.log('Validation errors:', newErrs);
         setErrors(newErrs);
       } else {
         // Handle other errors (like creation/editing failure)
-        setErrors({ name: err instanceof Error ? err.message : 'Failed to process game' });
+        const errorMessage = err instanceof Error ? err.message : 'Failed to process game';
+        console.log('Setting error:', errorMessage);
+        setErrors({ name: errorMessage });
       }
       return false;
     }
@@ -173,7 +221,7 @@ function FormGameStyles(props: FormGameStylesProps) {
           hidden
           changeHandler={() => {}}
         />
-        <div className="flex flex-row items-start justify-between">
+        <div className="flex flex-col items-start justify-between">
         <Input
           name="data.colors.background"
           label="Background Color"
@@ -186,6 +234,66 @@ function FormGameStyles(props: FormGameStylesProps) {
             <ButtonColorPicker
               color={form?.data?.colors?.background || ''}
               setColor={(color: string) => handleColorChange('data.colors.background', color)}
+            />
+          }
+        />
+        <Input
+          name="data.colors.text"
+          label="Text Color"
+          value={form?.data?.colors?.text || '#000000'}
+          changeHandler={handleFormChange}
+          preview={
+            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.text || '#000000' }}/>
+          }
+          actionButton={
+            <ButtonColorPicker
+              color={form?.data?.colors?.text || ''}
+              setColor={(color: string) => handleColorChange('data.colors.text', color)}
+            />
+          }
+        />
+        <Input
+          name="data.colors.primary"
+          label="Primary Color"
+          value={form?.data?.colors?.primary || '#000000'}
+          changeHandler={handleFormChange}
+          preview={
+            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.primary || '#000000' }}/>
+          }
+          actionButton={
+            <ButtonColorPicker
+              color={form?.data?.colors?.primary || ''}
+              setColor={(color: string) => handleColorChange('data.colors.primary', color)}
+            />
+          }
+        />
+        <Input
+          name="data.colors.secondary"
+          label="Secondary Color"
+          value={form?.data?.colors?.secondary || '#000000'}
+          changeHandler={handleFormChange}
+          preview={
+            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.secondary || '#000000' }}/>
+          }
+          actionButton={
+            <ButtonColorPicker
+              color={form?.data?.colors?.secondary || ''}
+              setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
+            />
+          }
+        />
+        <Input
+          name="data.colors.tertiary"
+          label="Tertiary Color"
+          value={form?.data?.colors?.tertiary || '#000000'}
+          changeHandler={handleFormChange}
+          preview={
+            <div className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" style={{ backgroundColor: form?.data?.colors?.tertiary || '#000000' }}/>
+          }
+          actionButton={
+            <ButtonColorPicker
+              color={form?.data?.colors?.tertiary || ''}
+              setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
             />
           }
         />
