@@ -12,12 +12,6 @@ type ComponentProps = {
   numberOfScores?: number;
 };
 
-type TableDataItem = {
-  player?: string;
-  score?: number;
-  rank?: number | string;
-}
-
 function DisplayTable(props: ComponentProps): JSX.Element {
   const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
   const { players } = usePlayerStore();
@@ -51,6 +45,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     tableRow: null,
     tableAlt: null,
   };
+  const title = gameData?.data?.displays?.[0]?.title || 'High Scores';
+  const numberOfRows = gameData?.data?.displays?.[0]?.rows || numberOfScores;
 
   const tableDataSorted = tableData && tableData.length > 0 ? tableData.sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
 
@@ -65,8 +61,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const tableDataSortedLimited = () => {
     let limitedTableData = [];
     let limitedTableRows = null;
-    if (tableDataSorted && tableDataSorted.length > numberOfScores) {
-      limitedTableData = tableDataSorted.slice(0, numberOfScores);
+    if (tableDataSorted && tableDataSorted.length > numberOfRows) {
+      limitedTableData = tableDataSorted.slice(0, numberOfRows);
     } else {
       limitedTableData = tableDataSorted;
     }
@@ -112,11 +108,21 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         </div>
       </div>
     ));
-    if (limitedTableData.length < numberOfScores) {
-      for (let i = limitedTableData.length; i < numberOfScores; i++) {
+    if (limitedTableData.length < numberOfRows) {
+      for (let i = limitedTableData.length; i < numberOfRows; i++) {
         limitedTableRows.push(
-          <div key={`empty-${i}`} className="flex flex-row items-stretch justify-between w-full flex-1">
-            <div className="flex-1 text-white text-center flex items-center justify-center"/>
+          <div 
+            key={`empty-${i}`} 
+            className="flex flex-row items-stretch justify-between w-full flex-1"
+            style={{
+              backgroundColor: colors.tableRow || 'transparent',
+            }}
+          >
+            <div
+            style={{
+              backgroundColor: i % 2 === 0 ? colors.tableAlt || 'transparent' : colors.tableRow || 'transparent',
+            }}
+            className="flex-1 text-white text-center flex items-center justify-center"/>
           </div>
         );
       }
@@ -151,23 +157,25 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
               <div className="flex flex-col justify-start min-w-full min-h-full">
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">
-                  <div className={`
-                    flex-1
-                    text-white
-                    font-bold
-                    text-center
-                    flex
-                    items-center
-                    justify-center
-                    ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-                  `}
-                  style={{
-                    color: colors.primary || colors.text,
-                    backgroundColor: colors.tableHeader || 'transparent',
-                  }}
-                  >
-                    High Scores
-                  </div>
+                  {title && title.length > 0 && (
+                    <div className={`
+                      flex-1
+                      text-white
+                      font-bold
+                      text-center
+                      flex
+                      items-center
+                      justify-center
+                      ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+                    `}
+                    style={{
+                      color: colors.primary || colors.text,
+                      backgroundColor: colors.tableHeader || 'transparent',
+                    }}
+                    >
+                      {title}
+                    </div>
+                  )}
                 </div>
                 {tableDataSortedLimited()}
                 {!tableDataSorted && (

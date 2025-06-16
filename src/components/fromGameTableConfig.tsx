@@ -7,50 +7,72 @@ import { GameDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
 import { Pencil1Icon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
-import ButtonColorPicker from './buttonColorPicker';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 
-type FormGameStylesProps = {
+type FormGameTableConfigProps = {
   onSuccess?: () => void;
 };
 
 interface GameData extends Record<string, unknown> {
-  colors?: {
-    background?: string;
-    text?: string;
-    primary?: string;
-    secondary?: string;
-    tertiary?: string;
-    tableHeader?: string;
-    tableRow?: string;
-    tableAlt?: string;
-  };
+  displays?: {
+    title?: string;
+    rows?: number;
+  }[];
 }
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
+  console.log('Setting value for path:', keyString, 'with value:', value);
   const keys = keyString.split('.');
+  console.log('Split keys:', keys);
   let current = obj;
 
   for (let i = 0; i < keys.length - 1; i++) {
-      const key = keys[i];
+    const key = keys[i];
+    const nextKey = keys[i + 1];
+    console.log('Processing key:', key, 'next key:', nextKey);
+    
+    // Handle array notation in the current key
+    const arrayMatch = key.match(/^([^\[]+)\[(\d+)\]$/);
+    if (arrayMatch) {
+      const [_, arrayKey, index] = arrayMatch;
+      console.log('Found array key:', arrayKey, 'at index:', index);
+      
+      // Ensure the array exists
+      if (!current[arrayKey] || !Array.isArray(current[arrayKey])) {
+        current[arrayKey] = [];
+      }
+      
+      // Ensure the index exists
+      if (!current[arrayKey][index]) {
+        current[arrayKey][index] = {};
+      }
+      
+      current = current[arrayKey][index];
+    } else {
       if (!current[key] || typeof current[key] !== 'object') {
-          current[key] = {};
+        current[key] = {};
       }
       current = current[key];
+    }
   }
-  current[keys[keys.length - 1]] = value;
+
+  const lastKey = keys[keys.length - 1];
+  console.log('Setting final value for key:', lastKey);
+  current[lastKey] = value;
+  
+  console.log('Final object state:', JSON.stringify(obj, null, 2));
   return obj;
 }
 
 
-function FormGameStyles(props: FormGameStylesProps) {
-  const { onSuccess } = props;
+function FormGameTableConfig(props: FormGameTableConfigProps) {
+  const {  onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
-  const { name = '' } = game || {};
+  
 
   let gameData: GameData = {};
   try {
@@ -66,6 +88,7 @@ function FormGameStyles(props: FormGameStylesProps) {
   const fullForm = { ...game, data: gameData };
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
+  const { name = '' } = game || {};
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
@@ -93,14 +116,6 @@ function FormGameStyles(props: FormGameStylesProps) {
     onSuccess?.();
   };
 
-  const handleColorChange = (formKey: string, color: string) => {
-    updateFormInput(formKey as string, color as string);
-  };
-
-  const getError = (field: string) => {
-    return errors[field as keyof typeof errors] || '';
-  };
-
   const editGameData = async (formData: GameDataItem) => {
     console.log('Starting editGameData with form data:', formData);
     
@@ -108,9 +123,10 @@ function FormGameStyles(props: FormGameStylesProps) {
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
       data: z.object({
-        colors: z.object({
-          background: z.string(),
-        }),
+        displays: z.array(z.object({
+          title: z.string(),
+          rows: z.string().min(1, 'Please supply a number of rows.'),
+        })),
       }),
     });
     try {
@@ -120,13 +136,10 @@ function FormGameStyles(props: FormGameStylesProps) {
       
       // Merge existing data with new changes
       const existingData = game?.data || {};
-      const newColors = formData.data?.colors || {};
+      const newDisplays = formData.data?.displays || [];
       const mergedData = {
         ...existingData,
-        colors: {
-          ...existingData.colors,
-         ...newColors
-        }
+        displays: newDisplays
       };
       
       // Ensure we're sending the correct data structure
@@ -138,19 +151,13 @@ function FormGameStyles(props: FormGameStylesProps) {
         data: mergedData,
         roster: formData.roster
       };
-      console.log('Prepared update data:', updateData);
-
-      console.log('Calling editGame...');
       await editGame(updateData);
-      console.log('editGame completed');
       
       // If we get here and there's no error in the store, edit was successful
       if (!error) {
-        console.log('Update successful, closing form...');
-        handleSubmitClose('game', 'none', updateData);
+        console.log('Update successful, closing form...');        handleSubmitClose('game', 'none', updateData);
         return true;
       }
-      console.error('Store error after update:', error);
       throw new Error(error || 'Failed to edit game');
     } catch (err) {
       console.error('Error in editGameData:', {
@@ -183,7 +190,7 @@ function FormGameStyles(props: FormGameStylesProps) {
   return (
     <>
     <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-        {name} Layout & Styles
+        {name} Table Display Configuration
     </h2>
     <div className="flex flex-col items-center bg-slate-900 rounded-lg shadow-lg">
       <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
@@ -219,154 +226,19 @@ function FormGameStyles(props: FormGameStylesProps) {
                   />
                   <div className="flex flex-col items-start justify-between">
                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Basic Colors
+                      Table Display Configuration
                     </h3>
                     <Input
-                      name="data.colors.background"
-                      label="Background Color"
-                      value={form?.data?.colors?.background || '#000000'}
+                      name="data.displays[0].title"
+                      label="Title" 
+                      value={form?.data?.displays?.[0]?.title || ''}
                       changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.background || '#000000' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.background || '#000000'}
-                          setColor={(color: string) => handleColorChange('data.colors.background', color)}
-                        />
-                      }
                     />
                     <Input
-                      name="data.colors.text"
-                      label="Text Color"
-                      value={form?.data?.colors?.text || '#ffffff'}
+                      name="data.displays[0].rows"
+                      label="Number of Rows"
+                      value={form?.data?.displays?.[0]?.rows || ''}
                       changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.text || '#ffffff' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.text || '#ffffff'}
-                          setColor={(color: string) => handleColorChange('data.colors.text', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.primary"
-                      label="Primary Color"
-                      value={form?.data?.colors?.primary || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.primary || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.primary || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.primary', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.secondary"
-                      label="Secondary Color"
-                      value={form?.data?.colors?.secondary || '#000000'}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.secondary || '' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.secondary || 'transparent'}
-                          setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.tertiary"
-                      label="Tertiary Color"
-                      value={form?.data?.colors?.tertiary || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tertiary || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.tertiary || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
-                        />
-                      }
-                    />
-                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Table Colors
-                    </h3>
-                    <Input
-                      name="data.colors.tableHeader"
-                      label="Table Header Color"
-                      value={form?.data?.colors?.tableHeader || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableHeader || '' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.tableHeader || 'transparent'}
-                          setColor={(color: string) => handleColorChange('data.colors.tableHeader', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.tableRow"
-                      label="Row Color"
-                      value={form?.data?.colors?.tableRow || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableRow || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.tableRow || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.tableRow', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.tableAlt"
-                      label="Alternate Row Color"
-                      value={form?.data?.colors?.tableAlt || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableAlt || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.tableAlt || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.tableAlt', color)}
-                        />
-                      }
                     />
                   </div>
                 </div>
@@ -409,4 +281,4 @@ function FormGameStyles(props: FormGameStylesProps) {
   );
 }
 
-export default FormGameStyles;
+export default FormGameTableConfig;

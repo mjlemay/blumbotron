@@ -22,6 +22,10 @@ export type GameDataItem = DataItem & {
       tableRow?: string;
       tableAlt?: string;
     };
+    displays?: {
+      title?: string;
+      rows?: number;
+    }[];
   };
 };
 

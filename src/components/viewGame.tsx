@@ -2,9 +2,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { useExperienceStore } from '../stores/experienceStore';
 import { useState } from 'react';
 import UiButton from './uiButton';
-import { Separator } from '@radix-ui/react-separator';
 import SubViewLaunch from './subViewLaunch';
-import SubViewStyles from './subViewStyles';
+import FormGameStyles from './formGameStyles';
+import FromGameTableConfig from './fromGameTableConfig';
 
 function ViewGame() {
   const { selected } = useExperienceStore(
@@ -14,9 +14,6 @@ function ViewGame() {
   const {
     name = '',
     id = '',
-    snowflake = '',
-    created_at = '',
-    updated_at = '',
   } = selectedGame || {};
   const [subView, setSubView] = useState<string>('launch');
 
@@ -89,30 +86,8 @@ function ViewGame() {
       "
       >
         {subView === 'launch' && <SubViewLaunch gameData={selectedGame} />}
-        {subView === 'config' && (
-          <div className="w-full rounded bg-slate-700 p-4 mb-4 shadow-lg">
-            <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-              {name}
-              {snowflake && <span className="text-2xl text-slate-400">#{snowflake}</span>}
-            </h2>
-            <div className="w-full text-slate-400 flex flex row items-center gap-2 justify-start">
-              {created_at && (
-                <span>
-                  <label className="text-slate-500">Created</label> {created_at}
-                </span>
-              )}
-              {created_at && updated_at && (
-                <Separator className="w-[1px] h-4 bg-slate-500" orientation="vertical" decorative />
-              )}
-              {updated_at && (
-                <span>
-                  <label className="text-slate-500">Updated</label> {updated_at}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-        {subView === 'layout' && <SubViewStyles gameData={selectedGame} />}
+        {subView === 'config' && <FromGameTableConfig />}
+        {subView === 'layout' && <FormGameStyles />}
       </div>
     </div>
   );

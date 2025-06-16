@@ -16,16 +16,10 @@ const dbName = 'sqlite:blumbo.db';
 
 let sqlite: any = null;
 
-console.log('Initializing SQLite database...');
-
 try {
   console.log('Attempting to load database:', dbName);
   sqlite = await Database.load(dbName);
-  console.log('SQLite database loaded successfully');
 
-  // Test the connection
-  const testResult = await sqlite.execute('SELECT 1');
-  console.log('Database connection test result:', testResult);
 } catch (error) {
   const sqlError = error as SQLiteError;
   console.error('Error loading SQLite database:', {
@@ -41,10 +35,6 @@ const db = drizzle<typeof schema>(
     let rows: any = [];
     let results = [];
 
-    console.log('Executing SQL:', sql);
-    console.log('Parameters:', params);
-    console.log('Method:', method);
-
     try {
       // If the query is a SELECT, use the select method
       if (isSelectQuery(sql)) {
@@ -57,9 +47,6 @@ const db = drizzle<typeof schema>(
         }
         return { rows: [] };
       }
-
-      console.log('Query executed successfully');
-      console.log('Raw results:', rows);
     } catch (error) {
       const sqlError = error as SQLiteError;
       console.error('SQL Error:', {
@@ -73,7 +60,6 @@ const db = drizzle<typeof schema>(
     }
 
     rows = rows.map((row: any) => {
-      console.log('Processing row:', row);
       return Object.values(row);
     });
 

@@ -14,6 +14,12 @@ export const defaultGameMetaData = {
     secondary: '#00ff00',
     tertiary: '#0000ff',
   },
+  displays: [
+    {
+      title: 'High Scores',
+      rows: 10,
+    },
+  ],
 };
 
 export const defaultGame: GameDataItem = {
