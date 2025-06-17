@@ -30,10 +30,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     players.find((playerItem) => playerItem.snowflake === player)) : players;
   const tableData = gameScores[game || '']?.map((scoreItem: ScoreDataItem) => {
     const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
-    return {
-      player: playerData?.name,
-      score: scoreItem?.amount,
-    };
+    if(typeof playerData?.name !== 'undefined') {
+      return {
+        player: playerData?.name,
+        score: scoreItem?.amount,
+      };
+    }
   });
   const colors = gameData?.data?.colors || {
     background: 'black',
@@ -67,8 +69,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       limitedTableData = tableDataSorted;
     }
     limitedTableRows = limitedTableData.map((scoreItem, index) => (
+      scoreItem?.player && (
       <div 
-        key={`${scoreItem.player}-${index}`} 
+        key={`${scoreItem?.player || 'deleted'}-${index}`} 
         className="flex flex-row items-stretch justify-between w-full flex-1"
         style={{
           backgroundColor: index % 2 === 0 ? colors.tableAlt || 'transparent' : colors.tableRow || 'transparent',
@@ -88,7 +91,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           color: colors.secondary || colors.text,
         }}
         >
-          {scoreItem.player}
+          {scoreItem?.player || ' [ REMOVED ]'}
         </div>
         <div className={`
           flex-1
@@ -104,10 +107,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           color: colors.text || colors.secondary || colors.text,
         }}
         >
-          {scoreItem.score}
+          {scoreItem?.score}
         </div>
       </div>
-    ));
+    )));
     if (limitedTableData.length < numberOfRows) {
       for (let i = limitedTableData.length; i < numberOfRows; i++) {
         limitedTableRows.push(
