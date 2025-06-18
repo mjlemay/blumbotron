@@ -8,6 +8,38 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! Welcome to Blumbotron!", name)
 }
 
+#[tauri::command]
+async fn create_display_window(
+    app_handle: tauri::AppHandle,
+    game: Option<String>,
+    width: u32,
+    height: u32,
+) -> Result<(), String> {
+    let window_label = format!("display_{}", game.unwrap_or_else(|| "default".to_string()));
+    
+    let window = tauri::WindowBuilder::new(
+        &app_handle,
+        window_label
+    )
+    .title("Blumbotron Display")
+    .inner_size(width as f64, height as f64)
+    .center()
+    .resizable(true)
+    .fullscreen(false)
+    .focused(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+
+    // Handle window close event
+    window.on_window_event(move |event| {
+        if let tauri::WindowEvent::CloseRequested { .. } = event {
+            println!("Display window closed");
+        }
+    });
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let migrations = vec![Migration {
@@ -24,7 +56,7 @@ pub fn run() {
                 .build()
         )
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, create_display_window])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

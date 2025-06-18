@@ -6,6 +6,7 @@ import {
 import DisplayTable from './displayTable';
 import { useExperienceStore } from '../stores/experienceStore';
 import { Window } from '@tauri-apps/api/window';
+import { invoke } from '@tauri-apps/api/core';
 
 type ComponentProps = {
   height?: number;
@@ -18,6 +19,18 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
 
   const handleAllSidesClick = () => {
     setExpModal('displayTable');
+  };
+
+  const handleOpenInNewWindowClick = async () => {
+    try {
+      await invoke('create_display_window', {
+        game: game,
+        width: 1024,
+        height: 800
+      });
+    } catch (error) {
+      console.error('Failed to open display window:', error);
+    }
   };
 
   const handleFullScreenClick = async () => {
@@ -76,7 +89,9 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         >
           <EnterFullScreenIcon width="20" height="20" />
         </button>
-        <button className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
+        <button
+          onClick={handleOpenInNewWindowClick} 
+          className="flex select-none items-center justify-center cursor-pointer rounded shadow-sm p-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600/80 active:bg-sky-600/90 disabled:bg-sky-600/50 disabled:cursor-not-allowed transition-colors duration-200">
           <OpenInNewWindowIcon width="20" height="20" />
         </button>
         <button 

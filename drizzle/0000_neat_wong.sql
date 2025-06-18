@@ -1,4 +1,4 @@
-CREATE TABLE `games` (
+CREATE TABLE IF NOT EXISTS `games` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`snowflake` text NOT NULL,
 	`name` text NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE `games` (
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
-CREATE TABLE `players` (
+CREATE TABLE IF NOT EXISTS `players` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`snowflake` text NOT NULL,
 	`name` text NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE `players` (
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
-CREATE TABLE `rosters` (
+CREATE TABLE IF NOT EXISTS `rosters` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`snowflake` text NOT NULL,
 	`name` text NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `rosters` (
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
-CREATE TABLE `scores` (
+CREATE TABLE IF NOT EXISTS `scores` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`snowflake` text NOT NULL,
 	`player` text NOT NULL,
