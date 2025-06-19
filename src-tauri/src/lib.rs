@@ -15,11 +15,12 @@ async fn create_display_window(
     width: u32,
     height: u32,
 ) -> Result<(), String> {
-    let window_label = format!("display_{}", game.unwrap_or_else(|| "default".to_string()));
+    let window_label = format!("display-{}", game.clone().unwrap_or_else(|| "default".to_string()));
     
-    let window = tauri::WindowBuilder::new(
+    let window = tauri::WebviewWindowBuilder::new(
         &app_handle,
-        window_label
+        window_label,
+        tauri::WebviewUrl::App("unfinished.html".parse().unwrap())
     )
     .title("Blumbotron Display")
     .inner_size(width as f64, height as f64)
@@ -30,7 +31,7 @@ async fn create_display_window(
     .build()
     .map_err(|e| e.to_string())?;
 
-    // Handle window close event
+    // Add window event handler for close events
     window.on_window_event(move |event| {
         if let tauri::WindowEvent::CloseRequested { .. } = event {
             println!("Display window closed");
@@ -55,7 +56,6 @@ pub fn run() {
                 .add_migrations(DB_PATH, migrations)
                 .build()
         )
-        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![greet, create_display_window])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

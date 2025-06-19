@@ -23,11 +23,15 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
 
   const handleOpenInNewWindowClick = async () => {
     try {
+      console.log('Creating display window for game:', game);
+      
       await invoke('create_display_window', {
         game: game,
         width: 1024,
         height: 800
       });
+      
+      console.log('Display window created successfully');
     } catch (error) {
       console.error('Failed to open display window:', error);
     }
@@ -36,7 +40,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   const handleFullScreenClick = async () => {
     setExpModal('displayTable');
     try {
-      const appWindow = await Window.getCurrent();
+      const appWindow = await Window?.getCurrent();
       await appWindow.setFullscreen(true);
     } catch (error) {
       console.error('Failed to toggle fullscreen:', error);

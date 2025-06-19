@@ -15,7 +15,8 @@
         "label": "main",
         "title": "Blumbotron",
         "width": 1024,
-        "height": 800
+        "height": 800,
+        "devtools": true
       }
     ],
     "security": {
