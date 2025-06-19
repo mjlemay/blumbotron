@@ -23,21 +23,16 @@ interface GameData extends Record<string, unknown> {
 }
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
-  console.log('Setting value for path:', keyString, 'with value:', value);
   const keys = keyString.split('.');
-  console.log('Split keys:', keys);
   let current = obj;
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
-    const nextKey = keys[i + 1];
-    console.log('Processing key:', key, 'next key:', nextKey);
     
     // Handle array notation in the current key
     const arrayMatch = key.match(/^([^\[]+)\[(\d+)\]$/);
     if (arrayMatch) {
       const [_, arrayKey, index] = arrayMatch;
-      console.log('Found array key:', arrayKey, 'at index:', index);
       
       // Ensure the array exists
       if (!current[arrayKey] || !Array.isArray(current[arrayKey])) {
@@ -59,10 +54,8 @@ const setNestedValue = (obj: any, keyString: string, value: any) => {
   }
 
   const lastKey = keys[keys.length - 1];
-  console.log('Setting final value for key:', lastKey);
   current[lastKey] = value;
   
-  console.log('Final object state:', JSON.stringify(obj, null, 2));
   return obj;
 }
 
@@ -182,6 +175,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
         console.log('Setting error:', errorMessage);
         setErrors({ name: errorMessage });
       }
+      console.log('errors', errors);
       return false;
     }
   };

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import UiButton from './uiButton';
 import SubViewLaunch from './subViewLaunch';
 import FormGameStyles from './formGameStyles';
-import FromGameTableConfig from './fromGameTableConfig';
+import FromGameTableConfig from './formGameTableConfig';
 
 function ViewGame() {
   const { selected } = useExperienceStore(

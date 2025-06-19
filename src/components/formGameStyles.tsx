@@ -97,10 +97,6 @@ function FormGameStyles(props: FormGameStylesProps) {
     updateFormInput(formKey as string, color as string);
   };
 
-  const getError = (field: string) => {
-    return errors[field as keyof typeof errors] || '';
-  };
-
   const editGameData = async (formData: GameDataItem) => {
     console.log('Starting editGameData with form data:', formData);
     
@@ -138,19 +134,14 @@ function FormGameStyles(props: FormGameStylesProps) {
         data: mergedData,
         roster: formData.roster
       };
-      console.log('Prepared update data:', updateData);
 
-      console.log('Calling editGame...');
       await editGame(updateData);
-      console.log('editGame completed');
       
       // If we get here and there's no error in the store, edit was successful
       if (!error) {
-        console.log('Update successful, closing form...');
         handleSubmitClose('game', 'none', updateData);
         return true;
       }
-      console.error('Store error after update:', error);
       throw new Error(error || 'Failed to edit game');
     } catch (err) {
       console.error('Error in editGameData:', {
@@ -175,6 +166,7 @@ function FormGameStyles(props: FormGameStylesProps) {
         console.log('Setting error:', errorMessage);
         setErrors({ name: errorMessage });
       }
+      console.log('errors', errors);
       return false;
     }
   };
