@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        target: [x86_64-unknown-linux-gnu, x86_64-pc-windows-msvc, aarch64-apple-darwin]
+        include:
+          - platform: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: blumbotron-linux
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: blumbotron-windows
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: blumbotron-macos
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Setup pkg-config (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri app
+        run: npm run tauri build
+        env:
+          TARGET: ${{ matrix.target }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            src-tauri/target/${{ matrix.target }}/release/
+            src-tauri/target/release/bundle/
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            blumbotron-linux/**/*
+            blumbotron-windows/**/*
+            blumbotron-macos/**/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true 
