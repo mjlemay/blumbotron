@@ -98,21 +98,25 @@ function FormGameStyles(props: FormGameStylesProps) {
   };
 
   const editGameData = async (formData: GameDataItem) => {
-    console.log('Starting editGameData with form data:', formData);
     
     let formSchema = z.object({
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
       data: z.object({
         colors: z.object({
-          background: z.string(),
-        }),
-      }),
+          background: z.string().optional(),
+          text: z.string().optional(),
+          primary: z.string().optional(),
+          secondary: z.string().optional(),
+          tertiary: z.string().optional(),
+          tableHeader: z.string().optional(),
+          tableRow: z.string().optional(),
+          tableAlt: z.string().optional(),
+        }).optional(),
+      }).optional(),
     });
     try {
-      console.log('Validating form data...');
       formSchema.parse(formData);
-      console.log('Form validation successful');
       
       // Merge existing data with new changes
       const existingData = game?.data || {};
@@ -121,7 +125,7 @@ function FormGameStyles(props: FormGameStylesProps) {
         ...existingData,
         colors: {
           ...existingData.colors,
-         ...newColors
+          ...newColors
         }
       };
       
@@ -134,6 +138,10 @@ function FormGameStyles(props: FormGameStylesProps) {
         data: mergedData,
         roster: formData.roster
       };
+
+      console.log('Sending updateData:', updateData);
+      console.log('mergedData:', mergedData);
+      console.log('formData.data:', formData.data);
 
       await editGame(updateData);
       
