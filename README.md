@@ -17,6 +17,14 @@ We use Drizzle to generate our SQL via the command `npx drizzle-kit generate` an
 - Windows: %APPDATA%\btron\blumbo.db
 - Linux: ~/.local/share/btron/blumbo.db
 
+## Development
+
+The normal dev command will not access a database properly but will render ui elements in the browser. To build in a development application run the command:
+
+```bash
+npm run tauri dev
+```
+
 ## Road Map
 
 0.1.1 Player Rosters and Basic Tables
