@@ -27,6 +27,14 @@ interface GameData extends Record<string, unknown> {
     tableRow?: string;
     tableAlt?: string;
   };
+  placement?: {
+    paddingFrame?: {
+      top?: string;
+      left?: string;
+      right?: string;
+      bottom?: string;
+    };
+  };
 }
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
@@ -78,6 +86,8 @@ function FormGameStyles(props: FormGameStylesProps) {
     const eventTarget = Event?.target;
     const formKey = eventTarget?.name;
     const formValue = eventTarget?.value;
+    console.log('formKey', formKey);
+    console.log('formValue', formValue);
     updateFormInput(formKey, formValue);
   };
 
@@ -113,7 +123,15 @@ function FormGameStyles(props: FormGameStylesProps) {
           tableRow: z.string().optional(),
           tableAlt: z.string().optional(),
         }).optional(),
-      }).optional(),
+        placement: z.object({
+          paddingFrame: z.object({
+            top: z.coerce.number().optional(),
+            bottom: z.coerce.number().optional(),
+            left: z.coerce.number().optional(),
+            right: z.coerce.number().optional(),
+          }).optional(),
+        }).optional(),
+      })
     });
     try {
       formSchema.parse(formData);
@@ -121,11 +139,16 @@ function FormGameStyles(props: FormGameStylesProps) {
       // Merge existing data with new changes
       const existingData = game?.data || {};
       const newColors = formData.data?.colors || {};
+      const newPlacement = formData.data?.placement || {};
       const mergedData = {
         ...existingData,
         colors: {
           ...existingData.colors,
           ...newColors
+        },
+        placement: {
+          ...existingData.placement,
+          ...newPlacement
         }
       };
       
@@ -368,6 +391,40 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       }
                     />
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Placement
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                      <Input
+                        name="data.placement.paddingFrame.top"
+                        label="Top Table Padding"
+                        value={form?.data?.placement?.paddingFrame?.top || ''}
+                        changeHandler={handleFormChange}
+                        placeholder={'0'}
+                      />
+                      <Input
+                        name="data.placement.paddingFrame.bottom"
+                        label="Bottom Table Padding"
+                        value={form?.data?.placement?.paddingFrame?.bottom || ''}
+                        changeHandler={handleFormChange}
+                        placeholder={'0'}
+  
+                      />
+                      <Input
+                        name="data.placement.paddingFrame.left"
+                        label="Left Table Padding"
+                        value={form?.data?.placement?.paddingFrame?.left || ''}
+                        changeHandler={handleFormChange}
+                        placeholder={'0'}
+                      />
+                      <Input
+                        name="data.placement.paddingFrame.right"
+                        label="Right Table Padding"
+                        value={form?.data?.placement?.paddingFrame?.right || ''}
+                        changeHandler={handleFormChange}  
+                        placeholder={'0'}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

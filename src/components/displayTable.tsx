@@ -12,6 +12,8 @@ type ComponentProps = {
   numberOfScores?: number;
 };
 
+const paddingValue = 0;
+
 function DisplayTable(props: ComponentProps): JSX.Element {
   const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
   const { players } = usePlayerStore();
@@ -37,7 +39,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       };
     }
   });
-  const colors = gameData?.data?.colors || {
+  const colors = {
     background: 'black',
     text: 'white',
     primary: null,
@@ -46,6 +48,16 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     tableHeader: null,
     tableRow: null,
     tableAlt: null,
+    ...(gameData?.data?.colors || {})
+  };
+  const backgroundImage = gameData?.data?.backgroundImage || null;
+  const placement = gameData?.data?.placement || {
+    paddingFrame: {
+      top: paddingValue,
+      bottom: paddingValue,
+      left: paddingValue,
+      right: paddingValue,
+    },
   };
   const title = gameData?.data?.displays?.[0]?.title || 'High Scores';
   const numberOfRows = gameData?.data?.displays?.[0]?.rows || numberOfScores;
@@ -58,6 +70,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     setInterval(() => {
       fetchUniqueScoresByGame(game || '');
     }, fetchIntervalSeconds * 1000);
+    console.log('bg color', colors.background)
   }, []);
 
   const tableDataSortedLimited = () => {
@@ -149,13 +162,31 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         </div>
       )}
       {gameData && gameScores[game || ''] && (
+        <>
+        <div
+        data-table-background
+        className={`fixed top-0 left-0 w-full h-full -z-10 ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full'}`}
+        style={{
+            backgroundColor: colors.background,
+            backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',  
+        }}></div>
         <div data-table-container 
           className={`
             flex flex-col
             items-center
             justify-start
             ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full'}
-          `}>
+          `}
+          style={{
+            paddingTop: `${isFullScreen ? placement?.paddingFrame?.top : 0}vh`,
+            paddingBottom: `${isFullScreen ? placement?.paddingFrame?.bottom : 0}vh`,
+            paddingLeft: `${isFullScreen ? placement?.paddingFrame?.left : 0}vw`,
+            paddingRight: `${isFullScreen ? placement?.paddingFrame?.right : 0}vw`,
+          }}
+          >
           <div className="flex flex-row grow min-w-full min-h-full">
             <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
               <div className="flex flex-col justify-start min-w-full min-h-full">
@@ -192,6 +223,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );

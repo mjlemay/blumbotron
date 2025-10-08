@@ -22,6 +22,15 @@ export type GameDataItem = DataItem & {
       tableRow?: string;
       tableAlt?: string;
     };
+    backgroundImage?: string | null;
+    placement?: {
+      paddingFrame?: {
+        top?: string;
+        bottom?: string;
+        left?: string;
+        right?: string;
+      };
+    };
     displays?: {
       title?: string;
       rows?: number;

@@ -19,3 +19,13 @@
 @theme {
   --shadow-l: -10px -3px 10px rgba(0, 0, 0, 0.1); 
 }
+
+// Hides spinner in number input fields
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
