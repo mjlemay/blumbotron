@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { scoreData } from '../services/scoreService.ts';
 import { ScoreDataItem } from '../lib/types';
+import { emit } from '@tauri-apps/api/event';
 
 type ScoresStore = {
   scores: ScoreDataItem[];
   loading: boolean;
   error: string | null;
   gameScores: Record<string, ScoreDataItem[]>;
+  lastUpdated: number;
   fetchUniqueScoresByGame: (game: string) => Promise<void>;
   fetchScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;
@@ -20,6 +22,7 @@ export const useScoreStore = create<ScoresStore>((set) => ({
   loading: false,
   error: null,
   gameScores: {},
+  lastUpdated: 0,
   fetchScores: async () => {
     set({ loading: true, error: null });
     try {
@@ -50,7 +53,18 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const result = await scoreData.getUniqueScoresByGame(game, MAGIC_LIMIT);
-      set((state) => ({ gameScores: { ...state.gameScores, [game]: result as ScoreDataItem[] }, error: null }));
+      set((state) => {
+        // Replace the entire game scores array with fresh data from database
+        // This prevents duplicates that might occur from local updates + event refreshes
+        const updatedGameScores = { ...state.gameScores };
+        updatedGameScores[game] = result as ScoreDataItem[];
+        
+        return {
+          gameScores: updatedGameScores,
+          lastUpdated: Date.now(),
+          error: null 
+        };
+      });
     } catch (error) {
       console.error('Failed to fetch Unique Scores by Game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Unique Scores by Game';
@@ -67,10 +81,53 @@ export const useScoreStore = create<ScoresStore>((set) => ({
         throw new Error('Failed to create Score - no result returned');
       }
       const newScore = result as ScoreDataItem;
-      set((state) => ({
-        Scores: [...state.scores, newScore],
-        error: null,
-      }));
+      
+      // Instead of manually updating arrays, refresh from database to get true unique scores
+      // This ensures we always show the highest score per player correctly
+      const gameId = newScore.game;
+      if (gameId) {
+        // Refresh the scores for this game from database (which handles uniqueness)
+        await scoreData.getUniqueScoresByGame(gameId, MAGIC_LIMIT)
+          .then((uniqueScores) => {
+            set((state) => {
+              const updatedGameScores = { ...state.gameScores };
+              updatedGameScores[gameId] = uniqueScores as ScoreDataItem[];
+              
+              return {
+                scores: [...state.scores, newScore], // Keep general scores array
+                gameScores: updatedGameScores,
+                lastUpdated: Date.now(),
+                error: null,
+              };
+            });
+          });
+      } else {
+        // If no game ID, just update the general scores
+        set((state) => ({
+          scores: [...state.scores, newScore],
+          lastUpdated: Date.now(),
+          error: null,
+        }));
+      }
+      
+      // Emit event to other windows to notify of score update
+      try {
+        // Get or create a unique window identifier (should be created once per window)
+        let windowId = (window as any).__blumbotronWindowId;
+        if (!windowId) {
+          windowId = `${Date.now()}-${Math.random()}`;
+          (window as any).__blumbotronWindowId = windowId;
+        }
+        
+        emit('score-updated', { 
+          score: newScore,
+          gameId: newScore.game,
+          sourceWindowId: windowId
+        });
+      } catch (eventError) {
+        console.warn('Failed to emit score-updated event:', eventError);
+      }
+      
       return newScore;
     } catch (error) {
       console.error('Failed to create Score:', error);

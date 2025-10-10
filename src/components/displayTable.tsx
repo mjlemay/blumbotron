@@ -19,7 +19,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { players } = usePlayerStore();
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
-  const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
+  const { gameScores, fetchUniqueScoresByGame, lastUpdated } = useScoreStore();
+  
+  // lastUpdated is used to trigger re-renders when scores change
+  console.log('DisplayTable render triggered, lastUpdated:', lastUpdated);
 
 
   const gameData = games.find((gameItem) => gameItem.snowflake === game);
@@ -66,12 +69,17 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
 
   useEffect(() => {
+    // Initial fetch of scores
     fetchUniqueScoresByGame(game || '');
-    setInterval(() => {
+    
+    // Set up periodic refresh (reduced frequency since we now have reactive updates)
+    const interval = setInterval(() => {
       fetchUniqueScoresByGame(game || '');
     }, fetchIntervalSeconds * 1000);
-    console.log('bg color', colors.background)
-  }, []);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [game, fetchUniqueScoresByGame, fetchIntervalSeconds]);
 
   const tableDataSortedLimited = () => {
     let limitedTableData = [];
