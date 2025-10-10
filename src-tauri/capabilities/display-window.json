@@ -1,0 +1,19 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "display-window",
+  "description": "Capability for display windows",
+  "windows": ["display-*"],
+  "permissions": [
+    "core:default",
+    "core:app:default",
+    "core:path:default",
+    "core:event:default",
+    "core:window:default",
+    "core:webview:default",
+    "sql:default",
+    "sql:allow-close",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select"
+  ]
+}

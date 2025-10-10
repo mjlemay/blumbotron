@@ -17,10 +17,19 @@ async fn create_display_window(
 ) -> Result<(), String> {
     let window_label = format!("display-{}", game.clone().unwrap_or_else(|| "default".to_string()));
     
+    // Build URL with game parameter
+    let url = match game {
+        Some(ref g) => format!("viewer.html?mode=display&game={}", g),
+        None => "viewer.html?mode=display".to_string(),
+    };
+    
+    println!("Creating display window with URL: {}", url);
+    println!("Game parameter: {:?}", game);
+    
     let window = tauri::WebviewWindowBuilder::new(
         &app_handle,
-        window_label,
-        tauri::WebviewUrl::App("unfinished.html".parse().unwrap())
+        window_label.clone(),
+        tauri::WebviewUrl::App(url.parse().unwrap())
     )
     .title("Blumbotron Display")
     .inner_size(width as f64, height as f64)
