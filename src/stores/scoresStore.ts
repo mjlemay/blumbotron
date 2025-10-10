@@ -54,8 +54,6 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     try {
       const result = await scoreData.getUniqueScoresByGame(game, MAGIC_LIMIT);
       set((state) => {
-        // Replace the entire game scores array with fresh data from database
-        // This prevents duplicates that might occur from local updates + event refreshes
         const updatedGameScores = { ...state.gameScores };
         updatedGameScores[game] = result as ScoreDataItem[];
         

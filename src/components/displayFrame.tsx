@@ -30,8 +30,6 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         width: 1024,
         height: 800
       });
-      
-      console.log('Display window created successfully');
     } catch (error) {
       console.error('Failed to open display window:', error);
     }

@@ -22,11 +22,7 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   const { fetchRosters } = useRosterStore();
   const { fetchUniqueScoresByGame, gameScores } = useScoreStore();
   
-  // gameScores is accessed to ensure the wrapper re-renders when scores change
-  console.log('DisplayTableWrapper render, gameScores keys:', Object.keys(gameScores));
-
   useEffect(() => {
-    console.log('DisplayTableWrapper: Loading stores for game:', game);
     
     const loadStores = async () => {
       try {
@@ -36,8 +32,6 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
           fetchRosters(),
           game ? fetchUniqueScoresByGame(game) : Promise.resolve()
         ]);
-        
-        console.log('DisplayTableWrapper: All stores loaded successfully');
         setIsLoading(false);
       } catch (err) {
         console.error('DisplayTableWrapper: Store loading failed:', err);
@@ -52,7 +46,6 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
     const setupEventListener = async () => {
       try {
         const unlisten = await listen('score-updated', (event) => {
-          console.log('DisplayTableWrapper: Received score-updated event:', event.payload);
           const payload = event.payload as { gameId: string; sourceWindowId: string };
           
           // Get our window ID (if we have one)
@@ -60,13 +53,11 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
           
           // Ignore events from our own window to prevent self-refresh
           if (payload.sourceWindowId === ourWindowId) {
-            console.log('DisplayTableWrapper: Ignoring event from same window');
             return;
           }
           
           // If this event is for our game, refresh the scores
           if (payload.gameId === game) {
-            console.log('DisplayTableWrapper: Refreshing scores for game from other window:', game);
             // Small delay to prevent flickering from rapid updates
             setTimeout(() => {
               fetchUniqueScoresByGame(game);
@@ -119,5 +110,5 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
     );
   }
 
-  return <DisplayTable game={game} fetchIntervalSeconds={fetchIntervalSeconds} />;
+  return <DisplayTable game={game} isFullScreen={true} fetchIntervalSeconds={fetchIntervalSeconds} />;
 }

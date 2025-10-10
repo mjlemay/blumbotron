@@ -3,23 +3,21 @@ import Input from './input';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
-import { GameDataItem } from '../lib/types';
+import { GameDataItem, DisplayData } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon } from '@radix-ui/react-icons';
+import { Pencil1Icon, UploadIcon, TrashIcon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { useRef } from 'react';
 
 type FormGameTableConfigProps = {
   onSuccess?: () => void;
 };
 
-interface GameData extends Record<string, unknown> {
-  displays?: {
-    title?: string;
-    rows?: number;
-  }[];
+interface DisplayObject extends Record<string, unknown> {
+  displays?: DisplayData[];
 }
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
@@ -65,14 +63,15 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
 
-  let gameData: GameData = {};
+  let gameData: DisplayObject = {};
   try {
     if (typeof game?.data === 'string') {
       gameData = JSON.parse(game.data);
     } else if (game?.data) {
-      gameData = game.data as GameData;
+      gameData = game.data as DisplayObject;
     }
   } catch (error) {
     gameData = {};
@@ -95,6 +94,29 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     const formKey = eventTarget?.name;
     const formValue = eventTarget?.value;
     updateFormInput(formKey, formValue);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        updateFormInput('data.displays[0].bgImage', base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageRemove = () => {
+    updateFormInput('data.displays[0].bgImage', '');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSubmitClose = (
@@ -234,6 +256,77 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       value={form?.data?.displays?.[0]?.rows || ''}
                       changeHandler={handleFormChange}
                     />
+                    {/* Background Image Upload Section */}
+                    <div className="w-full mb-4">
+                      <label className="block text-sm font-medium text-white mb-2">
+                        Background Image
+                      </label>
+                      
+                      {/* Hidden file input */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                      
+                      {/* Current image preview or upload area */}
+                      <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
+                        {form?.data?.displays?.[0]?.bgImage ? (
+                          <div className="space-y-3">
+                            {/* Image thumbnail */}
+                            <div className="relative inline-block">
+                              <img
+                                src={form.data.displays[0].bgImage}
+                                alt="Background preview"
+                                className="max-w-xs max-h-32 rounded border object-cover"
+                              />
+                              {/* Remove button overlay */}
+                              <button
+                                type="button"
+                                onClick={handleImageRemove}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                title="Remove image"
+                              >
+                                <TrashIcon width="16" height="16" />
+                              </button>
+                            </div>
+                            
+                            {/* Replace button */}
+                            <button
+                              type="button"
+                              onClick={triggerFileUpload}
+                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                            >
+                              <UploadIcon width="16" height="16" />
+                              Replace Image
+                            </button>
+                          </div>
+                        ) : (
+                          /* Upload area when no image */
+                          <div className="text-center">
+                            <div className="mb-3">
+                              <UploadIcon width="48" height="48" className="mx-auto text-gray-400" />
+                            </div>
+                            <p className="text-gray-300 mb-3">
+                              Click to upload a background image
+                            </p>
+                            <button
+                              type="button"
+                              onClick={triggerFileUpload}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
+                            >
+                              <UploadIcon width="16" height="16" />
+                              Choose Image
+                            </button>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Supports JPG, PNG, GIF files
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

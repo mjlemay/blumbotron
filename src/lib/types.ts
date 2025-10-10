@@ -9,6 +9,12 @@ export type DataItem = {
   updated_at?: string;
 };
 
+export type DisplayData = {
+    title?: string;
+    rows?: number;
+    bgImage?: string;
+}
+
 export type GameDataItem = DataItem & {
   roster?: string | null;
   data?: {
@@ -31,10 +37,7 @@ export type GameDataItem = DataItem & {
         right?: string;
       };
     };
-    displays?: {
-      title?: string;
-      rows?: number;
-    }[];
+    displays?: DisplayData[];
   };
 };
 

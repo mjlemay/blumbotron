@@ -20,11 +20,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
   const { gameScores, fetchUniqueScoresByGame, lastUpdated } = useScoreStore();
-  
-  // lastUpdated is used to trigger re-renders when scores change
-  console.log('DisplayTable render triggered, lastUpdated:', lastUpdated);
-
-
   const gameData = games.find((gameItem) => gameItem.snowflake === game);
   const rosterData = rosters.find((roster) => roster.snowflake === gameData?.roster);
   const allowedPlayers = rosterData && rosterData.allow && rosterData?.allow?.length >= 1 ?
@@ -53,7 +48,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     tableAlt: null,
     ...(gameData?.data?.colors || {})
   };
-  const backgroundImage = gameData?.data?.backgroundImage || null;
+  const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
   const placement = gameData?.data?.placement || {
     paddingFrame: {
       top: paddingValue,
@@ -160,7 +155,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
        flex items-start justify-center
       `}
       style={{
-        backgroundColor: colors.background,
+        background: backgroundImage ? `url("${backgroundImage}")` : colors.background,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',  
         color: colors.text,
       }}
     >
@@ -171,16 +169,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       )}
       {gameData && gameScores[game || ''] && (
         <>
-        <div
-        data-table-background
-        className={`fixed top-0 left-0 w-full h-full -z-10 ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full'}`}
-        style={{
-            backgroundColor: colors.background,
-            backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',  
-        }}></div>
         <div data-table-container 
           className={`
             flex flex-col

@@ -162,10 +162,6 @@ function FormGameStyles(props: FormGameStylesProps) {
         roster: formData.roster
       };
 
-      console.log('Sending updateData:', updateData);
-      console.log('mergedData:', mergedData);
-      console.log('formData.data:', formData.data);
-
       await editGame(updateData);
       
       // If we get here and there's no error in the store, edit was successful
