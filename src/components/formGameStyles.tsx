@@ -115,6 +115,7 @@ function FormGameStyles(props: FormGameStylesProps) {
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
       data: z.object({
+        theme: z.string().optional(),
         colors: z.object({
           background: z.string().optional(),
           text: z.string().optional(),
@@ -148,8 +149,10 @@ function FormGameStyles(props: FormGameStylesProps) {
       const newColors = formData.data?.colors || {};
       const newFonts = formData.data?.fonts || {};
       const newPlacement = formData.data?.placement || {};
+      const newTheme = formData.data?.theme === 'none' ? '' : formData.data?.theme;
       const mergedData = {
         ...existingData,
+        ...(newTheme !== undefined && { theme: newTheme }),
         colors: {
           ...existingData.colors,
           ...newColors
@@ -249,6 +252,29 @@ function FormGameStyles(props: FormGameStylesProps) {
                     changeHandler={() => {}}
                   />
                   <div className="flex flex-col items-start justify-between">
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Theme
+                    </h3>
+                    <div className="space-y-4 w-full mb-6">
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          CSS Theme
+                        </label>
+                        <SelectChip
+                          selectLabel="Theme"
+                          selectPlaceholder="Choose Theme"
+                          selections={[
+                            { value: 'none', label: 'None (Default)' },
+                            { value: 'dark-gaming.css', label: 'Dark Gaming' },
+                            { value: 'example-theme.css', label: 'Example Theme' },
+                            { value: 'neo-navigator/neo-navigator.css', label: 'Neo Navigator' },
+                          ]}
+                          defaultValue={((form?.data?.theme as string) === '' || !(form?.data?.theme as string)) ? 'none' : (form?.data?.theme as string)}
+                          handleSelect={handleFontSelect('data.theme')}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                    </div>
                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
                       Basic Colors
                     </h3>

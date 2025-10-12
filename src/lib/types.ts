@@ -18,6 +18,7 @@ export type DisplayData = {
 export type GameDataItem = DataItem & {
   roster?: string | null;
   data?: {
+    theme?: string;
     colors?: {
       background?: string;
       text?: string;

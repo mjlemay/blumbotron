@@ -18,9 +18,67 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
 
   // Use stores
   const { fetchPlayers } = usePlayerStore();
-  const { fetchGames } = useGameStore();
+  const { fetchGames, games } = useGameStore();
   const { fetchRosters } = useRosterStore();
-  const { fetchUniqueScoresByGame, gameScores } = useScoreStore();
+  const { fetchUniqueScoresByGame } = useScoreStore();
+  
+  // Theme loading effect - runs after stores are loaded
+  useEffect(() => {
+    if (!game || games.length === 0 || isLoading) return;
+    
+    // Find the current game data
+    const currentGame = games.find(g => g.snowflake === game);
+    if (!currentGame?.data) return;
+    
+    // Get theme from game data
+    let gameData;
+    try {
+      if (typeof currentGame.data === 'string') {
+        gameData = JSON.parse(currentGame.data);
+      } else {
+        gameData = currentGame.data;
+      }
+    } catch (error) {
+      console.warn('DisplayTableWrapper: Failed to parse game data:', error);
+      return;
+    }
+    
+    const theme = gameData?.theme;
+    if (!theme || theme === '') return;
+    
+    // Remove any existing theme links
+    const existingThemeLinks = document.querySelectorAll('link[data-blumbotron-theme]');
+    existingThemeLinks.forEach(link => link.remove());
+    
+    // Create new theme link
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.setAttribute('data-blumbotron-theme', theme);
+    
+    // Construct theme URL - themes are in public/themes/ folder
+    link.href = `/themes/${theme}`;
+    
+    // Add error handling
+    link.onerror = function() {
+      console.warn(`DisplayTableWrapper: Failed to load theme: ${link.href}`);
+    };
+    
+    link.onload = function() {
+      console.log(`DisplayTableWrapper: Successfully loaded theme: ${link.href}`);
+    };
+    
+    // Append to head
+    document.head.appendChild(link);
+    
+    // Cleanup function to remove theme when component unmounts or theme changes
+    return () => {
+      const themeLink = document.querySelector(`link[data-blumbotron-theme="${theme}"]`);
+      if (themeLink) {
+        themeLink.remove();
+      }
+    };
+  }, [game, games, isLoading]);
   
   useEffect(() => {
     
