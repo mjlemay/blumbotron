@@ -1,5 +1,6 @@
 import { useImmer } from 'use-immer';
 import Input from './input';
+import SelectChip from './selectChip';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
@@ -26,6 +27,14 @@ interface GameData extends Record<string, unknown> {
     tableHeader?: string;
     tableRow?: string;
     tableAlt?: string;
+    fontHeader?: string;
+    fontPlayer?: string;
+    fontScore?: string;
+  };
+  fonts?: {
+    header?: string;
+    player?: string;
+    score?: string;
   };
   placement?: {
     paddingFrame?: {
@@ -75,6 +84,23 @@ function FormGameStyles(props: FormGameStylesProps) {
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
 
+  // Font options based on available fonts
+  const fontOptions = [
+    { value: 'Arial, sans-serif', label: 'Default (Arial)' },
+    { value: '"Eightgon", monospace', label: 'Eightgon' },
+    { value: '"Excluded", sans-serif', label: 'Excluded' },
+    { value: '"Groutpix Flow Slab Serif", serif', label: 'Groutpix Flow Slab Serif' },
+    { value: '"Hacked", monospace', label: 'Hacked' },
+    { value: '"Martius", serif', label: 'Martius' },
+    { value: '"Monument Valley 12", sans-serif', label: 'Monument Valley 12' },
+    { value: '"Moonhouse", display', label: 'Moonhouse' },
+    { value: '"Orbitronio", sans-serif', label: 'Orbitronio' },
+    { value: '"Pasti", cursive', label: 'Pasti' },
+    { value: '"Stardate 81316", sci-fi', label: 'Stardate 81316' },
+    { value: '"Timeburner", display', label: 'Timeburner' },
+    { value: '"Warriot Circle", display', label: 'Warriot Circle' },
+  ];
+
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
@@ -107,6 +133,10 @@ function FormGameStyles(props: FormGameStylesProps) {
     updateFormInput(formKey as string, color as string);
   };
 
+  const handleFontSelect = (fontKey: string) => (fontValue: string) => {
+    updateFormInput(fontKey, fontValue);
+  };
+
   const editGameData = async (formData: GameDataItem) => {
     
     let formSchema = z.object({
@@ -122,6 +152,11 @@ function FormGameStyles(props: FormGameStylesProps) {
           tableHeader: z.string().optional(),
           tableRow: z.string().optional(),
           tableAlt: z.string().optional(),
+        }).optional(),
+        fonts: z.object({
+          header: z.string().optional(),
+          player: z.string().optional(),
+          score: z.string().optional(),
         }).optional(),
         placement: z.object({
           paddingFrame: z.object({
@@ -139,12 +174,17 @@ function FormGameStyles(props: FormGameStylesProps) {
       // Merge existing data with new changes
       const existingData = game?.data || {};
       const newColors = formData.data?.colors || {};
+      const newFonts = formData.data?.fonts || {};
       const newPlacement = formData.data?.placement || {};
       const mergedData = {
         ...existingData,
         colors: {
           ...existingData.colors,
           ...newColors
+        },
+        fonts: {
+          ...existingData.fonts,
+          ...newFonts
         },
         placement: {
           ...existingData.placement,
@@ -384,6 +424,113 @@ function FormGameStyles(props: FormGameStylesProps) {
                         <ButtonColorPicker
                           color={form?.data?.colors?.tableAlt || ''}
                           setColor={(color: string) => handleColorChange('data.colors.tableAlt', color)}
+                        />
+                      }
+                    />
+                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Fonts
+                    </h3>
+                    <div className="space-y-4 w-full">
+                      {/* Header Font */}
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          Header Font
+                        </label>
+                        <SelectChip
+                          selectLabel="Header Font"
+                          selectPlaceholder="Choose Font"
+                          selections={fontOptions}
+                          defaultValue={form?.data?.fonts?.header || 'Arial, sans-serif'}
+                          handleSelect={handleFontSelect('data.fonts.header')}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                      
+                      {/* Player Name Font */}
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          Player Name Font
+                        </label>
+                        <SelectChip
+                          selectLabel="Player Font"
+                          selectPlaceholder="Choose Font"
+                          selections={fontOptions}
+                          defaultValue={form?.data?.fonts?.player || 'Arial, sans-serif'}
+                          handleSelect={handleFontSelect('data.fonts.player')}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                      
+                      {/* Score Font */}
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          Score Font
+                        </label>
+                        <SelectChip
+                          selectLabel="Score Font"
+                          selectPlaceholder="Choose Font"
+                          selections={fontOptions}
+                          defaultValue={form?.data?.fonts?.score || 'Arial, sans-serif'}
+                          handleSelect={handleFontSelect('data.fonts.score')}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Font Colors
+                    </h3>
+                    <Input
+                      name="data.colors.fontHeader"
+                      label="Header Text Color"
+                      value={form?.data?.colors?.fontHeader || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.fontHeader || '' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontHeader || 'transparent'}
+                          setColor={(color: string) => handleColorChange('data.colors.fontHeader', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.fontPlayer"
+                      label="Player Name Color"
+                      value={form?.data?.colors?.fontPlayer || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.fontPlayer || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontPlayer || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.fontPlayer', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.fontScore"
+                      label="Score Color"
+                      value={form?.data?.colors?.fontScore || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div 
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
+                          style={{ backgroundColor: form?.data?.colors?.fontScore || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontScore || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.fontScore', color)}
                         />
                       }
                     />

@@ -1,0 +1,85 @@
+/* Font definitions for blumbotron */
+
+@font-face {
+  font-family: 'Eightgon';
+  src: url('./eightgon-font/Eightgon-OGn6p.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Excluded';
+  src: url('./excluded-font/Excluded-z8XrX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Groutpix Flow Slab Serif';
+  src: url('./groutpix-flow-slab-serif-font/GroutpixFlowSlabSerif-rvdap.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Hacked';
+  src: url('./hacked-font/Hacked-KerX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Martius';
+  src: url('./martius-font/Martius-LV9L4.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Monument Valley 12';
+  src: url('./monument-valley-12-font/MonumentValley12-X55o.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Moonhouse';
+  src: url('./moonhouse-font/Moonhouse-yE5M.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Orbitronio';
+  src: url('./orbitronio-font/Orbitronio-OV4P.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pasti';
+  src: url('./pasti-font/PastiRegular-mLXnm.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Stardate 81316';
+  src: url('./stardate-81316-font/Stardate81316-aolE.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Timeburner';
+  src: url('./timeburner-font/Timeburner-xJB8.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Warriot Circle';
+  src: url('./warriot-circle-font/WarriotCircle-lxLz5.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

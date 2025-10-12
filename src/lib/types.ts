@@ -28,6 +28,11 @@ export type GameDataItem = DataItem & {
       tableRow?: string;
       tableAlt?: string;
     };
+    fonts?: {
+      header?: string;
+      player?: string;
+      score?: string;
+    };
     backgroundImage?: string | null;
     placement?: {
       paddingFrame?: {

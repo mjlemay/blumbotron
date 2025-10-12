@@ -14,6 +14,24 @@ type ComponentProps = {
 
 const paddingValue = 0;
 
+interface GameData {
+  colors?: {
+    background?: string;
+    text?: string;
+    // ... existing colors
+  };
+  fonts?: {
+    header?: string;
+    player?: string;
+    score?: string;
+  };
+  displays?: Array<{
+    title?: string;
+    rows?: number;
+    bgImage?: string;
+  }>;
+}
+
 function DisplayTable(props: ComponentProps): JSX.Element {
   const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
   const { players } = usePlayerStore();
@@ -46,7 +64,17 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     tableHeader: null,
     tableRow: null,
     tableAlt: null,
+    fontPlayer: null,
+    fontHeader: null,
+    fontScore: null,
     ...(gameData?.data?.colors || {})
+  };
+  
+  const fonts = {
+    header: 'Arial, sans-serif',
+    player: 'Arial, sans-serif',
+    score: 'Arial, sans-serif',
+    ...(gameData?.data?.fonts || {})
   };
   const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
   const placement = gameData?.data?.placement || {
@@ -104,7 +132,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: colors.secondary || colors.text,
+          color: colors.fontPlayer || colors.secondary || colors.text,
+          fontFamily: fonts.player,
         }}
         >
           {scoreItem?.player || ' [ REMOVED ]'}
@@ -120,7 +149,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: colors.text || colors.secondary || colors.text,
+          color: colors.fontScore || colors.secondary || colors.text,
+          fontFamily: fonts.score,
         }}
         >
           {scoreItem?.score}
@@ -174,7 +204,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             flex flex-col
             items-center
             justify-start
-            ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full'}
+            ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full backdrop-blur-xl'}
           `}
           style={{
             paddingTop: `${isFullScreen ? placement?.paddingFrame?.top : 0}vh`,
@@ -199,8 +229,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                       ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
                     `}
                     style={{
-                      color: colors.primary || colors.text,
+                      color: colors.fontHeader || colors.primary || colors.text,
                       backgroundColor: colors.tableHeader || 'transparent',
+                      fontFamily: fonts.header,
                     }}
                     >
                       {title}

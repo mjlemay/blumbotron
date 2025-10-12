@@ -82,6 +82,8 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
 
+
+
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
@@ -118,6 +120,8 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
   };
+
+
 
   const handleSubmitClose = (
     view: string = 'home',
@@ -327,6 +331,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                         )}
                       </div>
                     </div>
+
                   </div>
                 </div>
               </div>
