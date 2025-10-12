@@ -11,40 +11,12 @@ import '@rc-component/color-picker/assets/index.css';
 import ButtonColorPicker from './buttonColorPicker';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
+import { GameVisualData } from '../lib/interfaces';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 
 type FormGameStylesProps = {
   onSuccess?: () => void;
 };
-
-interface GameData extends Record<string, unknown> {
-  colors?: {
-    background?: string;
-    text?: string;
-    primary?: string;
-    secondary?: string;
-    tertiary?: string;
-    tableHeader?: string;
-    tableRow?: string;
-    tableAlt?: string;
-    fontHeader?: string;
-    fontPlayer?: string;
-    fontScore?: string;
-  };
-  fonts?: {
-    header?: string;
-    player?: string;
-    score?: string;
-  };
-  placement?: {
-    paddingFrame?: {
-      top?: string;
-      left?: string;
-      right?: string;
-      bottom?: string;
-    };
-  };
-}
 
 const setNestedValue = (obj: any, keyString: string, value: any) => {
   const keys = keyString.split('.');
@@ -69,12 +41,12 @@ function FormGameStyles(props: FormGameStylesProps) {
   const game = getSelected('games') as GameDataItem;
   const { name = '' } = game || {};
 
-  let gameData: GameData = {};
+  let gameData: GameVisualData = {};
   try {
     if (typeof game?.data === 'string') {
       gameData = JSON.parse(game.data);
     } else if (game?.data) {
-      gameData = game.data as GameData;
+      gameData = game.data as GameVisualData;
     }
   } catch (error) {
     gameData = {};
@@ -534,40 +506,6 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       }
                     />
-                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Placement
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                      <Input
-                        name="data.placement.paddingFrame.top"
-                        label="Top Table Padding"
-                        value={form?.data?.placement?.paddingFrame?.top || ''}
-                        changeHandler={handleFormChange}
-                        placeholder={'0'}
-                      />
-                      <Input
-                        name="data.placement.paddingFrame.bottom"
-                        label="Bottom Table Padding"
-                        value={form?.data?.placement?.paddingFrame?.bottom || ''}
-                        changeHandler={handleFormChange}
-                        placeholder={'0'}
-  
-                      />
-                      <Input
-                        name="data.placement.paddingFrame.left"
-                        label="Left Table Padding"
-                        value={form?.data?.placement?.paddingFrame?.left || ''}
-                        changeHandler={handleFormChange}
-                        placeholder={'0'}
-                      />
-                      <Input
-                        name="data.placement.paddingFrame.right"
-                        label="Right Table Padding"
-                        value={form?.data?.placement?.paddingFrame?.right || ''}
-                        changeHandler={handleFormChange}  
-                        placeholder={'0'}
-                      />
-                    </div>
                   </div>
                 </div>
               </div>

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import UiButton from './uiButton';
 import SubViewLaunch from './subViewLaunch';
 import FormGameStyles from './formGameStyles';
-import FromGameTableConfig from './formGameTableConfig';
+import FormGameTableConfig from './formGameTableConfig';
+import FormGameLayout from './formGameLayout';
 
 function ViewGame() {
   const { selected } = useExperienceStore(
@@ -66,6 +67,13 @@ function ViewGame() {
         </div>
         <div
           className="flex flex-col items-center justify-center p-2"
+          onClick={() => handleSubViewSelect('styles')}
+        >
+          <UiButton uiIcon="styles" size="30" isSelected={subView === 'styles'} />
+          <span className="text-sm">Styles</span>
+        </div>
+        <div
+          className="flex flex-col items-center justify-center p-2"
           onClick={() => handleSubViewSelect('layout')}
         >
           <UiButton uiIcon="layout" size="30" isSelected={subView === 'layout'} />
@@ -86,8 +94,9 @@ function ViewGame() {
       "
       >
         {subView === 'launch' && <SubViewLaunch gameData={selectedGame} />}
-        {subView === 'config' && <FromGameTableConfig />}
-        {subView === 'layout' && <FormGameStyles />}
+        {subView === 'config' && <FormGameTableConfig />}
+        {subView === 'styles' && <FormGameStyles />}
+        {subView === 'layout' && <FormGameLayout />}
       </div>
     </div>
   );
