@@ -3,10 +3,11 @@ import {
   OpenInNewWindowIcon,
   AllSidesIcon
 } from '@radix-ui/react-icons';
-import DisplayTable from './displayTable';
 import { useExperienceStore } from '../stores/experienceStore';
 import { Window } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
+import ThemeInjector from './themeInjector';
+import DisplayTable from './displayTable';
 
 type ComponentProps = {
   height?: number;
@@ -66,6 +67,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         items-center
         justify-center
       `}>
+        <ThemeInjector game={game} />
         <DisplayTable game={game} fetchIntervalSeconds={60} />
       </div>
       <div
