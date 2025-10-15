@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePlayerStore } from "../stores/playersStore";
 import { useGameStore } from "../stores/gamesStore";
 import { useRosterStore } from "../stores/rostersStore";
@@ -37,6 +37,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
   const { gameScores, fetchUniqueScoresByGame, lastUpdated } = useScoreStore();
+  const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
   const gameData = games.find((gameItem) => gameItem.snowflake === game);
   const rosterData = rosters.find((roster) => roster.snowflake === gameData?.roster);
   const allowedPlayers = rosterData && rosterData.allow && rosterData?.allow?.length >= 1 ?
@@ -76,6 +77,39 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     ...(gameData?.data?.fonts || {})
   };
   const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
+
+  // Helper function to get image source (same as in form)
+  const getImageSrc = async (imagePath: string): Promise<string> => {
+    // If it's already a base64 data URL, return as is
+    if (imagePath.startsWith('data:')) {
+      return imagePath;
+    }
+    
+    // If it's a filename, get the base64 data from Tauri
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
+      return dataUrl;
+    } catch (error) {
+      console.error('DisplayTable: Failed to get image data:', error);
+      return ''; // Return empty string if failed
+    }
+  };
+
+  // Load background image when it changes
+  useEffect(() => {
+    const loadBackgroundImage = async () => {
+      if (backgroundImage) {
+        const src = await getImageSrc(backgroundImage);
+        setBackgroundImageSrc(src);
+      } else {
+        setBackgroundImageSrc('');
+      }
+    };
+    
+    loadBackgroundImage();
+  }, [backgroundImage]);
+
   const placement = gameData?.data?.placement || {
     paddingFrame: {
       top: paddingValue,
@@ -93,8 +127,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   useEffect(() => {
     // Initial fetch of scores
     fetchUniqueScoresByGame(game || '');
-    
-    // Set up periodic refresh (reduced frequency since we now have reactive updates)
     const interval = setInterval(() => {
       fetchUniqueScoresByGame(game || '');
     }, fetchIntervalSeconds * 1000);
@@ -180,15 +212,18 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
   return (
     <div className={`
-      ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'rounded-md w-full h-full'}
+      ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
        flex items-start justify-center
       `}
       style={{
-        background: backgroundImage ? `url("${backgroundImage}")` : colors.background,
+        backgroundColor: colors.background,
+        backgroundImage: backgroundImageSrc ? `url("${backgroundImageSrc}")` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',  
+        backgroundRepeat: 'no-repeat',
         color: colors.text,
+        minWidth: isFullScreen ? '100vw' : '100%',
+        minHeight: isFullScreen ? '100vh' : '100%',
       }}
     >
       {!gameData && (

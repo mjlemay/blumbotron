@@ -1,4 +1,7 @@
 use tauri_plugin_sql::{Migration, MigrationKind, Builder};
+use tauri::Manager;
+use std::fs;
+use base64::{Engine as _, engine::general_purpose};
 
 const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_neat_wong.sql");
 const DB_PATH: &str = "sqlite:blumbo.db";
@@ -50,6 +53,136 @@ async fn create_display_window(
     Ok(())
 }
 
+#[tauri::command]
+async fn save_background_image(
+    app_handle: tauri::AppHandle,
+    file_name: String,
+    image_data: String,
+) -> Result<String, String> {
+    println!("Saving background image: {}", file_name);
+    
+    // Get app data directory
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
+    
+    // Create images subdirectory
+    let images_dir = app_data_dir.join("images");
+    if !images_dir.exists() {
+        fs::create_dir_all(&images_dir)
+            .map_err(|e| format!("Failed to create images directory: {}", e))?;
+    }
+    
+    // Decode base64 image data
+    let image_bytes = general_purpose::STANDARD
+        .decode(&image_data)
+        .map_err(|e| format!("Failed to decode base64 image data: {}", e))?;
+    
+    // Write file
+    let file_path = images_dir.join(&file_name);
+    fs::write(&file_path, image_bytes)
+        .map_err(|e| format!("Failed to write image file: {}", e))?;
+    
+    println!("Background image saved to: {:?}", file_path);
+    
+    // Return the full path as string
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+async fn delete_background_image(
+    app_handle: tauri::AppHandle,
+    file_name: String,
+) -> Result<(), String> {
+    println!("Deleting background image: {}", file_name);
+    
+    // Get app data directory
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
+    
+    // Construct file path
+    let file_path = app_data_dir.join("images").join(&file_name);
+    
+    // Delete file if it exists
+    if file_path.exists() {
+        fs::remove_file(&file_path)
+            .map_err(|e| format!("Failed to delete image file: {}", e))?;
+        println!("Background image deleted: {:?}", file_path);
+    }
+    
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_background_image_path(
+    app_handle: tauri::AppHandle,
+    file_name: String,
+) -> Result<String, String> {
+    // Get app data directory
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
+    
+    // Construct file path
+    let file_path = app_data_dir.join("images").join(&file_name);
+    
+    // Return the full path as string
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+async fn get_background_image_data(
+    app_handle: tauri::AppHandle,
+    file_name: String,
+) -> Result<String, String> {
+    println!("Getting background image data for: {}", file_name);
+    
+    // Get app data directory
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
+    
+    // Construct file path
+    let file_path = app_data_dir.join("images").join(&file_name);
+    
+    // Check if file exists
+    if !file_path.exists() {
+        return Err(format!("Image file not found: {:?}", file_path));
+    }
+    
+    // Read file data
+    let image_data = fs::read(&file_path)
+        .map_err(|e| format!("Failed to read image file: {}", e))?;
+    
+    // Encode as base64
+    let base64_data = general_purpose::STANDARD.encode(&image_data);
+    
+    // Determine MIME type based on file extension
+    let extension = file_path.extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("png")
+        .to_lowercase();
+    
+    let mime_type = match extension.as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        _ => "image/png",
+    };
+    
+    // Return as data URL
+    let data_url = format!("data:{};base64,{}", mime_type, base64_data);
+    println!("Generated data URL with length: {}", data_url.len());
+    
+    Ok(data_url)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let migrations = vec![Migration {
@@ -65,7 +198,7 @@ pub fn run() {
                 .add_migrations(DB_PATH, migrations)
                 .build()
         )
-        .invoke_handler(tauri::generate_handler![greet, create_display_window])
+        .invoke_handler(tauri::generate_handler![greet, create_display_window, save_background_image, delete_background_image, get_background_image_path, get_background_image_data])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

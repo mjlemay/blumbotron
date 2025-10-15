@@ -10,7 +10,7 @@ import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 type FormGameTableConfigProps = {
   onSuccess?: () => void;
@@ -64,7 +64,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [imageSrc, setImageSrc] = useState<string>('');
 
   let gameData: DisplayObject = {};
   try {
@@ -82,7 +82,23 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
 
-
+  // Update image source when form data changes
+  useEffect(() => {
+    const updateImageSrc = async () => {
+      const bgImage = form?.data?.displays?.[0]?.bgImage;
+      console.log('FormGameTableConfig: bgImage changed to:', bgImage);
+      if (bgImage) {
+        const src = await getImageSrc(bgImage);
+        console.log('FormGameTableConfig: Generated image src:', src);
+        setImageSrc(src);
+      } else {
+        console.log('FormGameTableConfig: No bgImage, clearing src');
+        setImageSrc('');
+      }
+    };
+    
+    updateImageSrc();
+  }, [form?.data?.displays?.[0]?.bgImage]);
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
@@ -98,19 +114,58 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     updateFormInput(formKey, formValue);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64String = e.target?.result as string;
-        updateFormInput('data.displays[0].bgImage', base64String);
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Generate unique filename with timestamp
+        const timestamp = Date.now();
+        const fileExtension = file.name.split('.').pop() || 'png';
+        const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
+        
+        // Convert file to base64 for transfer to Rust
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
+        
+        // Use Tauri invoke to save file on the Rust side
+        const { invoke } = await import('@tauri-apps/api/core');
+        const savedPath = await invoke('save_background_image', {
+          fileName: fileName,
+          imageData: base64
+        });
+        
+        // Store the filename instead of base64 data
+        updateFormInput('data.displays[0].bgImage', fileName);
+        
+        console.log('Image saved successfully:', savedPath);
+      } catch (error) {
+        console.error('Failed to save image:', error);
+        // Fallback to base64 if file system operations fail
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target?.result as string;
+          updateFormInput('data.displays[0].bgImage', base64String);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
-  const handleImageRemove = () => {
+  const handleImageRemove = async () => {
+    const currentImage = form?.data?.displays?.[0]?.bgImage;
+    
+    // If it's a filename (not base64), try to delete the file
+    if (currentImage && !currentImage.startsWith('data:')) {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('delete_background_image', { fileName: currentImage });
+        console.log('Background image file deleted:', currentImage);
+      } catch (error) {
+        console.warn('Failed to delete background image file:', error);
+      }
+    }
+    
     updateFormInput('data.displays[0].bgImage', '');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -119,6 +174,28 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const getImageSrc = async (imagePath: string): Promise<string> => {
+    console.log('getImageSrc called with:', imagePath);
+    
+    // If it's already a base64 data URL, return as is
+    if (imagePath.startsWith('data:')) {
+      console.log('getImageSrc: Returning base64 data URL');
+      return imagePath;
+    }
+    
+    // If it's a filename, get the base64 data from Tauri
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      console.log('getImageSrc: Invoking get_background_image_data with fileName:', imagePath);
+      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
+      console.log('getImageSrc: Got data URL from Rust, length:', dataUrl.length);
+      return dataUrl;
+    } catch (error) {
+      console.error('getImageSrc: Failed to get image data:', error);
+      return imagePath; // Fallback to original path
+    }
   };
 
 
@@ -260,13 +337,10 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       value={form?.data?.displays?.[0]?.rows || ''}
                       changeHandler={handleFormChange}
                     />
-                    {/* Background Image Upload Section */}
                     <div className="w-full mb-4">
                       <label className="block text-sm font-medium text-white mb-2">
                         Background Image
                       </label>
-                      
-                      {/* Hidden file input */}
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -282,9 +356,11 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                             {/* Image thumbnail */}
                             <div className="relative inline-block">
                               <img
-                                src={form.data.displays[0].bgImage}
+                                src={imageSrc}
                                 alt="Background preview"
                                 className="max-w-xs max-h-32 rounded border object-cover"
+                                onLoad={() => console.log('FormGameTableConfig: Image loaded successfully:', imageSrc)}
+                                onError={(e) => console.error('FormGameTableConfig: Image failed to load:', imageSrc, e)}
                               />
                               {/* Remove button overlay */}
                               <button
