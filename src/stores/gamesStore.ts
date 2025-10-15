@@ -23,7 +23,9 @@ export const useGameStore = create<GameStore>((set) => ({
   fetchGames: async () => {
     set({ loading: true, error: null });
     try {
+      console.time('fetchGames');
       const result = await gameData.getGames(MAGIC_LIMIT);
+      console.timeEnd('fetchGames');
       set({ games: result as GameDataItem[], error: null });
     } catch (error) {
       console.error('Failed to fetch games:', error);

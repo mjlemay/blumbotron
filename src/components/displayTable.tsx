@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePlayerStore } from "../stores/playersStore";
 import { useGameStore } from "../stores/gamesStore";
 import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { ScoreDataItem } from "../lib/types";
+import { useMediaPreloader } from "../lib/mediaPreloader";
 
 type ComponentProps = {
   game?: string;
@@ -36,25 +37,46 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { players } = usePlayerStore();
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
-  const { gameScores, fetchUniqueScoresByGame, lastUpdated } = useScoreStore();
+  const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
-  const gameData = games.find((gameItem) => gameItem.snowflake === game);
-  const rosterData = rosters.find((roster) => roster.snowflake === gameData?.roster);
-  const allowedPlayers = rosterData && rosterData.allow && rosterData?.allow?.length >= 1 ?
-    rosterData?.allow : [];
-  const playersString = allowedPlayers.join(',');
-  // If there are allowed players, use them, otherwise use all players
-  const playersData = playersString.length > 0 ? allowedPlayers?.map((player) => 
-    players.find((playerItem) => playerItem.snowflake === player)) : players;
-  const tableData = gameScores[game || '']?.map((scoreItem: ScoreDataItem) => {
-    const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
-    if(typeof playerData?.name !== 'undefined') {
-      return {
-        player: playerData?.name,
-        score: scoreItem?.amount,
-      };
-    }
-  });
+  const [isLoadingMedia, setIsLoadingMedia] = useState<boolean>(false);
+  const { getMedia } = useMediaPreloader();
+  
+  // Memoize game data lookup
+  const gameData = useMemo(() => 
+    games.find((gameItem) => gameItem.snowflake === game), 
+    [games, game]
+  );
+  
+  // Memoize roster data lookup
+  const rosterData = useMemo(() => 
+    rosters.find((roster) => roster.snowflake === gameData?.roster),
+    [rosters, gameData?.roster]
+  );
+  
+  // Memoize allowed players processing
+  const { allowedPlayers, playersData } = useMemo(() => {
+    const allowed = rosterData && rosterData.allow && rosterData?.allow?.length >= 1 ?
+      rosterData?.allow : [];
+    const playersString = allowed.join(',');
+    // If there are allowed players, use them, otherwise use all players
+    const playerData = playersString.length > 0 ? allowed?.map((player) => 
+      players.find((playerItem) => playerItem.snowflake === player)) : players;
+    
+    return { allowedPlayers: allowed, playersData: playerData };
+  }, [rosterData, players]);
+  // Memoize table data processing
+  const tableData = useMemo(() => {
+    return gameScores[game || '']?.map((scoreItem: ScoreDataItem) => {
+      const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
+      if(typeof playerData?.name !== 'undefined') {
+        return {
+          player: playerData?.name,
+          score: scoreItem?.amount,
+        };
+      }
+    });
+  }, [gameScores, game, playersData]);
   const colors = {
     background: 'black',
     text: 'white',
@@ -78,37 +100,36 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   };
   const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
 
-  // Helper function to get image source (same as in form)
-  const getImageSrc = async (imagePath: string): Promise<string> => {
+  // Optimized helper function to get image source using media preloader
+  const getImageSrc = useCallback(async (imagePath: string): Promise<string> => {
     // If it's already a base64 data URL, return as is
     if (imagePath.startsWith('data:')) {
       return imagePath;
     }
     
-    // If it's a filename, get the base64 data from Tauri
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
-      return dataUrl;
-    } catch (error) {
-      console.error('DisplayTable: Failed to get image data:', error);
-      return ''; // Return empty string if failed
-    }
-  };
+    // Use media preloader for efficient caching
+    return await getMedia(imagePath, 'image');
+  }, [getMedia]);
 
   // Load background image when it changes
   useEffect(() => {
     const loadBackgroundImage = async () => {
       if (backgroundImage) {
-        const src = await getImageSrc(backgroundImage);
-        setBackgroundImageSrc(src);
+        setIsLoadingMedia(true);
+        try {
+          const src = await getImageSrc(backgroundImage);
+          setBackgroundImageSrc(src);
+        } finally {
+          setIsLoadingMedia(false);
+        }
       } else {
         setBackgroundImageSrc('');
+        setIsLoadingMedia(false);
       }
     };
     
     loadBackgroundImage();
-  }, [backgroundImage]);
+  }, [backgroundImage, getImageSrc]);
 
   const placement = gameData?.data?.placement || {
     paddingFrame: {
@@ -121,7 +142,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const title = gameData?.data?.displays?.[0]?.title || 'High Scores';
   const numberOfRows = gameData?.data?.displays?.[0]?.rows || numberOfScores;
 
-  const tableDataSorted = tableData && tableData.length > 0 ? tableData.sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
+  // Memoize table data sorting
+  const tableDataSorted = useMemo(() => {
+    return tableData && tableData.length > 0 ? 
+      [...tableData].sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
+  }, [tableData]);
 
 
   useEffect(() => {
@@ -226,6 +251,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         minHeight: isFullScreen ? '100vh' : '100%',
       }}
     >
+      {/* Loading indicator */}
+      {isLoadingMedia && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="text-white text-lg">Loading media...</div>
+        </div>
+      )}
+      
       {!gameData && (
         <div className="min-h-full min-w-full flex items-center justify-center">
           Table not found

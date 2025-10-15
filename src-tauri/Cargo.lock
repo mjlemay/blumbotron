@@ -186,12 +186,14 @@ name = "blumbotron"
 version = "0.1.0"
 dependencies = [
  "base64 0.21.7",
+ "once_cell",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
  "tauri-plugin-sql",
+ "tokio",
 ]
 
 [[package]]
