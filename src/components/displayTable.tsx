@@ -18,7 +18,6 @@ interface GameData {
   colors?: {
     background?: string;
     text?: string;
-    // ... existing colors
   };
   fonts?: {
     header?: string;

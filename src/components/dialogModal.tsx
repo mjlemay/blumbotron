@@ -16,6 +16,7 @@ import { useGameStore } from '../stores/gamesStore';
 import { usePlayerStore } from '../stores/playersStore';
 import { useRosterStore } from '../stores/rostersStore';
 import { useShallow } from 'zustand/react/shallow';
+import ThemeInjector from './themeInjector';
 
 type DialogModalProps = {
   children?: React.ReactNode;
@@ -117,11 +118,16 @@ function DialogModal({
           onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
         />
       ),
-      displayTable: <DisplayTable
-      game={gameSelected?.snowflake}
-      isFullScreen={true}
-      fetchIntervalSeconds={60}
-      />,
+      displayTable: (
+        <>
+          <ThemeInjector game={gameSelected?.snowflake} />
+          <DisplayTable
+            game={gameSelected?.snowflake}
+            isFullScreen={true}
+            fetchIntervalSeconds={60}
+          />
+        </>
+      ),
     };
     return content[selectedModal as keyof typeof content] || null;
   };

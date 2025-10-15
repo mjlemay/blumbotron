@@ -4,6 +4,7 @@ import { usePlayerStore } from '../stores/playersStore';
 import { useGameStore } from '../stores/gamesStore';
 import { useRosterStore } from '../stores/rostersStore';
 import { useScoreStore } from '../stores/scoresStore';
+import ThemeInjector from './themeInjector';
 import { listen } from '@tauri-apps/api/event';
 
 type DisplayTableWrapperProps = {
@@ -14,6 +15,7 @@ type DisplayTableWrapperProps = {
 export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   const { game, fetchIntervalSeconds = 10 } = props;
   const [isLoading, setIsLoading] = useState(true);
+  const [gameData, setGameData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Use stores
@@ -29,55 +31,8 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
     // Find the current game data
     const currentGame = games.find(g => g.snowflake === game);
     if (!currentGame?.data) return;
+    setGameData(currentGame.data);
     
-    // Get theme from game data
-    let gameData;
-    try {
-      if (typeof currentGame.data === 'string') {
-        gameData = JSON.parse(currentGame.data);
-      } else {
-        gameData = currentGame.data;
-      }
-    } catch (error) {
-      console.warn('DisplayTableWrapper: Failed to parse game data:', error);
-      return;
-    }
-    
-    const theme = gameData?.theme;
-    if (!theme || theme === '') return;
-    
-    // Remove any existing theme links
-    const existingThemeLinks = document.querySelectorAll('link[data-blumbotron-theme]');
-    existingThemeLinks.forEach(link => link.remove());
-    
-    // Create new theme link
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.setAttribute('data-blumbotron-theme', theme);
-    
-    // Construct theme URL - themes are in public/themes/ folder
-    link.href = `/themes/${theme}`;
-    
-    // Add error handling
-    link.onerror = function() {
-      console.warn(`DisplayTableWrapper: Failed to load theme: ${link.href}`);
-    };
-    
-    link.onload = function() {
-      console.log(`DisplayTableWrapper: Successfully loaded theme: ${link.href}`);
-    };
-    
-    // Append to head
-    document.head.appendChild(link);
-    
-    // Cleanup function to remove theme when component unmounts or theme changes
-    return () => {
-      const themeLink = document.querySelector(`link[data-blumbotron-theme="${theme}"]`);
-      if (themeLink) {
-        themeLink.remove();
-      }
-    };
   }, [game, games, isLoading]);
   
   useEffect(() => {
@@ -168,5 +123,10 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
     );
   }
 
-  return <DisplayTable game={game} isFullScreen={true} fetchIntervalSeconds={fetchIntervalSeconds} />;
+  return (
+    <>
+      <ThemeInjector game={game} />
+      <DisplayTable game={game} isFullScreen={true} fetchIntervalSeconds={fetchIntervalSeconds} />
+    </>
+  );
 }
