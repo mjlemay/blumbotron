@@ -87,10 +87,16 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     const updateImageSrc = async () => {
       const bgImage = form?.data?.displays?.[0]?.bgImage;
       console.log('FormGameTableConfig: bgImage changed to:', bgImage);
+      
       if (bgImage) {
-        const src = await getImageSrc(bgImage);
-        console.log('FormGameTableConfig: Generated image src:', src);
-        setImageSrc(src);
+        try {
+          const src = await getImageSrc(bgImage);
+          console.log('FormGameTableConfig: Generated image src:', src);
+          setImageSrc(src || '');
+        } catch (error) {
+          console.error('FormGameTableConfig: Error loading image:', error);
+          setImageSrc('');
+        }
       } else {
         console.log('FormGameTableConfig: No bgImage, clearing src');
         setImageSrc('');
@@ -116,38 +122,72 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    console.log('FormGameTableConfig: File selected:', file?.name, file?.type, file?.size);
+    
+    if (!file) {
+      console.warn('FormGameTableConfig: No file selected');
+      return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      console.error('FormGameTableConfig: Invalid file type:', file.type);
+      alert('Please select an image file (PNG, JPG, GIF, etc.)');
+      return;
+    }
+    
+    console.log('FormGameTableConfig: Starting file upload process...');
+    
+    try {
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop() || 'png';
+      const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
+      
+      console.log('FormGameTableConfig: Generated filename:', fileName);
+      
+      // Convert file to base64 for transfer to Rust
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
+      
+      console.log('FormGameTableConfig: File converted to base64, length:', base64.length);
+      
+      // Use Tauri invoke to save file on the Rust side
+      const { invoke } = await import('@tauri-apps/api/core');
+      console.log('FormGameTableConfig: Invoking save_background_image...');
+      
+      const savedPath = await invoke('save_background_image', {
+        fileName: fileName,
+        imageData: base64
+      });
+      
+      console.log('FormGameTableConfig: Image saved successfully:', savedPath);
+      
+      // Store the filename instead of base64 data
+      console.log('FormGameTableConfig: Updating form with filename:', fileName);
+      updateFormInput('data.displays[0].bgImage', fileName);
+      
+      console.log('FormGameTableConfig: Upload process completed successfully');
+      
+    } catch (error) {
+      console.error('FormGameTableConfig: Failed to save image:', error);
+      
+      // Fallback to base64 if file system operations fail
+      console.log('FormGameTableConfig: Attempting fallback to base64...');
       try {
-        // Generate unique filename with timestamp
-        const timestamp = Date.now();
-        const fileExtension = file.name.split('.').pop() || 'png';
-        const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
-        
-        // Convert file to base64 for transfer to Rust
-        const arrayBuffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(arrayBuffer);
-        const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
-        
-        // Use Tauri invoke to save file on the Rust side
-        const { invoke } = await import('@tauri-apps/api/core');
-        const savedPath = await invoke('save_background_image', {
-          fileName: fileName,
-          imageData: base64
-        });
-        
-        // Store the filename instead of base64 data
-        updateFormInput('data.displays[0].bgImage', fileName);
-        
-        console.log('Image saved successfully:', savedPath);
-      } catch (error) {
-        console.error('Failed to save image:', error);
-        // Fallback to base64 if file system operations fail
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64String = e.target?.result as string;
+          console.log('FormGameTableConfig: Fallback - storing base64 data, length:', base64String.length);
           updateFormInput('data.displays[0].bgImage', base64String);
         };
+        reader.onerror = (e) => {
+          console.error('FormGameTableConfig: FileReader error:', e);
+        };
         reader.readAsDataURL(file);
+      } catch (fallbackError) {
+        console.error('FormGameTableConfig: Fallback also failed:', fallbackError);
+        alert('Failed to upload image. Please try again.');
       }
     }
   };
@@ -193,8 +233,13 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       console.log('getImageSrc: Got data URL from Rust, length:', dataUrl.length);
       return dataUrl;
     } catch (error) {
-      console.error('getImageSrc: Failed to get image data:', error);
-      return imagePath; // Fallback to original path
+      console.error('getImageSrc: Failed to get image data for', imagePath, ':', error);
+      // If the file is missing, return an empty string instead of the filename
+      if (error && typeof error === 'string' && error.includes('Image file not found')) {
+        console.warn('Image file missing, returning empty string:', imagePath);
+        return '';
+      }
+      return imagePath; // Fallback to original path for other errors
     }
   };
 

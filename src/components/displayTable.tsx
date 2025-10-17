@@ -1,10 +1,10 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { usePlayerStore } from "../stores/playersStore";
 import { useGameStore } from "../stores/gamesStore";
 import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { ScoreDataItem } from "../lib/types";
-import { useMediaPreloader } from "../lib/mediaPreloader";
+import { invoke } from '@tauri-apps/api/core';
 
 type ComponentProps = {
   game?: string;
@@ -39,8 +39,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { rosters } = useRosterStore();
   const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
-  const [isLoadingMedia, setIsLoadingMedia] = useState<boolean>(false);
-  const { getMedia } = useMediaPreloader();
   
   // Memoize game data lookup
   const gameData = useMemo(() => 
@@ -100,36 +98,31 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   };
   const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
 
-  // Optimized helper function to get image source using media preloader
-  const getImageSrc = useCallback(async (imagePath: string): Promise<string> => {
-    // If it's already a base64 data URL, return as is
-    if (imagePath.startsWith('data:')) {
-      return imagePath;
-    }
-    
-    // Use media preloader for efficient caching
-    return await getMedia(imagePath, 'image');
-  }, [getMedia]);
-
   // Load background image when it changes
   useEffect(() => {
     const loadBackgroundImage = async () => {
       if (backgroundImage) {
-        setIsLoadingMedia(true);
         try {
-          const src = await getImageSrc(backgroundImage);
-          setBackgroundImageSrc(src);
-        } finally {
-          setIsLoadingMedia(false);
+          // If it's already a data URL, use it directly
+          if (backgroundImage.startsWith('data:')) {
+            setBackgroundImageSrc(backgroundImage);
+            return;
+          }
+          
+          // Otherwise, load from Tauri backend
+          const dataUrl = await invoke('get_background_image_data', { fileName: backgroundImage }) as string;
+          setBackgroundImageSrc(dataUrl);
+        } catch (error) {
+          console.error('Failed to load background image:', backgroundImage, error);
+          setBackgroundImageSrc('');
         }
       } else {
         setBackgroundImageSrc('');
-        setIsLoadingMedia(false);
       }
     };
     
     loadBackgroundImage();
-  }, [backgroundImage, getImageSrc]);
+  }, [backgroundImage]);
 
   const placement = gameData?.data?.placement || {
     paddingFrame: {
@@ -251,12 +244,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         minHeight: isFullScreen ? '100vh' : '100%',
       }}
     >
-      {/* Loading indicator */}
-      {isLoadingMedia && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="text-white text-lg">Loading media...</div>
-        </div>
-      )}
+
       
       {!gameData && (
         <div className="min-h-full min-w-full flex items-center justify-center">

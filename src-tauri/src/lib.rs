@@ -1,15 +1,7 @@
 use tauri_plugin_sql::{Migration, MigrationKind, Builder};
 use tauri::Manager;
 use std::fs;
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
 use base64::{Engine as _, engine::general_purpose};
-use once_cell::sync::Lazy;
-
-// Global cache for media files (filename -> base64 data)
-static MEDIA_CACHE: Lazy<Arc<RwLock<HashMap<String, String>>>> = 
-    Lazy::new(|| Arc::new(RwLock::new(HashMap::new())));
 
 const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_neat_wong.sql");
 const DB_PATH: &str = "sqlite:blumbo.db";
@@ -149,15 +141,6 @@ async fn get_background_image_data(
 ) -> Result<String, String> {
     println!("Getting background image data for: {}", file_name);
     
-    // Check cache first
-    {
-        let cache = MEDIA_CACHE.read().await;
-        if let Some(cached_data) = cache.get(&file_name) {
-            println!("Cache hit for: {}", file_name);
-            return Ok(cached_data.clone());
-        }
-    }
-    
     // Get app data directory
     let app_data_dir = app_handle
         .path()
@@ -195,34 +178,12 @@ async fn get_background_image_data(
     
     // Return as data URL
     let data_url = format!("data:{};base64,{}", mime_type, base64_data);
-    println!("Generated data URL with length: {} (cached)", data_url.len());
-    
-    // Cache the result
-    {
-        let mut cache = MEDIA_CACHE.write().await;
-        cache.insert(file_name.clone(), data_url.clone());
-        
-        // Basic cache size management (keep only 50 items)
-        if cache.len() > 50 {
-            let keys_to_remove: Vec<String> = cache.keys().take(10).cloned().collect();
-            for key in keys_to_remove {
-                cache.remove(&key);
-            }
-            println!("Cache cleanup performed");
-        }
-    }
+    println!("Generated data URL with length: {}", data_url.len());
     
     Ok(data_url)
 }
 
-#[tauri::command]
-async fn clear_media_cache() -> Result<String, String> {
-    let mut cache = MEDIA_CACHE.write().await;
-    let count = cache.len();
-    cache.clear();
-    println!("Cleared {} items from media cache", count);
-    Ok(format!("Cleared {} cached items", count))
-}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -239,7 +200,7 @@ pub fn run() {
                 .add_migrations(DB_PATH, migrations)
                 .build()
         )
-        .invoke_handler(tauri::generate_handler![greet, create_display_window, save_background_image, delete_background_image, get_background_image_path, get_background_image_data, clear_media_cache])
+        .invoke_handler(tauri::generate_handler![greet, create_display_window, save_background_image, delete_background_image, get_background_image_path, get_background_image_data])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
