@@ -11,6 +11,7 @@ import {
   RocketIcon,
   GearIcon,
   FrameIcon,
+  ImageIcon,
   HobbyKnifeIcon,
 } from '@radix-ui/react-icons';
 
@@ -63,6 +64,9 @@ function UiButton(props: UiButtonProps): JSX.Element {
         break;
       case 'config':
         icon = <GearIcon width={size} height={size} />;
+        break;
+      case 'image':
+        icon = <ImageIcon width={size} height={size} />;
         break;
       case 'styles':
         icon = <FrameIcon width={size} height={size} />;

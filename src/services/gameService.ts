@@ -95,10 +95,6 @@ const updateGame = async (game: GameDataItem) => {
       roster: game.roster,
       updated_at: new Date().toISOString()
     };
-
-    // Update and return in one operation
-    console.log('updateGame: Attempting to update game with id:', id);
-    console.log('updateGame: updateData:', updateData);
     
     // Perform the update without relying on .returning()
     await db.update(games)

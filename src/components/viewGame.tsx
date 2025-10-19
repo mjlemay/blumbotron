@@ -4,7 +4,7 @@ import { useState } from 'react';
 import UiButton from './uiButton';
 import SubViewLaunch from './subViewLaunch';
 import FormGameStyles from './formGameStyles';
-import FormGameTableConfig from './formGameTableConfig';
+import FormGameTableConfig from './formGameMedia';
 import FormGameLayout from './formGameLayout';
 
 function ViewGame() {
@@ -60,17 +60,17 @@ function ViewGame() {
         </div>
         <div
           className="flex flex-col items-center justify-center p-2"
-          onClick={() => handleSubViewSelect('config')}
-        >
-          <UiButton uiIcon="config" size="30" isSelected={subView === 'config'} />
-          <span className="text-sm">Config</span>
-        </div>
-        <div
-          className="flex flex-col items-center justify-center p-2"
           onClick={() => handleSubViewSelect('styles')}
         >
           <UiButton uiIcon="styles" size="30" isSelected={subView === 'styles'} />
           <span className="text-sm">Styles</span>
+        </div>
+        <div
+          className="flex flex-col items-center justify-center p-2"
+          onClick={() => handleSubViewSelect('media')}
+        >
+          <UiButton uiIcon="image" size="30" isSelected={subView === 'media'} />
+          <span className="text-sm">Media</span>
         </div>
         <div
           className="flex flex-col items-center justify-center p-2"
@@ -94,7 +94,7 @@ function ViewGame() {
       "
       >
         {subView === 'launch' && <SubViewLaunch gameData={selectedGame} />}
-        {subView === 'config' && <FormGameTableConfig />}
+        {subView === 'media' && <FormGameTableConfig />}
         {subView === 'styles' && <FormGameStyles />}
         {subView === 'layout' && <FormGameLayout />}
       </div>

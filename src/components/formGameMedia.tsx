@@ -13,11 +13,11 @@ import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { useRef, useState, useEffect } from 'react';
 import { setNestedValue } from '../lib/helpers';
 
-type FormGameTableConfigProps = {
+type FormGameMediaProps = {
   onSuccess?: () => void;
 };
  
-function FormGameTableConfig(props: FormGameTableConfigProps) {
+function FormGameMedia(props: FormGameMediaProps) {
   const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
@@ -61,7 +61,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
           const src = await getImageSrc(backgroundImage);
           setImageSrc(src || '');
         } catch (error) {
-          console.error('FormGameTableConfig: Error loading image:', error);
+          console.error('FormGameMedia: Error loading image:', error);
           setImageSrc('');
         }
       } else {
@@ -90,12 +90,12 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
-      console.warn('FormGameTableConfig: No file selected');
+      console.warn('FormGameMedia: No file selected');
       return;
     }
     
     if (!file.type.startsWith('image/')) {
-      console.error('FormGameTableConfig: Invalid file type:', file.type);
+      console.error('FormGameMedia: Invalid file type:', file.type);
       alert('Please select an image file (PNG, JPG, GIF, etc.)');
       return;
     }
@@ -123,22 +123,22 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       updateFormInput('data.media.backgroundImage', fileName);
       
     } catch (error) {
-      console.error('FormGameTableConfig: Failed to save image:', error);
+      console.error('FormGameMedia: Failed to save image:', error);
       // Fallback to base64 if file system operations fail
-      console.log('FormGameTableConfig: Attempting fallback to base64...');
+      console.log('FormGameMedia: Attempting fallback to base64...');
       try {
         const reader = new FileReader();
         reader.onload = (event) => {
           const base64String = event.target?.result as string;
-          console.log('FormGameTableConfig: Fallback - storing base64 data, length:', base64String.length);
+          console.log('FormGameMedia: Fallback - storing base64 data, length:', base64String.length);
           updateFormInput('data.media.backgroundImage', base64String);
         };
         reader.onerror = (error) => {
-          console.error('FormGameTableConfig: FileReader error:', error);
+          console.error('FormGameMedia: FileReader error:', error);
         };
         reader.readAsDataURL(file);
       } catch (fallbackError) {
-        console.error('FormGameTableConfig: Fallback also failed:', fallbackError);
+        console.error('FormGameMedia: Fallback also failed:', fallbackError);
         alert('Failed to upload image. Please try again.');
       }
     }
@@ -212,27 +212,19 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const editGameData = async (formData: GameDataItem) => {
     
     let formSchema = z.object({
-      name: z.string().min(3, 'Please supply a game name.'),
-      description: z.string(),
       data: z.object({
         media: z.object({
           backgroundImage: z.string().nullable().optional(),
         }).optional(),
-        displays: z.array(z.object({
-          title: z.string(),
-          rows: z.string().min(1, 'Please supply a number of rows.'),
-        })),
       }),
     });
     try {
       formSchema.parse(formData);
       // Merge existing data with new changes
       const existingData = game?.data || {};
-      const newDisplays = formData.data?.displays || [];
       const newMedia = formData.data?.media || {};
       const mergedData = {
         ...existingData,
-        displays: newDisplays,
         media: newMedia
       };
       
@@ -290,7 +282,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   return (
     <>
     <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-        {name} Table Display Configuration
+        {name} Media
     </h2>
     <div className="flex flex-col items-center bg-slate-900 rounded-lg shadow-lg">
       <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
@@ -326,22 +318,10 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                   />
                   <div className="flex flex-col items-start justify-between">
                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Table Display Configuration
+                      Branding & Game Default Media
                     </h3>
-                    <Input
-                      name="data.displays[0].title"
-                      label="Title" 
-                      value={form?.data?.displays?.[0]?.title || ''}
-                      changeHandler={handleFormChange}
-                    />
-                    <Input
-                      name="data.displays[0].rows"
-                      label="Number of Rows"
-                      value={form?.data?.displays?.[0]?.rows || ''}
-                      changeHandler={handleFormChange}
-                    />
-                    <div className="w-full mb-4">
-                      <label className="block text-sm font-medium text-white mb-2">
+                    <div className="w-full mb-4 mt-4">
+                      <label className="block font-bold text-lg mb-2">
                         Background Image
                       </label>
                       <input
@@ -362,8 +342,8 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                                 src={imageSrc}
                                 alt="Background preview"
                                 className="max-w-xs max-h-32 rounded border object-cover"
-                                onLoad={() => console.log('FormGameTableConfig: Image loaded successfully:', imageSrc)}
-                                onError={(e) => console.error('FormGameTableConfig: Image failed to load:', imageSrc, e)}
+                                onLoad={() => console.log('FormGameMedia: Image loaded successfully:', imageSrc)}
+                                onError={(e) => console.error('FormGameMedia: Image failed to load:', imageSrc, e)}
                               />
                               {/* Remove button overlay */}
                               <button
@@ -452,4 +432,4 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   );
 }
 
-export default FormGameTableConfig;
+export default FormGameMedia;
