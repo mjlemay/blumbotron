@@ -14,6 +14,12 @@ export const defaultGameMetaData = {
     secondary: '#00ff00',
     tertiary: '#0000ff',
   },
+  media: {
+    backgroundImage: null,
+    backgroundVideo: null,
+    iconImage: null,
+    logoImage: null,
+  },
   displays: [
     {
       title: 'High Scores',

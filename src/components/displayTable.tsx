@@ -15,23 +15,6 @@ type ComponentProps = {
 
 const paddingValue = 0;
 
-interface GameData {
-  colors?: {
-    background?: string;
-    text?: string;
-  };
-  fonts?: {
-    header?: string;
-    player?: string;
-    score?: string;
-  };
-  displays?: Array<{
-    title?: string;
-    rows?: number;
-    bgImage?: string;
-  }>;
-}
-
 function DisplayTable(props: ComponentProps): JSX.Element {
   const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
   const { players } = usePlayerStore();
@@ -53,7 +36,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   );
   
   // Memoize allowed players processing
-  const { allowedPlayers, playersData } = useMemo(() => {
+  const { playersData } = useMemo(() => {
     const allowed = rosterData && rosterData.allow && rosterData?.allow?.length >= 1 ?
       rosterData?.allow : [];
     const playersString = allowed.join(',');
@@ -96,7 +79,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     score: 'Arial, sans-serif',
     ...(gameData?.data?.fonts || {})
   };
-  const backgroundImage = gameData?.data?.displays?.[0]?.bgImage || null;
+  const backgroundImage = gameData?.data?.displays?.[0]?.backgroundImage 
+    || gameData?.data?.media?.backgroundImage 
+    || null;
 
   // Load background image when it changes
   useEffect(() => {
@@ -244,7 +229,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         minHeight: isFullScreen ? '100vh' : '100%',
       }}
     >
-
       
       {!gameData && (
         <div className="min-h-full min-w-full flex items-center justify-center">

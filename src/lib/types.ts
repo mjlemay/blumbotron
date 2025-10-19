@@ -12,7 +12,9 @@ export type DataItem = {
 export type DisplayData = {
     title?: string;
     rows?: number;
-    bgImage?: string;
+    backgroundImage?: string;
+    backgroundVideo?: string | null;
+    titleImage?: string | null;
 }
 
 export type GameDataItem = DataItem & {
@@ -34,7 +36,10 @@ export type GameDataItem = DataItem & {
       player?: string;
       score?: string;
     };
-    backgroundImage?: string | null;
+    media?: {
+      backgroundImage?: string | null;
+      logoImage?: string | null;
+    };
     placement?: {
       paddingFrame?: {
         top?: string;

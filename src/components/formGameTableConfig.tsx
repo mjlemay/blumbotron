@@ -3,7 +3,7 @@ import Input from './input';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
-import { GameDataItem, DisplayData } from '../lib/types';
+import { GameDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
 import { Pencil1Icon, UploadIcon, TrashIcon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
@@ -11,73 +11,34 @@ import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { useRef, useState, useEffect } from 'react';
+import { setNestedValue } from '../lib/helpers';
 
 type FormGameTableConfigProps = {
   onSuccess?: () => void;
 };
 
-interface DisplayObject extends Record<string, unknown> {
-  displays?: DisplayData[];
-}
-
-const setNestedValue = (obj: any, keyString: string, value: any) => {
-  const keys = keyString.split('.');
-  let current = obj;
-
-  for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i];
-    
-    // Handle array notation in the current key
-    const arrayMatch = key.match(/^([^\[]+)\[(\d+)\]$/);
-    if (arrayMatch) {
-      const [_, arrayKey, index] = arrayMatch;
-      
-      // Ensure the array exists
-      if (!current[arrayKey] || !Array.isArray(current[arrayKey])) {
-        current[arrayKey] = [];
-      }
-      
-      // Ensure the index exists
-      if (!current[arrayKey][index]) {
-        current[arrayKey][index] = {};
-      }
-      
-      current = current[arrayKey][index];
-    } else {
-      if (!current[key] || typeof current[key] !== 'object') {
-        current[key] = {};
-      }
-      current = current[key];
-    }
-  }
-
-  const lastKey = keys[keys.length - 1];
-  current[lastKey] = value;
-  
-  return obj;
-}
-
 
 function FormGameTableConfig(props: FormGameTableConfigProps) {
-  const {  onSuccess } = props;
+  const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageSrc, setImageSrc] = useState<string>('');
 
-  let gameData: DisplayObject = {};
+  // todo: refactor fullForm and gameData parsing logic
+  let gameData: GameDataItem = defaultGame;
   try {
     if (typeof game?.data === 'string') {
       gameData = JSON.parse(game.data);
     } else if (game?.data) {
-      gameData = game.data as DisplayObject;
+      gameData = game.data as GameDataItem;
     }
   } catch (error) {
-    gameData = {};
+    console.log('error in parsing game data:', error);
   }
-  
-  const fullForm = { ...game, data: gameData };
+
+  const fullForm = { ...game, ...gameData };
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
@@ -85,12 +46,12 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   // Update image source when form data changes
   useEffect(() => {
     const updateImageSrc = async () => {
-      const bgImage = form?.data?.displays?.[0]?.bgImage;
-      console.log('FormGameTableConfig: bgImage changed to:', bgImage);
+      const backgroundImage = form?.data?.media?.backgroundImage;
+      console.log('FormGameTableConfig: backgroundImage changed to:', backgroundImage);
       
-      if (bgImage) {
+      if (backgroundImage) {
         try {
-          const src = await getImageSrc(bgImage);
+          const src = await getImageSrc(backgroundImage);
           console.log('FormGameTableConfig: Generated image src:', src);
           setImageSrc(src || '');
         } catch (error) {
@@ -98,13 +59,13 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
           setImageSrc('');
         }
       } else {
-        console.log('FormGameTableConfig: No bgImage, clearing src');
+        console.log('FormGameTableConfig: No backgroundImage, clearing src');
         setImageSrc('');
       }
     };
     
     updateImageSrc();
-  }, [form?.data?.displays?.[0]?.bgImage]);
+  }, [form?.data?.media?.backgroundImage]);
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
@@ -165,7 +126,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       
       // Store the filename instead of base64 data
       console.log('FormGameTableConfig: Updating form with filename:', fileName);
-      updateFormInput('data.displays[0].bgImage', fileName);
+      updateFormInput('data.media.backgroundImage', fileName);
       
       console.log('FormGameTableConfig: Upload process completed successfully');
       
@@ -179,7 +140,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
         reader.onload = (e) => {
           const base64String = e.target?.result as string;
           console.log('FormGameTableConfig: Fallback - storing base64 data, length:', base64String.length);
-          updateFormInput('data.displays[0].bgImage', base64String);
+          updateFormInput('data.media.backgroundImage', base64String);
         };
         reader.onerror = (e) => {
           console.error('FormGameTableConfig: FileReader error:', e);
@@ -193,7 +154,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   };
 
   const handleImageRemove = async () => {
-    const currentImage = form?.data?.displays?.[0]?.bgImage;
+    const currentImage = form?.data?.media?.backgroundImage;
     
     // If it's a filename (not base64), try to delete the file
     if (currentImage && !currentImage.startsWith('data:')) {
@@ -206,7 +167,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       }
     }
     
-    updateFormInput('data.displays[0].bgImage', '');
+    updateFormInput('data.media.backgroundImage', '');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -258,11 +219,13 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   };
 
   const editGameData = async (formData: GameDataItem) => {
-    console.log('Starting editGameData with form data:', formData);
     
     let formSchema = z.object({
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
+      media: z.object({
+        backgroundImage: z.string(),
+      }),
       data: z.object({
         displays: z.array(z.object({
           title: z.string(),
@@ -396,7 +359,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       
                       {/* Current image preview or upload area */}
                       <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
-                        {form?.data?.displays?.[0]?.bgImage ? (
+                        {form?.data?.displays?.[0]?.backgroundImage ? (
                           <div className="space-y-3">
                             {/* Image thumbnail */}
                             <div className="relative inline-block">
