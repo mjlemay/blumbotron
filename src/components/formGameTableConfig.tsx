@@ -1,16 +1,16 @@
 import { useImmer } from 'use-immer';
+import { useRef, useState } from 'react';
 import Input from './input';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
 import { GameDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon, UploadIcon, TrashIcon } from '@radix-ui/react-icons';
+import { Pencil1Icon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { useRef, useState, useEffect } from 'react';
 import { setNestedValue } from '../lib/helpers';
 
 type FormGameTableConfigProps = {
@@ -22,8 +22,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageSrc, setImageSrc] = useState<string>('');
 
   // todo: refactor fullForm and gameData parsing logic
   let gameData: any = {};
@@ -46,32 +44,10 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       ...gameData
     }
   };
-  console.log('Form initialization - fullForm:', fullForm);
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
 
-  // Update image source when form data changes
-  useEffect(() => {
-    const updateImageSrc = async () => {
-      const backgroundImage = form?.data?.media?.backgroundImage;
-      
-      if (backgroundImage) {
-        try {
-          const src = await getImageSrc(backgroundImage);
-          setImageSrc(src || '');
-        } catch (error) {
-          console.error('FormGameTableConfig: Error loading image:', error);
-          setImageSrc('');
-        }
-      } else {
-        console.log('No backgroundImage found, clearing src');
-        setImageSrc('');
-      }
-    };
-    
-    updateImageSrc();
-  }, [form?.data?.media?.backgroundImage]);
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
@@ -86,116 +62,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     const formValue = eventTarget?.value;
     updateFormInput(formKey, formValue);
   };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      console.warn('FormGameTableConfig: No file selected');
-      return;
-    }
-    
-    if (!file.type.startsWith('image/')) {
-      console.error('FormGameTableConfig: Invalid file type:', file.type);
-      alert('Please select an image file (PNG, JPG, GIF, etc.)');
-      return;
-    }
-    
-    try {
-      // Generate unique filename with timestamp
-      const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop() || 'png';
-      const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
-    
-      // Convert file to base64 for transfer to Rust
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
-      
-      // Use Tauri invoke to save file on the Rust side
-      const { invoke } = await import('@tauri-apps/api/core');
-      
-      await invoke('save_background_image', {
-        fileName: fileName,
-        imageData: base64
-      });
-      
-      // Store the filename instead of base64 data
-      updateFormInput('data.media.backgroundImage', fileName);
-      
-    } catch (error) {
-      console.error('FormGameTableConfig: Failed to save image:', error);
-      // Fallback to base64 if file system operations fail
-      console.log('FormGameTableConfig: Attempting fallback to base64...');
-      try {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const base64String = event.target?.result as string;
-          console.log('FormGameTableConfig: Fallback - storing base64 data, length:', base64String.length);
-          updateFormInput('data.media.backgroundImage', base64String);
-        };
-        reader.onerror = (error) => {
-          console.error('FormGameTableConfig: FileReader error:', error);
-        };
-        reader.readAsDataURL(file);
-      } catch (fallbackError) {
-        console.error('FormGameTableConfig: Fallback also failed:', fallbackError);
-        alert('Failed to upload image. Please try again.');
-      }
-    }
-  };
-
-  const handleImageRemove = async () => {
-    const currentImage = form?.data?.media?.backgroundImage;
-    
-    // If it's a filename (not base64), try to delete the file
-    if (currentImage && !currentImage.startsWith('data:')) {
-      try {
-        const { invoke } = await import('@tauri-apps/api/core');
-        await invoke('delete_background_image', { fileName: currentImage });
-      } catch (error) {
-        console.warn('Failed to delete background image file:', error);
-      }
-    }
-    
-    updateFormInput('data.media.backgroundImage', '');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const getImageSrc = async (imagePath: string): Promise<string> => {
-    if (!imagePath) {
-      console.log('getImageSrc: empty imagePath, returning empty string');
-      return '';
-    }
-    
-    if (imagePath.startsWith('data:')) {
-      console.log('getImageSrc: returning base64 data URL');
-      return imagePath;
-    }
-    
-    // If it's a filename, get the base64 data from Tauri
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
-      return dataUrl;
-    } catch (error) {
-      console.error('getImageSrc: Failed to get image data for', imagePath, ':', error);
-      // If the file is missing, return an empty string instead of the filename
-      if (error && typeof error === 'string' && error.includes('Image file not found')) {
-        console.warn('Image file missing, returning empty string:', imagePath);
-        return '';
-      }
-      console.warn('getImageSrc: fallback - returning original path:', imagePath);
-      return imagePath; // Fallback to original path for other errors
-    }
-  };
-
-
 
   const handleSubmitClose = (
     view: string = 'home',
@@ -215,9 +81,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
       data: z.object({
-        media: z.object({
-          backgroundImage: z.string().nullable().optional(),
-        }).optional(),
         displays: z.array(z.object({
           title: z.string(),
           rows: z.string().min(1, 'Please supply a number of rows.'),
@@ -340,77 +203,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       value={form?.data?.displays?.[0]?.rows || ''}
                       changeHandler={handleFormChange}
                     />
-                    <div className="w-full mb-4">
-                      <label className="block text-sm font-medium text-white mb-2">
-                        Background Image
-                      </label>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                      
-                      {/* Current image preview or upload area */}
-                      <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
-                        {form?.data?.media?.backgroundImage ? (
-                          <div className="space-y-3">
-                            {/* Image thumbnail */}
-                            <div className="relative inline-block">
-                              <img
-                                src={imageSrc}
-                                alt="Background preview"
-                                className="max-w-xs max-h-32 rounded border object-cover"
-                                onLoad={() => console.log('FormGameTableConfig: Image loaded successfully:', imageSrc)}
-                                onError={(e) => console.error('FormGameTableConfig: Image failed to load:', imageSrc, e)}
-                              />
-                              {/* Remove button overlay */}
-                              <button
-                                type="button"
-                                onClick={handleImageRemove}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                title="Remove image"
-                              >
-                                <TrashIcon width="16" height="16" />
-                              </button>
-                            </div>
-                            
-                            {/* Replace button */}
-                            <button
-                              type="button"
-                              onClick={triggerFileUpload}
-                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                            >
-                              <UploadIcon width="16" height="16" />
-                              Replace Image
-                            </button>
-                          </div>
-                        ) : (
-                          /* Upload area when no image */
-                          <div className="text-center">
-                            <div className="mb-3">
-                              <UploadIcon width="48" height="48" className="mx-auto text-gray-400" />
-                            </div>
-                            <p className="text-gray-300 mb-3">
-                              Click to upload a background image
-                            </p>
-                            <button
-                              type="button"
-                              onClick={triggerFileUpload}
-                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
-                            >
-                              <UploadIcon width="16" height="16" />
-                              Choose Image
-                            </button>
-                            <p className="text-xs text-gray-400 mt-2">
-                              Supports JPG, PNG, GIF files
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
                   </div>
                 </div>
               </div>

@@ -22,8 +22,10 @@ function FormGameMedia(props: FormGameMediaProps) {
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageSrc, setImageSrc] = useState<string>('');
+  const backgroundImageInputRef = useRef<HTMLInputElement>(null);
+  const logoImageInputRef = useRef<HTMLInputElement>(null);
+  const [backgroundSrc, setBackgroundSrc] = useState<string>('');
+  const [logoSrc, setLogoSrc] = useState<string>('');
 
   // todo: refactor fullForm and gameData parsing logic
   let gameData: any = {};
@@ -46,7 +48,6 @@ function FormGameMedia(props: FormGameMediaProps) {
       ...gameData
     }
   };
-  console.log('Form initialization - fullForm:', fullForm);
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
@@ -54,30 +55,54 @@ function FormGameMedia(props: FormGameMediaProps) {
   // Update image source when form data changes
   useEffect(() => {
     const updateImageSrc = async () => {
-      const backgroundImage = form?.data?.media?.backgroundImage;
-      
+      const { 
+        backgroundImage,
+        logoImage,
+      } = form?.data?.media || defaultGame?.data?.media || {};
       if (backgroundImage) {
         try {
           const src = await getImageSrc(backgroundImage);
-          setImageSrc(src || '');
+          setBackgroundSrc(src || '');
         } catch (error) {
           console.error('FormGameMedia: Error loading image:', error);
-          setImageSrc('');
+          setBackgroundSrc('');
         }
       } else {
         console.log('No backgroundImage found, clearing src');
-        setImageSrc('');
+        setBackgroundSrc('');
+      }
+      if (logoImage) {
+        try {
+          const src = await getImageSrc(logoImage);
+          setLogoSrc(src || '');
+        } catch (error) {
+          console.error('FormGameMedia: Error loading image:', error);
+          setLogoSrc('');
+        }
+      } else {
+        console.log('No logoImage found, clearing src');
+        setLogoSrc('');
       }
     };
     
     updateImageSrc();
-  }, [form?.data?.media?.backgroundImage]);
+  }, [form?.data?.media]);
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
     });
     console.log('form', form);
+  };
+
+  const selectedRef = (name: string) => {
+    switch (name) {
+      case 'backgroundImage':
+        return backgroundImageInputRef;
+      case 'logoImage':
+      default:
+        return logoImageInputRef;
+    }
   };
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +114,7 @@ function FormGameMedia(props: FormGameMediaProps) {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    const name = event.target.name;
     if (!file) {
       console.warn('FormGameMedia: No file selected');
       return;
@@ -120,7 +146,7 @@ function FormGameMedia(props: FormGameMediaProps) {
       });
       
       // Store the filename instead of base64 data
-      updateFormInput('data.media.backgroundImage', fileName);
+      updateFormInput(name, fileName);
       
     } catch (error) {
       console.error('FormGameMedia: Failed to save image:', error);
@@ -131,7 +157,7 @@ function FormGameMedia(props: FormGameMediaProps) {
         reader.onload = (event) => {
           const base64String = event.target?.result as string;
           console.log('FormGameMedia: Fallback - storing base64 data, length:', base64String.length);
-          updateFormInput('data.media.backgroundImage', base64String);
+          updateFormInput(name, base64String);
         };
         reader.onerror = (error) => {
           console.error('FormGameMedia: FileReader error:', error);
@@ -144,8 +170,13 @@ function FormGameMedia(props: FormGameMediaProps) {
     }
   };
 
-  const handleImageRemove = async () => {
-    const currentImage = form?.data?.media?.backgroundImage;
+  const handleImageRemove = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const name = event.currentTarget.dataset.name || '';
+    const currentImage = form?.data?.media?.[name as keyof typeof form.data.media];
+    if (!currentImage) {
+      console.warn(`FormGameMedia: No currentImage for ${name} found`);
+      return;
+    }
     
     // If it's a filename (not base64), try to delete the file
     if (currentImage && !currentImage.startsWith('data:')) {
@@ -156,15 +187,16 @@ function FormGameMedia(props: FormGameMediaProps) {
         console.warn('Failed to delete background image file:', error);
       }
     }
-    
+
+    const uploadRef = selectedRef(name);
     updateFormInput('data.media.backgroundImage', '');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    if (uploadRef.current) {
+      uploadRef.current.value = '';
     }
   };
 
   const triggerFileUpload = () => {
-    fileInputRef.current?.click();
+    backgroundImageInputRef.current?.click();
   };
 
   const getImageSrc = async (imagePath: string): Promise<string> => {
@@ -177,7 +209,6 @@ function FormGameMedia(props: FormGameMediaProps) {
       console.log('getImageSrc: returning base64 data URL');
       return imagePath;
     }
-    
     // If it's a filename, get the base64 data from Tauri
     try {
       const { invoke } = await import('@tauri-apps/api/core');
@@ -316,20 +347,21 @@ function FormGameMedia(props: FormGameMediaProps) {
                     hidden
                     changeHandler={() => {}}
                   />
+                  <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                    Branding & Game Default Media
+                  </h3>
                   <div className="flex flex-col items-start justify-between">
-                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Branding & Game Default Media
-                    </h3>
                     <div className="w-full mb-4 mt-4">
                       <label className="block font-bold text-lg mb-2">
                         Background Image
                       </label>
                       <input
-                        ref={fileInputRef}
+                        ref={backgroundImageInputRef}
                         type="file"
                         accept="image/*"
                         onChange={handleFileUpload}
                         className="hidden"
+                        name="data.media.backgroundImage"
                       />
                       
                       {/* Current image preview or upload area */}
@@ -339,11 +371,11 @@ function FormGameMedia(props: FormGameMediaProps) {
                             {/* Image thumbnail */}
                             <div className="relative inline-block">
                               <img
-                                src={imageSrc}
+                                src={backgroundSrc}
                                 alt="Background preview"
                                 className="max-w-xs max-h-32 rounded border object-cover"
-                                onLoad={() => console.log('FormGameMedia: Image loaded successfully:', imageSrc)}
-                                onError={(e) => console.error('FormGameMedia: Image failed to load:', imageSrc, e)}
+                                onLoad={() => console.log('FormGameMedia: Image loaded successfully:', backgroundSrc)}
+                                onError={(error) => console.error('FormGameMedia: Image failed to load:', backgroundSrc, error)}
                               />
                               {/* Remove button overlay */}
                               <button
@@ -351,6 +383,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                                 onClick={handleImageRemove}
                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                 title="Remove image"
+                                data-name="backgroundImage"
                               >
                                 <TrashIcon width="16" height="16" />
                               </button>
@@ -360,6 +393,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             <button
                               type="button"
                               onClick={triggerFileUpload}
+                              data-name="backgroundImage"
                               className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                             >
                               <UploadIcon width="16" height="16" />
@@ -378,6 +412,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             <button
                               type="button"
                               onClick={triggerFileUpload}
+                               data-name="backgroundImage"
                               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
                             >
                               <UploadIcon width="16" height="16" />
@@ -390,8 +425,95 @@ function FormGameMedia(props: FormGameMediaProps) {
                         )}
                       </div>
                     </div>
-
                   </div>
+                  <Input
+                    name="data.media.backgroundImageOpacity"
+                    label="Background Image Opacity (%)" 
+                    value={form?.data?.media?.backgroundImageOpacity || 100}
+                    changeHandler={handleFormChange}
+                  />
+                  <div className="flex flex-col items-start justify-between">
+                    <div className="w-full mb-4 mt-4">
+                      <label className="block font-bold text-lg mb-2">
+                        Logo Image
+                      </label>
+                      <input
+                        ref={logoImageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        name="data.media.logoImage"
+                      />
+                      
+                      {/* Current image preview or upload area */}
+                      <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
+                        {form?.data?.media?.logoImage ? (
+                          <div className="space-y-3">
+                            {/* Image thumbnail */}
+                            <div className="relative inline-block">
+                              <img
+                                src={logoSrc}
+                                alt="Logo preview"
+                                className="max-w-xs max-h-32 rounded border object-cover"
+                                onLoad={() => console.log('FormGameMedia: Image loaded successfully:', logoSrc)}
+                                onError={(error) => console.error('FormGameMedia: Image failed to load:', logoSrc, error)}
+                              />
+                              {/* Remove button overlay */}
+                              <button
+                                type="button"
+                                onClick={handleImageRemove}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                title="Remove image"
+                                data-name="logoImage"
+                              >
+                                <TrashIcon width="16" height="16" />
+                              </button>
+                            </div>
+                            
+                            {/* Replace button */}
+                            <button
+                              type="button"
+                              onClick={triggerFileUpload}
+                              data-name="logoImage"
+                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                            >
+                              <UploadIcon width="16" height="16" />
+                              Replace Image
+                            </button>
+                          </div>
+                        ) : (
+                          /* Upload area when no image */
+                          <div className="text-center">
+                            <div className="mb-3">
+                              <UploadIcon width="48" height="48" className="mx-auto text-gray-400" />
+                            </div>
+                            <p className="text-gray-300 mb-3">
+                              Click to upload logo image
+                            </p>
+                            <button
+                              type="button"
+                              onClick={triggerFileUpload}
+                              data-name="logoImage"
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
+                            >
+                              <UploadIcon width="16" height="16" />
+                              Choose Image
+                            </button>
+                            <p className="text-xs text-gray-400 mt-2">
+                              Supports JPG, PNG, GIF files
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Input
+                    name="data.media.logoImageOpacity"
+                    label="Logo Image Opacity (%)" 
+                    value={form?.data?.media?.logoImageOpacity || 100}
+                    changeHandler={handleFormChange}
+                  />
                 </div>
               </div>
             </div>

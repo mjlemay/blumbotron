@@ -3,7 +3,7 @@ import {
   OpenInNewWindowIcon,
   AllSidesIcon,
   HamburgerMenuIcon,
-  GearIcon,
+  Pencil1Icon,
   TrashIcon,
 } from '@radix-ui/react-icons';
 import * as Menubar from '@radix-ui/react-menubar';
@@ -108,7 +108,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                     onClick={handleDisplayFrameConfigClick}
                   >
                     <div className="flex flex-row gap-2 items-center">
-                      <GearIcon width="20" height="20" /> Edit
+                      <Pencil1Icon width="20" height="20" /> Edit
                     </div>
                   </Menubar.Item>
                   <Menubar.Item
@@ -116,7 +116,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                     className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
                      onClick={() => {}}
                   >
-                    <div className="flex flex-row gap-2 items-center">
+                    <div data-disabled className="flex flex-row gap-2 items-center data-disabled:opacity-30">
                       <TrashIcon width="20" height="20" /> Delete
                     </div>
                   </Menubar.Item>
