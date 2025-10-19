@@ -17,7 +17,6 @@ type FormGameTableConfigProps = {
   onSuccess?: () => void;
 };
 
-
 function FormGameTableConfig(props: FormGameTableConfigProps) {
   const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
@@ -27,18 +26,27 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   const [imageSrc, setImageSrc] = useState<string>('');
 
   // todo: refactor fullForm and gameData parsing logic
-  let gameData: GameDataItem = defaultGame;
+  let gameData: any = {};
   try {
     if (typeof game?.data === 'string') {
       gameData = JSON.parse(game.data);
     } else if (game?.data) {
-      gameData = game.data as GameDataItem;
+      gameData = game.data;
     }
   } catch (error) {
     console.log('error in parsing game data:', error);
   }
 
-  const fullForm = { ...game, ...gameData };
+  // Properly merge the form data, ensuring nested structure is preserved
+  const fullForm = {
+    ...defaultGame,
+    ...game,
+    data: {
+      ...defaultGame.data,
+      ...gameData
+    }
+  };
+  console.log('Form initialization - fullForm:', fullForm);
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
@@ -47,19 +55,17 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   useEffect(() => {
     const updateImageSrc = async () => {
       const backgroundImage = form?.data?.media?.backgroundImage;
-      console.log('FormGameTableConfig: backgroundImage changed to:', backgroundImage);
       
       if (backgroundImage) {
         try {
           const src = await getImageSrc(backgroundImage);
-          console.log('FormGameTableConfig: Generated image src:', src);
           setImageSrc(src || '');
         } catch (error) {
           console.error('FormGameTableConfig: Error loading image:', error);
           setImageSrc('');
         }
       } else {
-        console.log('FormGameTableConfig: No backgroundImage, clearing src');
+        console.log('No backgroundImage found, clearing src');
         setImageSrc('');
       }
     };
@@ -83,8 +89,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log('FormGameTableConfig: File selected:', file?.name, file?.type, file?.size);
-    
     if (!file) {
       console.warn('FormGameTableConfig: No file selected');
       return;
@@ -96,54 +100,41 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       return;
     }
     
-    console.log('FormGameTableConfig: Starting file upload process...');
-    
     try {
       // Generate unique filename with timestamp
       const timestamp = Date.now();
       const fileExtension = file.name.split('.').pop() || 'png';
       const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
-      
-      console.log('FormGameTableConfig: Generated filename:', fileName);
-      
+    
       // Convert file to base64 for transfer to Rust
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
       
-      console.log('FormGameTableConfig: File converted to base64, length:', base64.length);
-      
       // Use Tauri invoke to save file on the Rust side
       const { invoke } = await import('@tauri-apps/api/core');
-      console.log('FormGameTableConfig: Invoking save_background_image...');
       
-      const savedPath = await invoke('save_background_image', {
+      await invoke('save_background_image', {
         fileName: fileName,
         imageData: base64
       });
       
-      console.log('FormGameTableConfig: Image saved successfully:', savedPath);
-      
       // Store the filename instead of base64 data
-      console.log('FormGameTableConfig: Updating form with filename:', fileName);
       updateFormInput('data.media.backgroundImage', fileName);
-      
-      console.log('FormGameTableConfig: Upload process completed successfully');
       
     } catch (error) {
       console.error('FormGameTableConfig: Failed to save image:', error);
-      
       // Fallback to base64 if file system operations fail
       console.log('FormGameTableConfig: Attempting fallback to base64...');
       try {
         const reader = new FileReader();
-        reader.onload = (e) => {
-          const base64String = e.target?.result as string;
+        reader.onload = (event) => {
+          const base64String = event.target?.result as string;
           console.log('FormGameTableConfig: Fallback - storing base64 data, length:', base64String.length);
           updateFormInput('data.media.backgroundImage', base64String);
         };
-        reader.onerror = (e) => {
-          console.error('FormGameTableConfig: FileReader error:', e);
+        reader.onerror = (error) => {
+          console.error('FormGameTableConfig: FileReader error:', error);
         };
         reader.readAsDataURL(file);
       } catch (fallbackError) {
@@ -161,7 +152,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       try {
         const { invoke } = await import('@tauri-apps/api/core');
         await invoke('delete_background_image', { fileName: currentImage });
-        console.log('Background image file deleted:', currentImage);
       } catch (error) {
         console.warn('Failed to delete background image file:', error);
       }
@@ -178,20 +168,20 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   };
 
   const getImageSrc = async (imagePath: string): Promise<string> => {
-    console.log('getImageSrc called with:', imagePath);
+    if (!imagePath) {
+      console.log('getImageSrc: empty imagePath, returning empty string');
+      return '';
+    }
     
-    // If it's already a base64 data URL, return as is
     if (imagePath.startsWith('data:')) {
-      console.log('getImageSrc: Returning base64 data URL');
+      console.log('getImageSrc: returning base64 data URL');
       return imagePath;
     }
     
     // If it's a filename, get the base64 data from Tauri
     try {
       const { invoke } = await import('@tauri-apps/api/core');
-      console.log('getImageSrc: Invoking get_background_image_data with fileName:', imagePath);
       const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
-      console.log('getImageSrc: Got data URL from Rust, length:', dataUrl.length);
       return dataUrl;
     } catch (error) {
       console.error('getImageSrc: Failed to get image data for', imagePath, ':', error);
@@ -200,6 +190,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
         console.warn('Image file missing, returning empty string:', imagePath);
         return '';
       }
+      console.warn('getImageSrc: fallback - returning original path:', imagePath);
       return imagePath; // Fallback to original path for other errors
     }
   };
@@ -223,10 +214,10 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     let formSchema = z.object({
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
-      media: z.object({
-        backgroundImage: z.string(),
-      }),
       data: z.object({
+        media: z.object({
+          backgroundImage: z.string().nullable().optional(),
+        }).optional(),
         displays: z.array(z.object({
           title: z.string(),
           rows: z.string().min(1, 'Please supply a number of rows.'),
@@ -234,46 +225,50 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       }),
     });
     try {
-      console.log('Validating form data...');
       formSchema.parse(formData);
-      console.log('Form validation successful');
-      
       // Merge existing data with new changes
       const existingData = game?.data || {};
       const newDisplays = formData.data?.displays || [];
+      const newMedia = formData.data?.media || {};
       const mergedData = {
         ...existingData,
-        displays: newDisplays
+        displays: newDisplays,
+        media: newMedia
       };
       
       // Ensure we're sending the correct data structure
+      // Use the original game's ID to ensure we're updating the right record
       const updateData: GameDataItem = {
-        id: formData.id,
-        snowflake: formData.snowflake,
+        id: game?.id || formData.id,
+        snowflake: game?.snowflake || formData.snowflake,
         name: formData.name,
         description: formData.description,
         data: mergedData,
         roster: formData.roster
       };
+      
       await editGame(updateData);
       
       // If we get here and there's no error in the store, edit was successful
       if (!error) {
-        console.log('Update successful, closing form...');        handleSubmitClose('game', 'none', updateData);
+        console.log('Update successful, closing form...');
+        handleSubmitClose('game', 'none', updateData);
         return true;
+      } else {
+        console.log('Store has error:', error);
+        throw new Error(error || 'Failed to edit game');
       }
-      throw new Error(error || 'Failed to edit game');
-    } catch (err) {
+    } catch (error) {
       console.error('Error in editGameData:', {
-        error: err,
-        errorMessage: err instanceof Error ? err.message : 'Unknown error',
-        errorStack: err instanceof Error ? err.stack : undefined,
+        error,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : undefined,
         formData
       });
-      
-      if (err instanceof z.ZodError) {
+
+      if (error instanceof z.ZodError) {
         let newErrs: Record<string, string> = {};
-        err.errors.map((errItem) => {
+        error .errors.map((errItem) => {
           const { path, message } = errItem;
           const key = path[0];
           newErrs[`${key}`] = message;
@@ -282,7 +277,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
         setErrors(newErrs);
       } else {
         // Handle other errors (like creation/editing failure)
-        const errorMessage = err instanceof Error ? err.message : 'Failed to process game';
+        const errorMessage = error instanceof Error ? error.message : 'Failed to process game';
         console.log('Setting error:', errorMessage);
         setErrors({ name: errorMessage });
       }
@@ -359,7 +354,7 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       
                       {/* Current image preview or upload area */}
                       <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
-                        {form?.data?.displays?.[0]?.backgroundImage ? (
+                        {form?.data?.media?.backgroundImage ? (
                           <div className="space-y-3">
                             {/* Image thumbnail */}
                             <div className="relative inline-block">

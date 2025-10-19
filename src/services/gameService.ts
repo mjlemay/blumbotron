@@ -97,19 +97,30 @@ const updateGame = async (game: GameDataItem) => {
     };
 
     // Update and return in one operation
-    const result = await db.update(games)
+    console.log('updateGame: Attempting to update game with id:', id);
+    console.log('updateGame: updateData:', updateData);
+    
+    // Perform the update without relying on .returning()
+    await db.update(games)
       .set(updateData)
-      .where(eq(games.id, id))
-      .returning();
+      .where(eq(games.id, id));
 
-    if (!result || !result[0]) {
-      throw new Error('Failed to update game - no result returned');
+    console.log('updateGame: Update query executed, now fetching updated record');
+    
+    // Fetch the updated record separately
+    const fetchedRecord = await db.select().from(games).where(eq(games.id, id));
+    console.log('updateGame: Fetched record after update:', fetchedRecord);
+    
+    if (!fetchedRecord || !fetchedRecord[0]) {
+      throw new Error('Failed to update game - record not found after update');
     }
+
+    console.log('updateGame: Update successful, returning record');
 
     // Clear cache after update
     gamesCache = null;
     
-    return result[0];
+    return fetchedRecord[0];
   } catch (error) {
     console.error('Error in updateGame:', error);
     throw new Error('Failed to process game');
