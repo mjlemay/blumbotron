@@ -22,6 +22,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { rosters } = useRosterStore();
   const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
+  const [logoImageSrc, setLogoImageSrc] = useState<string>('');
   
   // Memoize game data lookup
   const gameData = useMemo(() => 
@@ -82,6 +83,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const backgroundImage = gameData?.data?.displays?.[0]?.backgroundImage 
     || gameData?.data?.media?.backgroundImage 
     || null;
+  const logoImage = gameData?.data?.media?.logoImage 
+    || null;
+  const logoImageOpacity = gameData?.data?.media?.logoImageOpacity || 100;
+  const backgroundImageOpacity = gameData?.data?.media?.backgroundImageOpacity || 100;
 
   // Load background image when it changes
   useEffect(() => {
@@ -105,9 +110,29 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         setBackgroundImageSrc('');
       }
     };
-    
+    const loadLogoImage = async () => {
+      if (logoImage) {
+        try {
+          // If it's already a data URL, use it directly
+          if (logoImage.startsWith('data:')) {
+            setLogoImageSrc(logoImage);
+            return;
+          }
+          
+          // Otherwise, load from Tauri backend
+          const dataUrl = await invoke('get_background_image_data', { fileName: logoImage }) as string;
+          setLogoImageSrc(dataUrl);
+        } catch (error) {
+          console.error('Failed to load logo image:', logoImage, error);
+          setLogoImageSrc('');
+        }
+      } else {
+        setLogoImageSrc('');
+      }
+    };
+    loadLogoImage();
     loadBackgroundImage();
-  }, [backgroundImage]);
+  }, [backgroundImage, logoImage]);
 
   const placement = gameData?.data?.placement || {
     paddingFrame: {
@@ -225,13 +250,33 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         color: colors.text,
+        opacity: backgroundImageOpacity / 100,
         minWidth: isFullScreen ? '100vw' : '100%',
         minHeight: isFullScreen ? '100vh' : '100%',
       }}
     >
+      <div className={`
+      ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
+       flex items-start justify-center
+      `}
+      style={{
+        backgroundImage: logoImageSrc ? `url("${logoImageSrc}")` : 'none',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+        color: colors.text,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 0,
+        opacity: logoImageOpacity / 100,
+        minWidth: isFullScreen ? '100vw' : '100%',
+        minHeight: isFullScreen ? '100vh' : '100%',
+      }}
+    ></div>
       
       {!gameData && (
-        <div className="min-h-full min-w-full flex items-center justify-center">
+        <div className="min-h-full z-10 opacity-100 min-w-full flex items-center justify-center">
           Table not found
         </div>
       )}
@@ -242,6 +287,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             flex flex-col
             items-center
             justify-start
+            opacity-100
+            z-10
             ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full backdrop-blur-xl'}
           `}
           style={{

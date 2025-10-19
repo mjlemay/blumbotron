@@ -89,6 +89,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
             items-center
             justify-end
             gap-2
+            z-25
             opacity-50
             hover:opacity-100
             transition-opacity
@@ -102,7 +103,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                 onClick={() => {}}
               ><HamburgerMenuIcon width="20" height="20" /></Menubar.Trigger>
               <Menubar.Portal>
-                <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
+                <Menubar.Content className="bg-slate-700/50  z-30 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
                   <Menubar.Item
                     className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
                     onClick={handleDisplayFrameConfigClick}
@@ -136,6 +137,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
             justify-end
             gap-2
             p-2
+            z-25
             opacity-50
             hover:opacity-100
             transition-opacity

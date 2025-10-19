@@ -90,9 +90,13 @@ function FormGameMedia(props: FormGameMediaProps) {
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
-      setNestedValue(form, formKey, formValue);
+      // Convert string values to numbers for opacity fields
+      let processedValue: string | number = formValue;
+      if (formKey.includes('Opacity')) {
+        processedValue = parseInt(formValue, 10);
+      }
+      setNestedValue(form, formKey, processedValue);
     });
-    console.log('form', form);
   };
 
   const selectedRef = (name: string) => {
@@ -202,12 +206,10 @@ function FormGameMedia(props: FormGameMediaProps) {
 
   const getImageSrc = async (imagePath: string): Promise<string> => {
     if (!imagePath) {
-      console.log('getImageSrc: empty imagePath, returning empty string');
       return '';
     }
     
     if (imagePath.startsWith('data:')) {
-      console.log('getImageSrc: returning base64 data URL');
       return imagePath;
     }
     // If it's a filename, get the base64 data from Tauri
@@ -247,6 +249,9 @@ function FormGameMedia(props: FormGameMediaProps) {
       data: z.object({
         media: z.object({
           backgroundImage: z.string().nullable().optional(),
+          backgroundImageOpacity: z.number().min(0).max(100).optional(),
+          logoImage: z.string().nullable().optional(),
+          logoImageOpacity: z.number().min(0).max(100).optional(),
         }).optional(),
       }),
     });
@@ -427,12 +432,25 @@ function FormGameMedia(props: FormGameMediaProps) {
                       </div>
                     </div>
                   </div>
-                  <Input
-                    name="data.media.backgroundImageOpacity"
-                    label="Background Image Opacity (%)" 
-                    value={form?.data?.media?.backgroundImageOpacity || 100}
-                    changeHandler={handleFormChange}
-                  />
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Background Image Opacity ({form?.data?.media?.backgroundImageOpacity || 100}%)
+                    </label>
+                    <input
+                      type="range"
+                      name="data.media.backgroundImageOpacity"
+                      min="0"
+                      max="100"
+                      value={form?.data?.media?.backgroundImageOpacity || 100}
+                      onChange={handleFormChange}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300
+                        [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full 
+                        [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+                    />
+                  </div>
                   <div className="flex flex-col items-start justify-between">
                     <div className="w-full mb-4 mt-4">
                       <label className="block font-bold text-lg mb-2">
@@ -509,12 +527,25 @@ function FormGameMedia(props: FormGameMediaProps) {
                       </div>
                     </div>
                   </div>
-                  <Input
-                    name="data.media.logoImageOpacity"
-                    label="Logo Image Opacity (%)" 
-                    value={form?.data?.media?.logoImageOpacity || 100}
-                    changeHandler={handleFormChange}
-                  />
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Logo Image Opacity ({form?.data?.media?.logoImageOpacity || 100}%)
+                    </label>
+                    <input
+                      type="range"
+                      name="data.media.logoImageOpacity"
+                      min="0"
+                      max="100"
+                      value={form?.data?.media?.logoImageOpacity || 100}
+                      onChange={handleFormChange}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300
+                        [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full 
+                        [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -21,6 +21,8 @@ export const defaultGameMetaData = {
     backgroundVideo: null,
     iconImage: null,
     logoImage: null,
+    backgroundImageOpacity: 100,
+    logoImageOpacity: 100,
   },
   displays: [
     {
