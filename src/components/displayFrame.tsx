@@ -57,6 +57,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
 
   return (
     <div
+      data-display-frame
       style={{
         height: `${height}px`,
         width: `${height * 1.5}px`,

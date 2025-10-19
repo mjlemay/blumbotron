@@ -1,14 +1,14 @@
 /* Dark Gaming Theme for Blumbotron */
 
 /* Dark background with subtle pattern */
-[data-table-container] {
-  background: #0a0a0a url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="%23ffffff" fill-opacity="0.02"><circle cx="3" cy="3" r="3"/></g></svg>') !important;
+[data-display-container] {
+  background: #0a0a0a55 url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="%23ffffff" fill-opacity="0.02"><circle cx="3" cy="3" r="3"/></g></svg>') !important;
 }
 
 /* Dark table styling */
 [data-table-container] .flex-row {
   background: rgba(20, 20, 20, 0.8) !important;
-  border: 1px solid #333;
+  border: 1px solid #292929ff;
   margin-bottom: 2px;
   transition: all 0.2s ease;
 }
