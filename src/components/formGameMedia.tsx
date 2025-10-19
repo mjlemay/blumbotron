@@ -189,14 +189,15 @@ function FormGameMedia(props: FormGameMediaProps) {
     }
 
     const uploadRef = selectedRef(name);
-    updateFormInput('data.media.backgroundImage', '');
+    updateFormInput(`data.media.${name}`, '');
     if (uploadRef.current) {
       uploadRef.current.value = '';
     }
   };
 
-  const triggerFileUpload = () => {
-    backgroundImageInputRef.current?.click();
+  const triggerFileUpload = (inputName: string) => {
+    const ref = selectedRef(inputName);
+    ref.current?.click();
   };
 
   const getImageSrc = async (imagePath: string): Promise<string> => {
@@ -392,7 +393,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             {/* Replace button */}
                             <button
                               type="button"
-                              onClick={triggerFileUpload}
+                              onClick={() => triggerFileUpload('backgroundImage')}
                               data-name="backgroundImage"
                               className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                             >
@@ -411,7 +412,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             </p>
                             <button
                               type="button"
-                              onClick={triggerFileUpload}
+                              onClick={() => triggerFileUpload('backgroundImage')}
                                data-name="backgroundImage"
                               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
                             >
@@ -474,7 +475,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             {/* Replace button */}
                             <button
                               type="button"
-                              onClick={triggerFileUpload}
+                              onClick={() => triggerFileUpload('logoImage')}
                               data-name="logoImage"
                               className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                             >
@@ -493,7 +494,7 @@ function FormGameMedia(props: FormGameMediaProps) {
                             </p>
                             <button
                               type="button"
-                              onClick={triggerFileUpload}
+                              onClick={() => triggerFileUpload('logoImage')}
                               data-name="logoImage"
                               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
                             >
