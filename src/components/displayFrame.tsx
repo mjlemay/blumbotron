@@ -1,8 +1,12 @@
 import { 
   EnterFullScreenIcon,
   OpenInNewWindowIcon,
-  AllSidesIcon
+  AllSidesIcon,
+  HamburgerMenuIcon,
+  GearIcon,
+  TrashIcon,
 } from '@radix-ui/react-icons';
+import * as Menubar from '@radix-ui/react-menubar';
 import { useExperienceStore } from '../stores/experienceStore';
 import { Window } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
@@ -16,7 +20,7 @@ type ComponentProps = {
 
 function DisplayFrame(props: ComponentProps): JSX.Element {
   const { game, height = 300 } = props;
-  const { setExpModal } = useExperienceStore();
+  const { setExpModal, setExpSubView, setExpSubSelected } = useExperienceStore();
 
   const handleAllSidesClick = () => {
     setExpModal('displayTable');
@@ -46,6 +50,11 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     }
   };
 
+  const handleDisplayFrameConfigClick = () => {
+    setExpSubSelected(0);
+    setExpSubView('tableConfig');
+  }
+
   return (
     <div
       style={{
@@ -71,7 +80,53 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         <DisplayTable game={game} fetchIntervalSeconds={60} />
       </div>
       <div
-        className={`
+        className="
+            absolute
+            top-0
+            right-0
+            flex
+            flex-row
+            items-center
+            justify-end
+            gap-2
+            opacity-50
+            hover:opacity-100
+            transition-opacity
+            duration-200
+        "
+      >
+          <Menubar.Root className="flex rounded-md p-2">
+            <Menubar.Menu>
+              <Menubar.Trigger
+                className="flex select-none items-center justify-between cursor-pointer rounded px-2 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+                onClick={() => {}}
+              ><HamburgerMenuIcon width="20" height="20" /></Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
+                  <Menubar.Item
+                    className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                    onClick={handleDisplayFrameConfigClick}
+                  >
+                    <div className="flex flex-row gap-2 items-center">
+                      <GearIcon width="20" height="20" /> Edit
+                    </div>
+                  </Menubar.Item>
+                  <Menubar.Item
+                    disabled
+                    className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                     onClick={() => {}}
+                  >
+                    <div className="flex flex-row gap-2 items-center">
+                      <TrashIcon width="20" height="20" /> Delete
+                    </div>
+                  </Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Root>
+      </div>
+      <div
+        className="
             absolute
             bottom-0
             right-0
@@ -85,7 +140,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
             hover:opacity-100
             transition-opacity
             duration-200
-        `}
+        "
       >
         <button 
           onClick={handleFullScreenClick}

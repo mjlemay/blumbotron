@@ -7,8 +7,10 @@ type ExperienceStore = {
   loading: boolean;
   error: string | null;
   setExpView: (view: string) => void;
+  setExpSubView: (subView: string) => void;
   setExpModal: (modal: string) => void;
   setExpSelected: (selected: Record<string, SelectedItem>) => void;
+  setExpSubSelected: (selected: string | number) => void;
 };
 
 export const useExperienceStore = create<ExperienceStore>((set) => ({
@@ -18,7 +20,11 @@ export const useExperienceStore = create<ExperienceStore>((set) => ({
 
   setExpView: (view: string) =>
     set((state) => ({
-      experience: { ...state.experience, view },
+      experience: { ...state.experience, view, subView: 'main' },
+    })),
+  setExpSubView: (subView: string) =>
+    set((state) => ({
+      experience: { ...state.experience, subView },
     })),
   setExpModal: (modal: string) =>
     set((state) => ({
@@ -26,6 +32,10 @@ export const useExperienceStore = create<ExperienceStore>((set) => ({
     })),
   setExpSelected: (selected: Record<string, SelectedItem>) =>
     set((state) => ({
-      experience: { ...state.experience, selected },
+      experience: { ...state.experience, selected, subSelected: null },
     })),
+  setExpSubSelected: (subSelected: number | string | null) => 
+    set((state) => ({
+      experience: { ...state.experience, subSelected },
+    }))
 }));

@@ -70,6 +70,8 @@ export type SelectedItem = DataItem | GameDataItem | RosterDataItem | ScoreDataI
 
 export type Experience = {
   view: string;
+  subView: string;
   modal: string;
   selected: Record<string, DataItem | SelectedItem> | null;
+  subSelected: number | string | null;
 };

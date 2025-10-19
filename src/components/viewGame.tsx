@@ -1,25 +1,28 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useExperienceStore } from '../stores/experienceStore';
-import { useState } from 'react';
 import UiButton from './uiButton';
 import SubViewLaunch from './subViewLaunch';
 import FormGameStyles from './formGameStyles';
-import FormGameTableConfig from './formGameMedia';
+import FormGameTableConfig from './formGameTableConfig';
+import FormGameMedia from './formGameMedia';
 import FormGameLayout from './formGameLayout';
 
 function ViewGame() {
-  const { selected } = useExperienceStore(
-    useShallow((state) => ({ selected: state.experience.selected, setExpView: state.setExpView }))
+  const { selected, subView, setExpSubView } = useExperienceStore(
+    useShallow((state) => ({
+      selected: state.experience.selected,
+      subView: state.experience.subView,
+      setExpSubView: state.setExpSubView,
+    }))
   );
   const selectedGame = selected?.game || null;
   const {
     name = '',
     id = '',
   } = selectedGame || {};
-  const [subView, setSubView] = useState<string>('launch');
 
   const handleSubViewSelect = (subView: string) => {
-    setSubView(subView);
+    setExpSubView(subView);
   };
 
   return (
@@ -53,9 +56,9 @@ function ViewGame() {
       >
         <div
           className="flex flex-col items-center justify-center p-2"
-          onClick={() => handleSubViewSelect('launch')}
+          onClick={() => handleSubViewSelect('main')}
         >
-          <UiButton uiIcon="launch" size="30" isSelected={subView === 'launch'} />
+          <UiButton uiIcon="launch" size="30" isSelected={subView === 'main'} />
           <span className="text-sm">Launch</span>
         </div>
         <div
@@ -93,10 +96,11 @@ function ViewGame() {
           shadow-l
       "
       >
-        {subView === 'launch' && <SubViewLaunch gameData={selectedGame} />}
-        {subView === 'media' && <FormGameTableConfig />}
+        {subView === 'main' && <SubViewLaunch gameData={selectedGame} />}
+        {subView === 'media' && <FormGameMedia />}
         {subView === 'styles' && <FormGameStyles />}
         {subView === 'layout' && <FormGameLayout />}
+        {subView === 'tableConfig' && <FormGameTableConfig />}
       </div>
     </div>
   );

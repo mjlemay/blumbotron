@@ -15,7 +15,7 @@ type DisplayTableWrapperProps = {
 export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   const { game, fetchIntervalSeconds = 10 } = props;
   const [isLoading, setIsLoading] = useState(true);
-  const [gameData, setGameData] = useState<any>(null);
+  const [_, setGameData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Use stores

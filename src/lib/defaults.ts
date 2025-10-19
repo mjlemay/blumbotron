@@ -2,8 +2,10 @@ import { Experience, DataItem, GameDataItem, RosterDataItem } from './types';
 
 export const defaultExperience: Experience = {
   view: 'home',
+  subView: 'main',
   modal: 'none',
   selected: {},
+  subSelected: null,
 };
 
 export const defaultGameMetaData = {
