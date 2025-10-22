@@ -5,6 +5,7 @@ import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { ScoreDataItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
+import { log } from "console";
 
 type ComponentProps = {
   game?: string;
@@ -86,6 +87,20 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const logoImage = gameData?.data?.media?.logoImage 
     || null;
   const logoImageOpacity = gameData?.data?.media?.logoImageOpacity || 100;
+  const logoImageScale = gameData?.data?.media?.logoImageScale || 25;
+  const logoImagePosition = gameData?.data?.media?.logoImagePosition || 'center';
+  const logoImageHorizontalOffset = gameData?.data?.media?.logoImageHorizontalOffset || 0;
+  const logoImageVerticalOffset = gameData?.data?.media?.logoImageVerticalOffset || 0;
+  const calculatedLogoPosition = () => {
+    const positions = logoImagePosition.split(' ');
+    if (logoImagePosition === 'center') {
+      return logoImagePosition; // return as is if not in expected format
+    }
+    if (positions.length === 1) {
+      return `${positions[0]} ${logoImageHorizontalOffset}% top 50%`;
+    }
+    return `${positions[0]} ${logoImageVerticalOffset}% ${positions[1]} ${logoImageHorizontalOffset}%`;
+  };
   const backgroundImageOpacity = gameData?.data?.media?.backgroundImageOpacity || 100;
 
   // Load background image when it changes
@@ -261,17 +276,17 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       `}
       style={{
         backgroundImage: logoImageSrc ? `url("${logoImageSrc}")` : 'none',
-        backgroundPosition: 'center',
+        backgroundPosition: logoImagePosition ? calculatedLogoPosition() : 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
+        backgroundSize: `${logoImageScale}%`,
         color: colors.text,
         position: 'absolute',
         top: 0,
         left: 0,
         zIndex: 0,
         opacity: logoImageOpacity / 100,
-        minWidth: isFullScreen ? '100vw' : '100%',
-        minHeight: isFullScreen ? '100vh' : '100%',
+        maxWidth: isFullScreen ? `100vw` : `100%`,
+        maxHeight: isFullScreen ? `100vh` : `100%`,
       }}
     ></div>
       

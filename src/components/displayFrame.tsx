@@ -27,9 +27,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   };
 
   const handleOpenInNewWindowClick = async () => {
-    try {
-      console.log('Creating display window for game:', game);
-      
+    try {      
       await invoke('create_display_window', {
         game: game,
         width: 1024,

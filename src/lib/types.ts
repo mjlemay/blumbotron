@@ -41,6 +41,10 @@ export type GameDataItem = DataItem & {
       backgroundImageOpacity?: number | null;
       logoImage?: string | null;
       logoImageOpacity?: number | null;
+      logoImagePosition?: string | null;
+      logoImageScale?: number | null;
+      logoImageHorizontalOffset?: number | null;
+      logoImageVerticalOffset?: number | null;
     };
     placement?: {
       paddingFrame?: {

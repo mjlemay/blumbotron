@@ -90,9 +90,12 @@ function FormGameMedia(props: FormGameMediaProps) {
 
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
-      // Convert string values to numbers for opacity fields
+      // Convert string values to numbers for numeric fields
       let processedValue: string | number = formValue;
-      if (formKey.includes('Opacity')) {
+      if (formKey.includes('Opacity') 
+        || formKey.includes('Scale')
+        || formKey.includes('Offset')
+      ) {
         processedValue = parseInt(formValue, 10);
       }
       setNestedValue(form, formKey, processedValue);
@@ -109,7 +112,7 @@ function FormGameMedia(props: FormGameMediaProps) {
     }
   };
 
-  const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
     const eventTarget = Event?.target;
     const formKey = eventTarget?.name;
     const formValue = eventTarget?.value;
@@ -252,6 +255,10 @@ function FormGameMedia(props: FormGameMediaProps) {
           backgroundImageOpacity: z.number().min(0).max(100).optional(),
           logoImage: z.string().nullable().optional(),
           logoImageOpacity: z.number().min(0).max(100).optional(),
+          logoImagePosition: z.string().optional(),
+          logoImageHorizontalOffset: z.number().optional(),
+          logoImageVerticalOffset: z.number().optional(),
+          logoImageScale: z.number().min(0).max(50).optional(),
         }).optional(),
       }),
     });
@@ -537,6 +544,91 @@ function FormGameMedia(props: FormGameMediaProps) {
                       min="0"
                       max="100"
                       value={form?.data?.media?.logoImageOpacity || 100}
+                      onChange={handleFormChange}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300
+                        [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full 
+                        [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+                    />
+                  </div>
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Logo Image Position
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="data.media.logoImagePosition"
+                        value={form?.data?.media?.logoImagePosition || "center"}
+                        onChange={handleFormChange}
+                        className="appearance-none outline-none bg-gradient-to-b from-slate-900 to-slate-900/75 border-none rounded-lg block w-full p-2.5 text-xl focus:outline-0 transition-all px-3 py-2.5 ring-1 ring-neutral-700 focus:ring-2 focus:ring-slate-600 text-slate-200 cursor-pointer pr-10"
+                      >
+                      <option value="top left" className="bg-slate-900 text-slate-200">Top Left</option>
+                      <option value="top center" className="bg-slate-900 text-slate-200">Top Center</option>
+                      <option value="top right" className="bg-slate-900 text-slate-200">Top Right</option>
+                      <option value="left" className="bg-slate-900 text-slate-200">Left</option>
+                      <option value="center" className="bg-slate-900 text-slate-200">Center</option>
+                      <option value="right" className="bg-slate-900 text-slate-200">Right</option>
+                      <option value="bottom left" className="bg-slate-900 text-slate-200">Bottom Left</option>
+                      <option value="bottom center" className="bg-slate-900 text-slate-200">Bottom Center</option>
+                      <option value="bottom right" className="bg-slate-900 text-slate-200">Bottom Right</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Logo Image Horizontal Offset ({form?.data?.media?.logoImageHorizontalOffset || 0}%)
+                    </label>
+                    <input
+                      type="range"
+                      name="data.media.logoImageHorizontalOffset"
+                      min="0"
+                      max="50"
+                      value={form?.data?.media?.logoImageHorizontalOffset || 0}
+                      onChange={handleFormChange}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300
+                        [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full 
+                        [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+                    />
+                  </div>
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Logo Image Vertical Offset ({form?.data?.media?.logoImageVerticalOffset || 0}%)
+                    </label>
+                    <input
+                      type="range"
+                      name="data.media.logoImageVerticalOffset"
+                      min="0"
+                      max="50"
+                      value={form?.data?.media?.logoImageVerticalOffset || 0}
+                      onChange={handleFormChange}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600 [&::-webkit-slider-thumb]:cursor-pointer
+                        [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300
+                        [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full 
+                        [&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none"
+                    />
+                  </div>
+                  <div className="my-2">
+                    <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">
+                      Logo Image Scale ({form?.data?.media?.logoImageScale || 25}%)
+                    </label>
+                    <input
+                      type="range"
+                      name="data.media.logoImageScale"
+                      min="0"
+                      max="50"
+                      value={form?.data?.media?.logoImageScale || 25}
                       onChange={handleFormChange}
                       className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer 
                         [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 

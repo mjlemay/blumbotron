@@ -1,3 +1,4 @@
+import { log } from 'console';
 import { Experience, DataItem, GameDataItem, RosterDataItem } from './types';
 
 export const defaultExperience: Experience = {
@@ -23,6 +24,8 @@ export const defaultGameMetaData = {
     logoImage: null,
     backgroundImageOpacity: 100,
     logoImageOpacity: 100,
+    logoImagePosition: 'center',
+    logoImageScale: 25,
   },
   displays: [
     {
