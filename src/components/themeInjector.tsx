@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useGameStore } from "../stores/gamesStore";
+import { customThemeSettings } from '../lib/consts';
 
 type ComponentProps = {
   game?: string;
@@ -12,6 +13,7 @@ function ThemeInjector(props: ComponentProps): JSX.Element {
 
 useEffect(() => {  
   const theme = gameData?.data?.theme;
+  const customTheme = customThemeSettings?.[theme as string].path as string;
     if (!theme || theme === '') return;
     
     // Remove any existing theme links
@@ -22,10 +24,10 @@ useEffect(() => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.type = 'text/css';
-    link.setAttribute('data-blumbotron-theme', theme);
+    link.setAttribute('data-blumbotron-theme', customTheme);
     
     // Construct theme URL - themes are in public/themes/ folder
-    link.href = `/themes/${theme}`;
+    link.href = `/themes/${customTheme}`;
     
     // Add error handling
     link.onerror = function() {
@@ -41,7 +43,7 @@ useEffect(() => {
     
     // Cleanup function to remove theme when component unmounts or theme changes
     return () => {
-      const themeLink = document.querySelector(`link[data-blumbotron-theme="${theme}"]`);
+      const themeLink = document.querySelector(`link[data-blumbotron-theme="${customTheme}"]`);
       if (themeLink) {
         themeLink.remove();
       }

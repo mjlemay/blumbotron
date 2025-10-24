@@ -13,6 +13,7 @@ import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import { GameVisualData } from '../lib/interfaces';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { customThemeSettings } from '../lib/consts';
 
 type FormGameStylesProps = {
   onSuccess?: () => void;
@@ -73,19 +74,18 @@ function FormGameStyles(props: FormGameStylesProps) {
     { value: '"Warriot Circle", display', label: 'Warriot Circle' },
   ];
 
+  const customThemeValues = customThemeSettings?.[form?.data?.theme as string] || {};
+
   const updateFormInput = (formKey: string, formValue: string) => {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
     });
-    console.log('form', form);
   };
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
     const eventTarget = Event?.target;
     const formKey = eventTarget?.name;
     const formValue = eventTarget?.value;
-    console.log('formKey', formKey);
-    console.log('formValue', formValue);
     updateFormInput(formKey, formValue);
   };
 
@@ -270,9 +270,8 @@ function FormGameStyles(props: FormGameStylesProps) {
                           selectPlaceholder="Choose Theme"
                           selections={[
                             { value: 'none', label: 'None (Default)' },
-                            { value: 'dark-gaming.css', label: 'Dark Gaming' },
-                            { value: 'example-theme.css', label: 'Example Theme' },
-                            { value: 'neo-navigator/neo-navigator.css', label: 'Neo Navigator' },
+                            { value: 'cyTerminal', label: 'CyTerminal' },
+                            { value: 'neoNavigator', label: 'Neo Navigator' },
                           ]}
                           defaultValue={((form?.data?.theme as string) === '' || !(form?.data?.theme as string)) ? 'none' : (form?.data?.theme as string)}
                           handleSelect={handleFontSelect('data.theme')}
@@ -286,17 +285,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.background"
                       label="Background Color"
-                      value={form?.data?.colors?.background || '#000000'}
+                      value={form?.data?.colors?.background 
+                        || (customThemeValues.colors as Record<string, string>)?.background 
+                        || '#000000'}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.background || '#000000' }}
+                          style={{ backgroundColor: form?.data?.colors?.background  
+                            || (customThemeValues.colors as Record<string, string>)?.background 
+                            || '#000000' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.background || '#000000'}
+                          color={form?.data?.colors?.background 
+                            || (customThemeValues.colors as Record<string, string>)?.background 
+                            || '#000000'}
                           setColor={(color: string) => handleColorChange('data.colors.background', color)}
                         />
                       }
@@ -304,17 +309,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.text"
                       label="Text Color"
-                      value={form?.data?.colors?.text || '#ffffff'}
+                      value={form?.data?.colors?.text 
+                        || (customThemeValues.colors as Record<string, string>)?.text 
+                        || '#ffffff'}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.text || '#ffffff' }}
+                          style={{ backgroundColor: form?.data?.colors?.text 
+                            || (customThemeValues.colors as Record<string, string>)?.text 
+                            || '#ffffff' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.text || '#ffffff'}
+                          color={form?.data?.colors?.text 
+                            || (customThemeValues.colors as Record<string, string>)?.text 
+                            || '#ffffff'}
                           setColor={(color: string) => handleColorChange('data.colors.text', color)}
                         />
                       }
@@ -322,17 +333,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.primary"
                       label="Primary Color"
-                      value={form?.data?.colors?.primary || ''}
+                      value={form?.data?.colors?.primary 
+                        || (customThemeValues.colors as Record<string, string>)?.primary 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.primary || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.primary 
+                            || (customThemeValues.colors as Record<string, string>)?.primary
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.primary || ''}
+                          color={form?.data?.colors?.primary 
+                            || (customThemeValues.colors as Record<string, string>)?.primary 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.primary', color)}
                         />
                       }
@@ -340,17 +357,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.secondary"
                       label="Secondary Color"
-                      value={form?.data?.colors?.secondary || '#000000'}
+                      value={form?.data?.colors?.secondary 
+                        || (customThemeValues.colors as Record<string, string>)?.secondary 
+                        || '#000000'}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.secondary || '' }}
+                          style={{ backgroundColor: form?.data?.colors?.secondary 
+                            || (customThemeValues.colors as Record<string, string>)?.secondary 
+                            || '' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.secondary || 'transparent'}
+                          color={form?.data?.colors?.secondary 
+                            || (customThemeValues.colors as Record<string, string>)?.secondary 
+                            || 'transparent'}
                           setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
                         />
                       }
@@ -358,17 +381,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.tertiary"
                       label="Tertiary Color"
-                      value={form?.data?.colors?.tertiary || ''}
+                      value={form?.data?.colors?.tertiary 
+                        || (customThemeValues.colors as Record<string, string>)?.tertiary 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tertiary || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.tertiary 
+                            || (customThemeValues.colors as Record<string, string>)?.tertiary 
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.tertiary || ''}
+                          color={form?.data?.colors?.tertiary 
+                            || (customThemeValues.colors as Record<string, string>)?.tertiary 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
                         />
                       }
@@ -379,17 +408,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.tableHeader"
                       label="Table Header Color"
-                      value={form?.data?.colors?.tableHeader || ''}
+                      value={form?.data?.colors?.tableHeader 
+                        || (customThemeValues.colors as Record<string, string>)?.tableHeader 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableHeader || '' }}
+                          style={{ backgroundColor: form?.data?.colors?.tableHeader 
+                            || (customThemeValues.colors as Record<string, string>)?.tableHeader 
+                            || '' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.tableHeader || 'transparent'}
+                          color={form?.data?.colors?.tableHeader 
+                            || (customThemeValues.colors as Record<string, string>)?.tableHeader 
+                            || 'transparent'}
                           setColor={(color: string) => handleColorChange('data.colors.tableHeader', color)}
                         />
                       }
@@ -397,17 +432,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.tableRow"
                       label="Row Color"
-                      value={form?.data?.colors?.tableRow || ''}
+                      value={form?.data?.colors?.tableRow 
+                        || (customThemeValues.colors as Record<string, string>)?.tableRow 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableRow || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.tableRow 
+                            || (customThemeValues.colors as Record<string, string>)?.tableRow 
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.tableRow || ''}
+                          color={form?.data?.colors?.tableRow 
+                            || (customThemeValues.colors as Record<string, string>)?.tableRow 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.tableRow', color)}
                         />
                       }
@@ -415,17 +456,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.tableAlt"
                       label="Alternate Row Color"
-                      value={form?.data?.colors?.tableAlt || ''}
+                      value={form?.data?.colors?.tableAlt 
+                        || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableAlt || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.tableAlt 
+                            || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.tableAlt || ''}
+                          color={form?.data?.colors?.tableAlt 
+                            || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.tableAlt', color)}
                         />
                       }
@@ -486,17 +533,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.fontHeader"
                       label="Header Text Color"
-                      value={form?.data?.colors?.fontHeader || ''}
+                      value={form?.data?.colors?.fontHeader 
+                        || (customThemeValues.colors as Record<string, string>)?.fontHeader 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontHeader || '' }}
+                          style={{ backgroundColor: form?.data?.colors?.fontHeader 
+                            || (customThemeValues.colors as Record<string, string>)?.fontHeader 
+                            || '' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.fontHeader || 'transparent'}
+                          color={form?.data?.colors?.fontHeader 
+                            || (customThemeValues.colors as Record<string, string>)?.fontHeader 
+                            || 'transparent'}
                           setColor={(color: string) => handleColorChange('data.colors.fontHeader', color)}
                         />
                       }
@@ -504,17 +557,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.fontPlayer"
                       label="Player Name Color"
-                      value={form?.data?.colors?.fontPlayer || ''}
+                      value={form?.data?.colors?.fontPlayer 
+                        || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontPlayer || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.fontPlayer 
+                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.fontPlayer || ''}
+                          color={form?.data?.colors?.fontPlayer 
+                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.fontPlayer', color)}
                         />
                       }
@@ -522,17 +581,23 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.fontScore"
                       label="Score Color"
-                      value={form?.data?.colors?.fontScore || ''}
+                      value={form?.data?.colors?.fontScore 
+                        || (customThemeValues.colors as Record<string, string>)?.fontScore 
+                        || ''}
                       changeHandler={handleFormChange}
                       preview={
                         <div 
                           className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontScore || 'transparent' }}
+                          style={{ backgroundColor: form?.data?.colors?.fontScore 
+                            || (customThemeValues.colors as Record<string, string>)?.fontScore 
+                            || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.fontScore || ''}
+                          color={form?.data?.colors?.fontScore 
+                            || (customThemeValues.colors as Record<string, string>)?.fontScore 
+                            || ''}
                           setColor={(color: string) => handleColorChange('data.colors.fontScore', color)}
                         />
                       }

@@ -22,3 +22,29 @@ export const bgColors: Record<string, string> = {
   neutral: 'bg-neutral-500/50',
   sky: 'bg-sky-500/50',
 };
+
+export const customThemeSettings: Record<string, Record<string, string | Record<string, string>>> = {
+  'cyTerminal': {
+    'path': 'cy-terminal.css',
+    'label': 'CyTerminal',
+    colors: {
+      background: '#0f111a',
+      text: '#cfd8dc',
+      primary: '#00ff9f',
+      secondary: '#ff6ac1',
+      tertiary: '#ffaa00',
+      tableHeader: '#1f2230',
+      tableRow: '#181a23',
+      tableAlt: '#20232c',
+    },
+    fonts: {
+      header: 'Courier New, Courier, monospace',
+      player: 'Courier New, Courier, monospace',
+      score: 'Courier New, Courier, monospace',
+    }
+  },
+  'neoNavigator': {
+    'path': 'neo-navigator/neo-navigator.css',
+    'label': 'Neo Navigator',
+  }
+}

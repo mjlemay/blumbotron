@@ -5,6 +5,7 @@ import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { ScoreDataItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
+import { customThemeSettings } from '../lib/consts';
 
 type ComponentProps = {
   game?: string;
@@ -35,6 +36,14 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     rosters.find((roster) => roster.snowflake === gameData?.roster),
     [rosters, gameData?.roster]
   );
+
+  const themeName = gameData?.data?.theme;
+  const customTheme = (customThemeSettings?.themes && typeof customThemeSettings.themes[(themeName as unknown as string)] === 'object')
+    ? customThemeSettings.themes[(themeName as unknown as string)]
+    : {};
+  const themeColors = (typeof customTheme === 'object' && 'colors' in customTheme)
+    ? (customTheme as { colors?: Record<string, string> }).colors || {}
+    : {};
   
   // Memoize allowed players processing
   const { playersData } = useMemo(() => {
@@ -59,6 +68,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       }
     });
   }, [gameScores, game, playersData]);
+
   const colors = {
     background: 'black',
     text: 'white',
@@ -191,7 +201,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         key={`${scoreItem?.player || 'deleted'}-${index}`} 
         className="flex flex-row items-stretch justify-between w-full flex-1"
         style={{
-          backgroundColor: index % 2 === 0 ? colors.tableAlt || 'transparent' : colors.tableRow || 'transparent',
+          backgroundColor: index % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
         }}
       >
         <div className={`
@@ -205,7 +215,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: colors.fontPlayer || colors.secondary || colors.text,
+          color: colors.fontPlayer || themeColors.fontPlayer || colors.secondary || themeColors.secondary || colors.text || themeColors.text,
           fontFamily: fonts.player,
         }}
         >
@@ -222,7 +232,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: colors.fontScore || colors.secondary || colors.text,
+          color: colors.fontScore 
+            || themeColors.fontScore
+            || colors.secondary 
+            || themeColors.secondary
+            || colors.text
+            || themeColors.text,
           fontFamily: fonts.score,
         }}
         >
@@ -237,12 +252,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             key={`empty-${i}`} 
             className="flex flex-row items-stretch justify-between w-full flex-1"
             style={{
-              backgroundColor: colors.tableRow || 'transparent',
+              backgroundColor: colors.tableRow || themeColors.tableRow || 'transparent',
             }}
           >
             <div
             style={{
-              backgroundColor: i % 2 === 0 ? colors.tableAlt || 'transparent' : colors.tableRow || 'transparent',
+              backgroundColor: i % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
             }}
             className="flex-1 text-white text-center flex items-center justify-center"/>
           </div>
@@ -258,12 +273,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
        flex items-start justify-center
       `}
       style={{
-        backgroundColor: colors.background,
+        backgroundColor: colors.background || themeColors.background,
         backgroundImage: backgroundImageSrc ? `url("${backgroundImageSrc}")` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        color: colors.text,
+        color: colors.text || themeColors.text,
         opacity: backgroundImageOpacity / 100,
         minWidth: isFullScreen ? '100vw' : '100%',
         minHeight: isFullScreen ? '100vh' : '100%',
@@ -278,7 +293,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         backgroundPosition: logoImagePosition ? calculatedLogoPosition() : 'center',
         backgroundRepeat: 'no-repeat',
         backgroundSize: `${logoImageScale}%`,
-        color: colors.text,
+        color: colors.text || themeColors.text,
         position: 'absolute',
         top: 0,
         left: 0,
@@ -328,8 +343,17 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                       ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
                     `}
                     style={{
-                      color: colors.fontHeader || colors.primary || colors.text,
-                      backgroundColor: colors.tableHeader || 'transparent',
+                      color: 
+                        colors.fontHeader 
+                        || themeColors.fontHeader
+                        || colors.primary 
+                        || themeColors.primary
+                        || colors.text
+                        || themeColors.text,
+                      backgroundColor: 
+                        colors.tableHeader 
+                        || themeColors.tableHeader 
+                        || 'transparent',
                       fontFamily: fonts.header,
                     }}
                     >
