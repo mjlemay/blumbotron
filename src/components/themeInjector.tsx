@@ -13,8 +13,8 @@ function ThemeInjector(props: ComponentProps): JSX.Element {
 
 useEffect(() => {  
   const theme = gameData?.data?.theme;
-  const customTheme = customThemeSettings?.[theme as string].path as string;
-    if (!theme || theme === '') return;
+  const customTheme = customThemeSettings?.[theme as string]?.path as string;
+    if (!theme || theme === '' || !customTheme) return;
     
     // Remove any existing theme links
     const existingThemeLinks = document.querySelectorAll('link[data-blumbotron-theme]');

@@ -1,5 +1,4 @@
 import { useImmer } from 'use-immer';
-import { useRef, useState } from 'react';
 import Input from './input';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';

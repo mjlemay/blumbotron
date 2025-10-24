@@ -81,14 +81,6 @@ function FormGameLayout(props: FormGameLayoutProps) {
     onSuccess?.();
   };
 
-  const handleColorChange = (formKey: string, color: string) => {
-    updateFormInput(formKey as string, color as string);
-  };
-
-  const handleFontSelect = (fontKey: string) => (fontValue: string) => {
-    updateFormInput(fontKey, fontValue);
-  };
-
   const editGameData = async (formData: GameDataItem) => {
     
     let formSchema = z.object({

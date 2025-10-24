@@ -1,4 +1,3 @@
-import { log } from 'console';
 import { Experience, DataItem, GameDataItem, RosterDataItem } from './types';
 
 export const defaultExperience: Experience = {
