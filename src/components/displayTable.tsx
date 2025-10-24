@@ -5,7 +5,6 @@ import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { ScoreDataItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
-import { log } from "console";
 
 type ComponentProps = {
   game?: string;

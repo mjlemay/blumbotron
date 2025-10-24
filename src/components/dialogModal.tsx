@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { 
   Cross2Icon,
-  EnterFullScreenIcon,
+  ExitFullScreenIcon,
 } from '@radix-ui/react-icons';
 import FormGame from './formGame';
 import FormRoster from './formRoster';
@@ -182,6 +182,7 @@ function DialogModal({
             -translate-x-1/2
             -translate-y-1/2
             dialog-content
+            z-50
             ${fullScreen ? 'max-w-[100vw] max-h-[100vh] overflow-hidden' : 'max-w-[90vw] max-h-[90vh] overflow-auto'}
           `}
           onMouseOver={() => handleMouseMove('open')}
@@ -203,7 +204,7 @@ function DialogModal({
               </button>
             </Dialog.Close>
           </div>}
-          {fullScreen && <div className="absolute bottom-2 right-2">
+          {fullScreen && <div className="absolute bottom-2 right-2 z-50">
             <Dialog.Close asChild>
               <button
                 data-state={isActive ? 'active' : 'inactive'}
@@ -216,13 +217,12 @@ function DialogModal({
                   hover:bg-slate-600/50
                   hover:text-white
                   transition-opacity
-                  duration-600
+                  duration-300
                   focus:outline-none
                 "
                 aria-label="Close"
               >
-                <EnterFullScreenIcon width="20" height="20" />
-                {isActive}
+                <ExitFullScreenIcon width="20" height="20" />
                </button>
             </Dialog.Close>
           </div>}
