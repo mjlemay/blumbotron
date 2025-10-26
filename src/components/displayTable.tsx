@@ -327,7 +327,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             paddingRight: `${isFullScreen ? placement?.paddingFrame?.right : 0}vw`,
           }}
           >
-          <div className="flex flex-row grow min-w-full min-h-full">
+          <div
+            className="flex flex-row grow min-w-full min-h-full"
+            data-augmented-ui={isFullScreen ? "tl-rect tr-2-clip-y br-2-clip-y bl-rect l-clip both" : ""}
+          >
             <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
               <div className="flex flex-col justify-start min-w-full min-h-full">
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">

@@ -1,6 +1,12 @@
-h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: gold !important;
-  text-shadow: 0 0 5px black;
+@import "./augmented-ui.min.css";
+
+[data-table-container] {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  color: #fff;
+  background-color: #120458;
+  background-image: radial-gradient(rgba(18, 4, 88, 0), rgba(18, 4, 88, 1)), linear-gradient(rgba(93, 28, 149, 0.8) 1px,transparent 0), linear-gradient(#5d1c95 1px,transparent 0), linear-gradient(90deg,rgba(93, 28, 149, 0.8) 1px,transparent 0), linear-gradient(90deg,#5d1c95 1px,transparent 0), linear-gradient(transparent 3px,#120458 0,#120458 94px,transparent 0), linear-gradient(90deg,#5d1c95 3px,transparent 0,transparent 94px,#5d1c95 0);
+  background-size: 100vw, 100vh, 24px 24px,96px 96px,24px 24px,96px 96px,96px 96px,96px 96px;
 }
