@@ -94,11 +94,13 @@ function FormGame(props: FormGameProps) {
     let formSchema = z.object({
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
+      roster: z.string().nullable().optional(),
     });
     if (edit) {
       formSchema = z.object({
         name: z.string().min(3, 'Please supply a game name.'),
         description: z.string(),
+        roster: z.string().nullable().optional(),
       });
     }
     try {

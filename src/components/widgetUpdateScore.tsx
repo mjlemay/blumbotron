@@ -25,7 +25,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   const { gameData } = props;
   const { data, snowflake, roster } = gameData || {};
 
-  const { units } = data || { units: ['Score'] };
+  const { units } = data?.displays?.[0] || { units: ['Score'] };
   const firstUnit = (units as string[])[0] || 'Score';
   const { players, fetchPlayers } = usePlayerStore();
   const { rosters } = useRosterStore(); 

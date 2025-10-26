@@ -142,8 +142,6 @@ function FormGameStyles(props: FormGameStylesProps) {
         // Allow any additional data fields to be preserved
         displays: z.array(z.any()).optional(),
         backgroundImage: z.string().optional(),
-        category: z.string().optional(),
-        units: z.array(z.string()).optional(),
       }).passthrough() // This allows additional fields to pass through
     });
     try {

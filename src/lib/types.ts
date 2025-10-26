@@ -15,10 +15,12 @@ export type DisplayData = {
     backgroundImage?: string;
     backgroundVideo?: string | null;
     titleImage?: string | null;
+    category: DisplayCategory,
+    units: string[]
 }
 
 export type GameDataItem = DataItem & {
-  roster?: string | null;
+  roster?: string | null | undefined;
   data?: {
     theme?: string;
     colors?: {
@@ -73,6 +75,8 @@ export type RosterDataItem = DataItem & {
 };
 
 export type SelectedItem = DataItem | GameDataItem | RosterDataItem | ScoreDataItem;
+
+export type DisplayCategory = 'table' | 'slide';
 
 export type Experience = {
   view: string;

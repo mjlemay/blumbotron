@@ -13,7 +13,7 @@ This is an app to allow folks to easily create high score tables for their immer
 
 We use Drizzle to generate our SQL via the command `npx drizzle-kit generate` and the file is digested on initialization in the `src-tauri/src/lib.rs` as the `MIGRATION_SQL` value. As the file name is auto generated this will need to be updated on database schema changes. The database is stored in different locations determined by your operating system.
 
-- macOS: ~/Library/Application Support/btron/bumbo.db
+- macOS: ~/Library/Application Support/btron/blumbo.db
 - Windows: %APPDATA%\btron\blumbo.db
 - Linux: ~/.local/share/btron/blumbo.db
 
