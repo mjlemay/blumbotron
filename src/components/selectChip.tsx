@@ -133,7 +133,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Content className="overflow-hidden rounded-md bg-slate-700/75 shadow-lg">
+        <Select.Content className="overflow-hidden rounded-md bg-slate-700/75 shadow-lg z-50">
           <Select.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-slate-900/87">
             <ChevronUpIcon />
           </Select.ScrollUpButton>
