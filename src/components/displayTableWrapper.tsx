@@ -9,11 +9,12 @@ import { listen } from '@tauri-apps/api/event';
 
 type DisplayTableWrapperProps = {
   game?: string;
+  displayIndex?: number;
   fetchIntervalSeconds?: number;
 };
 
 export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
-  const { game, fetchIntervalSeconds = 10 } = props;
+  const { game, fetchIntervalSeconds = 10, displayIndex } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [_, setGameData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +127,7 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   return (
     <>
       <ThemeInjector game={game} />
-      <DisplayTable game={game} isFullScreen={true} fetchIntervalSeconds={fetchIntervalSeconds} />
+      <DisplayTable game={game} isFullScreen={true} displayIndex={displayIndex} fetchIntervalSeconds={fetchIntervalSeconds} />
     </>
   );
 }

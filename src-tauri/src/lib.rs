@@ -15,26 +15,32 @@ fn greet(name: &str) -> String {
 async fn create_display_window(
     app_handle: tauri::AppHandle,
     game: Option<String>,
+    display_index: Option<u32>,
     width: u32,
     height: u32,
 ) -> Result<(), String> {
-    let window_label = format!("display-{}", game.clone().unwrap_or_else(|| "default".to_string()));
+    let game_id = game.clone().unwrap_or_else(|| "default".to_string());
+    let display_idx = display_index.unwrap_or(0);
+    let window_label = format!("display-{}-{}", game_id, display_idx);
     
-    // Build URL with game parameter
-    let url = match game {
-        Some(ref g) => format!("viewer.html?mode=display&game={}", g),
-        None => "viewer.html?mode=display".to_string(),
+    // Build URL with game and displayIndex parameters
+    let url = match (game, display_index) {
+        (Some(g), Some(idx)) => format!("viewer.html?mode=display&game={}&displayIndex={}", g, idx),
+        (Some(g), None) => format!("viewer.html?mode=display&game={}", g),
+        (None, Some(idx)) => format!("viewer.html?mode=display&displayIndex={}", idx),
+        (None, None) => "viewer.html?mode=display".to_string(),
     };
     
     println!("Creating display window with URL: {}", url);
-    println!("Game parameter: {:?}", game);
+    println!("Game parameter: {:?}, Display Index: {:?}", game_id, display_idx);
     
+    let window_title = format!("Blumbotron Display - {} ({})", game_id, display_idx + 1);
     let window = tauri::WebviewWindowBuilder::new(
         &app_handle,
         window_label.clone(),
         tauri::WebviewUrl::App(url.parse().unwrap())
     )
-    .title("Blumbotron Display")
+    .title(&window_title)
     .inner_size(width as f64, height as f64)
     .center()
     .resizable(true)

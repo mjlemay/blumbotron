@@ -9,16 +9,18 @@ function ViewerApp() {
   try {
     const [isDisplayMode, setIsDisplayMode] = useState(false);
     const [game, setGame] = useState<string | undefined>(undefined);
+    const [displayIndex, setDisplayIndex] = useState<number>(0);
 
     useEffect(() => {
       // Parse URL parameters to determine mode and game
       const urlParams = new URLSearchParams(window.location.search);
       const mode = urlParams.get('mode');
       const gameParam = urlParams.get('game');
-      
+      const displayIndexParam = urlParams.get('displayIndex');
       if (mode === 'display') {
         setIsDisplayMode(true);
         setGame(gameParam || undefined);
+        setDisplayIndex(displayIndexParam ? parseInt(displayIndexParam, 10) : 0);
       }
     }, []);
 
@@ -32,7 +34,7 @@ function ViewerApp() {
                 <div className="text-sm text-gray-400">Initializing game data...</div>
               </div>
             }>
-              <DisplayTableWrapper game={game} fetchIntervalSeconds={10} />
+              <DisplayTableWrapper game={game} displayIndex={displayIndex} fetchIntervalSeconds={10} />
             </Suspense>
           </div>
         </div>

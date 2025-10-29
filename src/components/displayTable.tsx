@@ -24,7 +24,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     game,
     isFullScreen = false,
     numberOfScores = 10,
-    displayIndex = 0
+    displayIndex
   } = props;
   const { players } = usePlayerStore();
   const { games } = useGameStore();
@@ -42,7 +42,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   );
   const displayData: DisplayData | null = useMemo(() => 
     {
-      const expDisplayIndex: number = subSelected as number || displayIndex;
+      const expDisplayIndex: number = subSelected as number || displayIndex || 0;
       return gameData?.data?.displays ? gameData.data.displays[expDisplayIndex] : null;
     },
     [gameData, displayIndex, subSelected]
