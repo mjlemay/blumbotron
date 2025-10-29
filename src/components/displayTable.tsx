@@ -12,12 +12,19 @@ type ComponentProps = {
   fetchIntervalSeconds?: number;
   isFullScreen?: boolean;
   numberOfScores?: number;
+  displayIndex?: number;
 };
 
 const paddingValue = 0;
 
 function DisplayTable(props: ComponentProps): JSX.Element {
-  const { fetchIntervalSeconds = 60, game, isFullScreen = false, numberOfScores = 10 } = props;
+  const { 
+    fetchIntervalSeconds = 60,
+    game,
+    isFullScreen = false,
+    numberOfScores = 10,
+    displayIndex = 0
+  } = props;
   const { players } = usePlayerStore();
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
@@ -90,7 +97,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     score: 'Arial, sans-serif',
     ...(gameData?.data?.fonts || {})
   };
-  const backgroundImage = gameData?.data?.displays?.[0]?.backgroundImage 
+  const backgroundImage = gameData?.data?.displays?.[displayIndex]?.backgroundImage 
     || gameData?.data?.media?.backgroundImage 
     || null;
   const logoImage = gameData?.data?.media?.logoImage 
@@ -166,8 +173,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       right: paddingValue,
     },
   };
-  const title = gameData?.data?.displays?.[0]?.title || 'High Scores';
-  const numberOfRows = gameData?.data?.displays?.[0]?.rows || numberOfScores;
+  const title = gameData?.data?.displays?.[displayIndex]?.title || 'High Scores';
+  const numberOfRows = gameData?.data?.displays?.[displayIndex]?.rows || numberOfScores;
 
   // Memoize table data sorting
   const tableDataSorted = useMemo(() => {

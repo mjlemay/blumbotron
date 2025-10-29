@@ -8,30 +8,16 @@ export const defaultExperience: Experience = {
   subSelected: null,
 };
 
+export const defaultDisplayData = {
+  title: 'High Scores',
+  rows: 5,
+  category: 'table' as const,
+  units: ['points']
+};
+
 export const defaultGameMetaData = {
-  colors: {
-    background: '#000000',
-    text: '#ffffff',
-    primary: '#ff0000',
-    secondary: '#00ff00',
-    tertiary: '#0000ff',
-  },
-  media: {
-    backgroundImage: null,
-    backgroundVideo: null,
-    iconImage: null,
-    logoImage: null,
-    backgroundImageOpacity: 100,
-    logoImageOpacity: 100,
-    logoImagePosition: 'center',
-    logoImageScale: 25,
-  },
-  displays: [
-    {
-      title: 'High Scores',
-      rows: 10,
-    },
-  ],
+  theme: 'default',
+  displays: [defaultDisplayData],
 };
 
 export const defaultGame: GameDataItem = {
@@ -39,6 +25,7 @@ export const defaultGame: GameDataItem = {
   snowflake: 'BAD_ID',
   name: '',
   description: '',
+  roster: null,
   data: defaultGameMetaData,
 };
 
@@ -58,4 +45,14 @@ export const defaultRoster: RosterDataItem = {
   deny: [],
   opt_in: [],
   opt_out: [],
+};
+
+export const defaultScore = {
+  id: -1,
+  snowflake: 'BAD_ID',
+  name: '',
+  game: null,
+  player: null,
+  units: null,
+  amount: null,
 };

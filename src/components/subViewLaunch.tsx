@@ -1,19 +1,24 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import UpdateScore from './widgetUpdateScore';
 import DisplayFrame from './displayFrame';
-import { DataItem } from '../lib/types';
+import { GameDataItem } from '../lib/types';
 import { useGameStore } from '../stores/gamesStore';
 import { useRef, useEffect, useState } from 'react';
+import { PlusCircledIcon } from '@radix-ui/react-icons';
+import { defaultDisplayData } from '../lib/defaults';
 
 type LaunchProps = {
-  gameData: DataItem | null;
+  gameData: GameDataItem | null;
 };
 
 function SubViewLaunch(props: LaunchProps): JSX.Element {
   const { gameData } = props;
-  const { fetchGames } = useGameStore();
+  const { getGameBySnowflake, editGame } = useGameStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState<number>(0);
+  
+  // Get the current game data from the store, fallback to prop
+  const currentGameData = gameData?.snowflake ? getGameBySnowflake(gameData.snowflake) || gameData : gameData;
 
   useEffect(() => {
     const updateHeight = () => {
@@ -33,19 +38,87 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
     };
   }, []);
 
-  useEffect(() => {
-    fetchGames();
-  }, []);
+  const addNewDisplay = async () => {
+    if (!currentGameData || !currentGameData.snowflake) {
+      console.error('No game data or snowflake available');
+      return;
+    }
+    const newDisplayItem = {
+      ...defaultDisplayData,
+      title: `Display ${(currentGameData.data?.displays?.length || 0) + 1}`,
+    };
+    const updatedGameData = {
+      ...currentGameData,
+      data: {
+        ...currentGameData.data,
+        displays: [...(currentGameData.data?.displays || []), newDisplayItem],
+      },
+    };
+
+    try {
+      await editGame(updatedGameData);
+    } catch (error) {
+      console.error('Failed to add new display:', error);
+    }
+  };
 
   return (
     <div>
       <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden mb-2">
         <ScrollArea.Viewport className="h-full w-full rounded">
-          <div
-            ref={containerRef}
-            className="p-4 overflow-y-hidden min-h-[calc(50vh-120px)] max-h-[calc(50vh-120px)]"
-          >
-            <DisplayFrame height={containerHeight} game={gameData?.snowflake} />
+          <div className="flex flex-row items-center justify-start gap-1">
+            {currentGameData?.data?.displays && currentGameData.data.displays.length > 0 &&
+              currentGameData.data.displays.map((display, index) => (
+                <div
+                  ref={containerRef}
+                  className="
+                    p-4
+                    overflow-y-hidden
+                    min-h-[calc(50vh-120px)]
+                    max-h-[calc(50vh-120px)]
+                  "
+                >
+                  <DisplayFrame 
+                    height={containerHeight} 
+                    key={`$${display.title || 'displayItem'}_${index}`}
+                    game={currentGameData?.snowflake}
+                    displayIndex={index}
+                  />
+                </div>
+              ))}
+            <div
+              className="
+              flex
+              min-h-[calc(50vh-120px)]
+              pt-4
+              pb-4
+              "
+            >
+            <button
+              className="
+                select-none
+                items-center
+                justify-center
+                cursor-pointer
+                rounded
+                shadow-sm
+                text-lg
+                font-medium
+                bg-sky-700
+                p-2
+                min-h-full
+                hover:bg-sky-600/80
+                active:bg-sky-600/90
+                disabled:bg-sky-600/50
+                disabled:cursor-not-allowed
+                transition-colors
+                duration-200
+              "
+              onClick={addNewDisplay}
+            >
+              <PlusCircledIcon width="20" height="20" />
+            </button>
+            </div>
           </div>
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar

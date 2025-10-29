@@ -8,6 +8,7 @@ import {
 } from '@radix-ui/react-icons';
 import * as Menubar from '@radix-ui/react-menubar';
 import { useExperienceStore } from '../stores/experienceStore';
+import { useGameStore } from '../stores/gamesStore';
 import { Window } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import ThemeInjector from './themeInjector';
@@ -16,11 +17,13 @@ import DisplayTable from './displayTable';
 type ComponentProps = {
   height?: number;
   game?: string;
+  displayIndex?: number;
 };
 
 function DisplayFrame(props: ComponentProps): JSX.Element {
-  const { game, height = 300 } = props;
+  const { game, height = 300, displayIndex = 0 } = props;
   const { setExpModal, setExpSubView, setExpSubSelected } = useExperienceStore();
+  const { getGameBySnowflake, editGame } = useGameStore();
 
   const handleAllSidesClick = () => {
     setExpModal('displayTable');
@@ -48,10 +51,51 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     }
   };
 
-  const handleDisplayFrameConfigClick = () => {
-    setExpSubSelected(0);
-    setExpSubView('tableConfig');
-  }
+    const handleDisplayFrameConfigClick = () => {
+    setExpSubSelected(displayIndex);
+    setExpSubView('formGameStyles');
+  };
+
+  const handleDeleteDisplay = async () => {
+    if (displayIndex === 0) {
+      console.warn('Cannot delete the first display');
+      return;
+    }
+    if (!game) {
+      console.error('No game snowflake available');
+      return;
+    }
+
+    const currentGameData = getGameBySnowflake(game);
+    if (!currentGameData || !currentGameData.data?.displays) {
+      console.error('No game data or displays found');
+      return;
+    }
+
+    // Don't allow deleting if it's the last display
+    if (currentGameData.data.displays.length <= 1) {
+      console.warn('Cannot delete the last display');
+      return;
+    }
+
+    // Create updated displays array without the item at displayIndex
+    const updatedDisplays = currentGameData.data.displays.filter((_, index) => index !== displayIndex);
+
+    // Create updated game data
+    const updatedGameData = {
+      ...currentGameData,
+      data: {
+        ...currentGameData.data,
+        displays: updatedDisplays,
+      },
+    };
+
+    try {
+      await editGame(updatedGameData);
+    } catch (error) {
+      console.error('Failed to delete display:', error);
+    }
+  };
 
   return (
     <div
@@ -76,7 +120,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         justify-center
       `}>
         <ThemeInjector game={game} />
-        <DisplayTable game={game} fetchIntervalSeconds={60} />
+        <DisplayTable game={game} displayIndex={displayIndex} fetchIntervalSeconds={60} />
       </div>
       <div
         className="
@@ -112,11 +156,19 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                     </div>
                   </Menubar.Item>
                   <Menubar.Item
-                    disabled
-                    className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
-                     onClick={() => {}}
+                    disabled={displayIndex === 0}
+                    className={`
+                      cursor-pointer
+                      bg-slate-600/50
+                      ${displayIndex !== 0 && 'hover:bg-red-600/20'}
+                      rounded-md
+                      p-1
+                      m-1
+                      ${displayIndex === 0 && 'opacity-50 cursor-not-allowed'}
+                      `}
+                    onClick={handleDeleteDisplay}
                   >
-                    <div data-disabled className="flex flex-row gap-2 items-center data-disabled:opacity-30">
+                    <div className="flex flex-row gap-2 items-center">
                       <TrashIcon width="20" height="20" /> Delete
                     </div>
                   </Menubar.Item>

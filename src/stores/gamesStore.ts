@@ -11,14 +11,20 @@ type GameStore = {
   createGame: (game: GameDataItem) => Promise<GameDataItem>;
   editGame: (game: GameDataItem) => Promise<void>;
   deleteGame: (game: GameDataItem) => Promise<void>;
+  getGameBySnowflake: (snowflake: string) => GameDataItem | null;
 };
 
 const MAGIC_LIMIT = 1000;
 
-export const useGameStore = create<GameStore>((set) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   games: [],
   loading: false,
   error: null,
+
+  getGameBySnowflake: (snowflake: string) => {
+    const { games } = get();
+    return games.find(game => game.snowflake === snowflake) || null;
+  },
 
   fetchGames: async () => {
     set({ loading: true, error: null });
@@ -85,7 +91,18 @@ export const useGameStore = create<GameStore>((set) => ({
   editGame: async (form: GameDataItem) => {
     set({ loading: true, error: null });
     try {
-      await gameData.updateGame(form);
+      const result = await gameData.updateGame(form);
+      if (!result) {
+        throw new Error('Failed to update game - no result returned');
+      }
+      const updatedGame = result as GameDataItem;
+      // Update the game in the games array
+      set((state) => ({
+        games: state.games.map((game) =>
+          game.id === updatedGame.id ? updatedGame : game
+        ),
+        error: null,
+      }));
     } catch (error) {
       console.error('Failed to edit game:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to edit game';
