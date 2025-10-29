@@ -3,7 +3,8 @@ import { usePlayerStore } from "../stores/playersStore";
 import { useGameStore } from "../stores/gamesStore";
 import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
-import { ScoreDataItem } from "../lib/types";
+import { useExperienceStore } from "../stores/experienceStore";
+import { DisplayData, ScoreDataItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
 import { customThemeSettings } from '../lib/consts';
 
@@ -28,6 +29,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { players } = usePlayerStore();
   const { games } = useGameStore();
   const { rosters } = useRosterStore();
+  const { experience } = useExperienceStore();
+  const subSelected = experience?.subSelected || 0;
   const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
   const [logoImageSrc, setLogoImageSrc] = useState<string>('');
@@ -36,6 +39,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const gameData = useMemo(() => 
     games.find((gameItem) => gameItem.snowflake === game), 
     [games, game]
+  );
+  const displayData: DisplayData | null = useMemo(() => 
+    {
+      const expDisplayIndex: number = subSelected as number || displayIndex;
+      return gameData?.data?.displays ? gameData.data.displays[expDisplayIndex] : null;
+    },
+    [gameData, displayIndex, subSelected]
   );
   
   // Memoize roster data lookup
@@ -97,7 +107,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     score: 'Arial, sans-serif',
     ...(gameData?.data?.fonts || {})
   };
-  const backgroundImage = gameData?.data?.displays?.[displayIndex]?.backgroundImage 
+  const backgroundImage = displayData?.backgroundImage 
     || gameData?.data?.media?.backgroundImage 
     || null;
   const logoImage = gameData?.data?.media?.logoImage 
@@ -173,8 +183,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       right: paddingValue,
     },
   };
-  const title = gameData?.data?.displays?.[displayIndex]?.title || 'High Scores';
-  const numberOfRows = gameData?.data?.displays?.[displayIndex]?.rows || numberOfScores;
+  const title = displayData?.title || 'High Scores';
+  const numberOfRows = displayData?.rows || numberOfScores;
 
   // Memoize table data sorting
   const tableDataSorted = useMemo(() => {

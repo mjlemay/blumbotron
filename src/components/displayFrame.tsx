@@ -26,6 +26,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   const { getGameBySnowflake, editGame } = useGameStore();
 
   const handleAllSidesClick = () => {
+    setExpSubSelected(displayIndex);
     setExpModal('displayTable');
   };
 
@@ -33,6 +34,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     try {      
       await invoke('create_display_window', {
         game: game,
+        displayIndex: displayIndex,
         width: 1024,
         height: 800
       });
@@ -42,7 +44,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   };
 
   const handleFullScreenClick = async () => {
-    setExpModal('displayTable');
+    handleAllSidesClick();
     try {
       const appWindow = await Window?.getCurrent();
       await appWindow.setFullscreen(true);

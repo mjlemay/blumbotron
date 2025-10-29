@@ -10,7 +10,7 @@ type ExperienceStore = {
   setExpSubView: (subView: string) => void;
   setExpModal: (modal: string) => void;
   setExpSelected: (selected: Record<string, SelectedItem>) => void;
-  setExpSubSelected: (selected: string | number) => void;
+  setExpSubSelected: (selected: string | number | null) => void;
 };
 
 export const useExperienceStore = create<ExperienceStore>((set) => ({

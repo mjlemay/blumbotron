@@ -8,10 +8,12 @@ import ViewRosters from './viewRosters';
 import Header from './header';
 import Sidebar from './sidebar';
 import DialogModal from './dialogModal';
+import ThemeInjector from './themeInjector';
 
 function MainViewer() {
   const { experience, loading, error } = useExperienceStore();
-  const { view, modal } = experience;
+  const { view, modal, selected } = experience;
+  const gameSelected = selected && selected.game;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -45,6 +47,7 @@ function MainViewer() {
   };
   return (
     <main className="flex flex-col min-h-screen bg-slate-800">
+      <ThemeInjector game={gameSelected?.snowflake} />
       <Header />
       <div className="flex flex-row">
         <div className="flex-0 min-w-[80px]">

@@ -16,7 +16,6 @@ import { useGameStore } from '../stores/gamesStore';
 import { usePlayerStore } from '../stores/playersStore';
 import { useRosterStore } from '../stores/rostersStore';
 import { useShallow } from 'zustand/react/shallow';
-import ThemeInjector from './themeInjector';
 
 type DialogModalProps = {
   children?: React.ReactNode;
@@ -30,7 +29,7 @@ function DialogModal({
   selectedModal,
   isOpen = false,
 }: DialogModalProps): JSX.Element {
-  const { setExpModal, experience: { selected } } = useExperienceStore();
+  const { setExpModal, setExpSubSelected, experience: { selected } } = useExperienceStore();
   const gameSelected = selected && selected.game;
   const { fetchGames } = useGameStore(useShallow((state) => ({ fetchGames: state.fetchGames })));
   const { fetchPlayers } = usePlayerStore(
@@ -119,14 +118,11 @@ function DialogModal({
         />
       ),
       displayTable: (
-        <>
-          <ThemeInjector game={gameSelected?.snowflake} />
-          <DisplayTable
-            game={gameSelected?.snowflake}
-            isFullScreen={true}
-            fetchIntervalSeconds={60}
-          />
-        </>
+        <DisplayTable
+          game={gameSelected?.snowflake}
+          isFullScreen={true}
+          fetchIntervalSeconds={60}
+        />
       ),
     };
     return content[selectedModal as keyof typeof content] || null;
@@ -140,6 +136,7 @@ function DialogModal({
         await appWindow.setFullscreen(false);
       }
       setExpModal('none');
+      setExpSubSelected(null);
       refreshData(fetchGames, fetchPlayers, fetchRosters);
     }
   };

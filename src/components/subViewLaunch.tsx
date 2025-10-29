@@ -88,7 +88,7 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
         <ScrollArea.Viewport ref={scrollViewportRef} className="h-full w-full rounded">
           <div className="flex flex-row items-center justify-start gap-1">
             {currentGameData?.data?.displays && currentGameData.data.displays.length > 0 &&
-              currentGameData.data.displays.map((display, index) => (
+              currentGameData.data.displays.map((_, index) => (
                 <div
                   ref={containerRef}
                   className="
@@ -97,10 +97,10 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
                     min-h-[calc(50vh-120px)]
                     max-h-[calc(50vh-120px)]
                   "
+                  key={`displayItem_${index}`}
                 >
                   <DisplayFrame 
                     height={containerHeight} 
-                    key={`$${display.title || 'displayItem'}_${index}`}
                     game={currentGameData?.snowflake}
                     displayIndex={index}
                   />
