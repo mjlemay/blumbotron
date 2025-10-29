@@ -22,7 +22,7 @@ type ComponentProps = {
 
 function DisplayFrame(props: ComponentProps): JSX.Element {
   const { game, height = 300, displayIndex = 0 } = props;
-  const { setExpModal, setExpSubView, setExpSubSelected } = useExperienceStore();
+  const { setExpModal, setExpSubView, setExpSubSelected, setExpSelected, setExpView } = useExperienceStore();
   const { getGameBySnowflake, editGame } = useGameStore();
 
   const handleAllSidesClick = () => {
@@ -51,9 +51,23 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     }
   };
 
-    const handleDisplayFrameConfigClick = () => {
+  const handleDisplayFrameConfigClick = () => {
+    if (!game) {
+      console.error('No game available for configuration');
+      return;
+    }
+    
+    const currentGameData = getGameBySnowflake(game);
+    if (!currentGameData) {
+      console.error('Game data not found');
+      return;
+    }
+
+    // Set the current game as selected and navigate to the game view with form subview
+    setExpSelected({ game: currentGameData });
     setExpSubSelected(displayIndex);
-    setExpSubView('formGameStyles');
+    setExpView('game');
+    setExpSubView('displayConfig');
   };
 
   const handleDeleteDisplay = async () => {

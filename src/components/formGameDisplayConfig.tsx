@@ -12,15 +12,16 @@ import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { setNestedValue } from '../lib/helpers';
 
-type FormGameTableConfigProps = {
+type FormGameDisplayConfigProps = {
   onSuccess?: () => void;
 };
  
-function FormGameTableConfig(props: FormGameTableConfigProps) {
+function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
   const { onSuccess } = props;
-  const { editGame,  loading, error } = useGameStore();
-  const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
+  const { editGame, loading, error } = useGameStore();
+  const { setExpView, setExpModal, setExpSelected, experience } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
+  const displayIndex = experience.subSelected as number || 0;
 
   // todo: refactor fullForm and gameData parsing logic
   let gameData: any = {};
@@ -52,7 +53,6 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
     });
-    console.log('form', form);
   };
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +82,14 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
       data: z.object({
         displays: z.array(z.object({
           title: z.string(),
-          rows: z.string().min(1, 'Please supply a number of rows.'),
+          rows: z.union([z.string(), z.number()]).transform((val) => {
+            if (typeof val === 'string') {
+              const parsed = parseInt(val, 10);
+              if (isNaN(parsed)) throw new Error('Must be a valid number');
+              return parsed;
+            }
+            return val;
+          }).refine((val) => val >= 1, 'Must be at least 1'),
         })),
       }),
     });
@@ -152,7 +159,10 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   return (
     <>
     <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-        {name} Table Display Configuration
+        {name} - Display {displayIndex + 1} Configuration
+        {gameData?.displays?.[displayIndex]?.title && (
+          <span className="text-slate-400 text-xl">({gameData.displays[displayIndex].title})</span>
+        )}
     </h2>
     <div className="flex flex-col items-center bg-slate-900 rounded-lg shadow-lg">
       <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
@@ -191,15 +201,15 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
                       Table Display Configuration
                     </h3>
                     <Input
-                      name="data.displays[0].title"
-                      label="Title" 
-                      value={form?.data?.displays?.[0]?.title || ''}
+                      name={`data.displays[${displayIndex}].title`}
+                      label="Title"
+                      value={form?.data?.displays?.[displayIndex]?.title || ''}
                       changeHandler={handleFormChange}
                     />
                     <Input
-                      name="data.displays[0].rows"
+                      name={`data.displays[${displayIndex}].rows`}
                       label="Number of Rows"
-                      value={form?.data?.displays?.[0]?.rows || ''}
+                      value={form?.data?.displays?.[displayIndex]?.rows || ''}
                       changeHandler={handleFormChange}
                     />
                   </div>
@@ -243,4 +253,4 @@ function FormGameTableConfig(props: FormGameTableConfigProps) {
   );
 }
 
-export default FormGameTableConfig;
+export default FormGameDisplayConfig;

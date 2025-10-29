@@ -3,7 +3,7 @@ import { useExperienceStore } from '../stores/experienceStore';
 import UiButton from './uiButton';
 import SubViewLaunch from './subViewLaunch';
 import FormGameStyles from './formGameStyles';
-import FormGameTableConfig from './formGameTableConfig';
+import FormGameDisplayConfig from './formGameDisplayConfig';
 import FormGameMedia from './formGameMedia';
 import FormGameLayout from './formGameLayout';
 
@@ -100,7 +100,7 @@ function ViewGame() {
         {subView === 'media' && <FormGameMedia />}
         {subView === 'styles' && <FormGameStyles />}
         {subView === 'layout' && <FormGameLayout />}
-        {subView === 'tableConfig' && <FormGameTableConfig />}
+        {subView === 'displayConfig' && <FormGameDisplayConfig />}
       </div>
     </div>
   );
