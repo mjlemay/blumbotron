@@ -118,12 +118,13 @@ function SelectChip(props: ComponentProps): JSX.Element {
                 data-[placeholder]:text-slate-300
                 text-lg
                 cursor-pointer
+                min-h-[2.5rem]
                 ${moreClasses}
             `}
         aria-label="items"
       >
         <Select.Value placeholder={<div className="p-1 pr-0">{selectPlaceholder}</div>} />
-        <Select.Icon>
+        <Select.Icon className="ml-auto pr-2">
           {selectIcon ||
             (resetOnSelect ? (
               <PlusCircledIcon className="w-4 h-4" />
@@ -151,7 +152,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
                       key={`${selectPrefix || selectLabel || 'select'}-${item.label}`}
                       value={(item.value as string) || ''}
                     >
-                      <div className="flex flex-row items-center gap-2 text-xl p-1 rounded-full">
+                      <div className="flex flex-row items-center gap-2 text-xl p-1 pl-8 rounded-full">
                         {item.data?.snowflake && (
                           <img
                             src={avatar(item.data?.snowflake)}

@@ -9,14 +9,22 @@ export type DataItem = {
   updated_at?: string;
 };
 
+export type UnitItem = {
+  name: string;
+  type: string;
+}
+
 export type DisplayData = {
     title?: string;
     rows?: number;
+    offset?: number;
+    direction?: 'ascending' | 'descending';
+    sortUnit?: string;
     backgroundImage?: string;
     backgroundVideo?: string | null;
     titleImage?: string | null;
     category: DisplayCategory,
-    units: string[]
+    filteredUnits: string[]
 }
 
 export type GameDataItem = DataItem & {
@@ -55,6 +63,10 @@ export type GameDataItem = DataItem & {
         left?: string;
         right?: string;
       };
+    };
+    mechanics?:
+    {
+      units?: UnitItem[];
     };
     displays?: DisplayData[];
   };

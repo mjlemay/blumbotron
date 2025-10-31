@@ -10,6 +10,7 @@ import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import SelectChip from './selectChip';
 import { setNestedValue } from '../lib/helpers';
 
 type FormGameDisplayConfigProps = {
@@ -61,6 +62,10 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
     const formValue = eventTarget?.value;
     updateFormInput(formKey, formValue);
   };
+
+  const handleSelect = (formKey: string) => (value: string) => {
+    updateFormInput(formKey, value);
+  }
 
   const handleSubmitClose = (
     view: string = 'home',
@@ -159,7 +164,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
   return (
     <>
     <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
-        {name} - Display {displayIndex + 1} Configuration
+        {name} » Display {displayIndex + 1} 
         {gameData?.displays?.[displayIndex]?.title && (
           <span className="text-slate-400 text-xl">({gameData.displays[displayIndex].title})</span>
         )}
@@ -212,6 +217,28 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                       value={form?.data?.displays?.[displayIndex]?.rows || ''}
                       changeHandler={handleFormChange}
                     />
+                    <Input
+                      name={`data.displays[${displayIndex}].offset`}
+                      label="Skipped Top Rows"
+                      value={form?.data?.displays?.[displayIndex]?.offset || ''}
+                      changeHandler={handleFormChange}
+                    />
+                    <div>
+                        <label className="block text-lg font-bold text-white mb-2">
+                          Direction
+                        </label>
+                        <SelectChip
+                          selectLabel="Direction"
+                          selectPlaceholder="Choose Direction"
+                          selections={[
+                            { value: 'descending', label: 'Highest' },
+                            { value: 'ascending', label: 'Lowest' },
+                          ]}
+                          defaultValue={form?.data?.displays?.[displayIndex]?.direction || 'descending'}
+                          handleSelect={handleSelect(`data.displays[${displayIndex}].direction`)}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
                   </div>
                 </div>
               </div>

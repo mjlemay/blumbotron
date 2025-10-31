@@ -12,11 +12,19 @@ export const defaultDisplayData = {
   title: 'High Scores',
   rows: 5,
   category: 'table' as const,
-  units: ['points']
+  filteredUnits: ['points']
 };
+
+export const defaultUnitItem = {
+  name: 'points',
+  type: 'score'
+}
 
 export const defaultGameMetaData = {
   theme: 'default',
+  mechanics: {
+    units: [defaultUnitItem]
+  },
   displays: [defaultDisplayData],
 };
 

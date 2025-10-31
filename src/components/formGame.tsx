@@ -95,14 +95,61 @@ function FormGame(props: FormGameProps) {
       name: z.string().min(3, 'Please supply a game name.'),
       description: z.string(),
       roster: z.string().nullable().optional(),
+      data: z.object({
+        theme: z.string().optional(),
+        colors: z.object({
+          background: z.string().optional(),
+          text: z.string().optional(),
+          primary: z.string().optional(),
+          secondary: z.string().optional(),
+          tertiary: z.string().optional(),
+          tableHeader: z.string().optional(),
+          tableRow: z.string().optional(),
+          tableAlt: z.string().optional(),
+        }).optional(),
+        fonts: z.object({
+          header: z.string().optional(),
+          player: z.string().optional(),
+          score: z.string().optional(),
+        }).optional(),
+        media: z.object({
+          backgroundImage: z.string().nullable().optional(),
+          backgroundImageOpacity: z.number().nullable().optional(),
+          logoImage: z.string().nullable().optional(),
+          logoImageOpacity: z.number().nullable().optional(),
+          logoImagePosition: z.string().nullable().optional(),
+          logoImageScale: z.number().nullable().optional(),
+          logoImageHorizontalOffset: z.number().nullable().optional(),
+          logoImageVerticalOffset: z.number().nullable().optional(),
+        }).optional(),
+        placement: z.object({
+          paddingFrame: z.object({
+            top: z.string().optional(),
+            bottom: z.string().optional(),
+            left: z.string().optional(),
+            right: z.string().optional(),
+          }).optional(),
+        }).optional(),
+        mechanics: z.object({
+          units: z.array(z.object({
+            name: z.string(),
+            type: z.string(),
+          })).optional(),
+        }).optional(),
+        displays: z.array(z.object({
+          title: z.string().optional(),
+          rows: z.number().optional(),
+          offset: z.number().optional(),
+          direction: z.enum(['higher', 'lower']).optional(),
+          sortUnit: z.string().optional(),
+          backgroundImage: z.string().optional(),
+          backgroundVideo: z.string().nullable().optional(),
+          titleImage: z.string().nullable().optional(),
+          category: z.enum(['table', 'slide']),
+          filteredUnits: z.array(z.string()),
+        })).optional(),
+      }).optional(),
     });
-    if (edit) {
-      formSchema = z.object({
-        name: z.string().min(3, 'Please supply a game name.'),
-        description: z.string(),
-        roster: z.string().nullable().optional(),
-      });
-    }
     try {
       formSchema.parse(formData);
       if (edit) {
