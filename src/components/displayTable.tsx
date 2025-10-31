@@ -34,6 +34,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
   const [logoImageSrc, setLogoImageSrc] = useState<string>('');
+  const [titleImageSrc, setTitleImageSrc] = useState<string>('');
   
   // Memoize game data lookup
   const gameData = useMemo(() => 
@@ -126,6 +127,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     || null;
   const logoImage = gameData?.data?.media?.logoImage 
     || null;
+  const titleImage = displayData?.titleImage || null;
   const logoImageOpacity = gameData?.data?.media?.logoImageOpacity || 100;
   const logoImageScale = gameData?.data?.media?.logoImageScale || 25;
   const logoImagePosition = gameData?.data?.media?.logoImagePosition || 'center';
@@ -185,9 +187,32 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         setLogoImageSrc('');
       }
     };
+    
+    const loadTitleImage = async () => {
+      if (titleImage) {
+        try {
+          // If it's already a data URL, use it directly
+          if (titleImage.startsWith('data:')) {
+            setTitleImageSrc(titleImage);
+            return;
+          }
+          
+          // Otherwise, load from Tauri backend
+          const dataUrl = await invoke('get_background_image_data', { fileName: titleImage }) as string;
+          setTitleImageSrc(dataUrl);
+        } catch (error) {
+          console.error('Failed to load title image:', titleImage, error);
+          setTitleImageSrc('');
+        }
+      } else {
+        setTitleImageSrc('');
+      }
+    };
+    
     loadLogoImage();
     loadBackgroundImage();
-  }, [backgroundImage, logoImage]);
+    loadTitleImage();
+  }, [backgroundImage, logoImage, titleImage]);
 
   const placement = gameData?.data?.placement || {
     paddingFrame: {
@@ -365,7 +390,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
               <div className="flex flex-col justify-start min-w-full min-h-full">
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">
-                  {title && title.length > 0 && (
+                  {titleImageSrc ? <img src={titleImageSrc} alt="Title" className="flex-1" /> : title && title.length > 0 && (
                     <div className={`
                       flex-1
                       text-white

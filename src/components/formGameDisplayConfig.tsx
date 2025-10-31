@@ -5,13 +5,14 @@ import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
 import { GameDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon } from '@radix-ui/react-icons';
+import { Pencil1Icon, UploadIcon, TrashIcon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import SelectChip from './selectChip';
 import { setNestedValue } from '../lib/helpers';
+import { useRef, useState, useEffect } from 'react';
 
 type FormGameDisplayConfigProps = {
   onSuccess?: () => void;
@@ -23,6 +24,8 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
   const { setExpView, setExpModal, setExpSelected, experience } = useExperienceStore();
   const game = getSelected('games') as GameDataItem;
   const displayIndex = experience.subSelected as number || 0;
+  const titleImageInputRef = useRef<HTMLInputElement>(null);
+  const [titleImageSrc, settitleImageSrc] = useState<string>('');
 
   // todo: refactor fullForm and gameData parsing logic
   let gameData: any = {};
@@ -67,6 +70,100 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
     updateFormInput(formKey, value);
   }
 
+  // Image handling functions (similar to formGameMedia)
+  useEffect(() => {
+    const updateImageSrc = async () => {
+      const titleImage = form?.data?.displays?.[displayIndex]?.titleImage;
+      if (titleImage) {
+        try {
+          const src = await getImageSrc(titleImage);
+          settitleImageSrc(src || '');
+        } catch (error) {
+          console.error('FormGameDisplayConfig: Error loading header image:', error);
+          settitleImageSrc('');
+        }
+      } else {
+        settitleImageSrc('');
+      }
+    };
+    updateImageSrc();
+  }, [form?.data?.displays?.[displayIndex]?.titleImage]);
+
+  const getImageSrc = async (imagePath: string): Promise<string> => {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('data:')) return imagePath;
+    
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
+      return dataUrl;
+    } catch (error) {
+      console.error('getImageSrc: Failed to get image data for', imagePath, ':', error);
+      return imagePath;
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (PNG, JPG, GIF, etc.)');
+      return;
+    }
+    
+    try {
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop() || 'png';
+      const fileName = `header_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
+    
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
+      
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('save_background_image', {
+        fileName: fileName,
+        imageData: base64
+      });
+      
+      updateFormInput(`data.displays[${displayIndex}].titleImage`, fileName);
+      
+    } catch (error) {
+      console.error('FormGameDisplayConfig: Failed to save header image:', error);
+      try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64String = event.target?.result as string;
+          updateFormInput(`data.displays[${displayIndex}].titleImage`, base64String);
+        };
+        reader.readAsDataURL(file);
+      } catch (fallbackError) {
+        alert('Failed to upload image. Please try again.');
+      }
+    }
+  };
+
+  const handleImageRemove = async () => {
+    const currentImage = form?.data?.displays?.[displayIndex]?.titleImage;
+    if (currentImage && !currentImage.startsWith('data:')) {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('delete_background_image', { fileName: currentImage });
+      } catch (error) {
+        console.warn('Failed to delete header image file:', error);
+      }
+    }
+    updateFormInput(`data.displays[${displayIndex}].titleImage`, '');
+    if (titleImageInputRef.current) {
+      titleImageInputRef.current.value = '';
+    }
+  };
+
+  const triggerFileUpload = () => {
+    titleImageInputRef.current?.click();
+  };
+
   const handleSubmitClose = (
     view: string = 'home',
     modal: string = 'none',
@@ -104,6 +201,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
             return val;
           }).refine((val) => val >= 0, 'Must be at least 0').optional(),
           direction: z.enum(['ascending', 'descending']).optional(),
+          titleImage: z.string().nullable().optional(),
           category: z.enum(['table', 'slide']).optional(),
           filteredUnits: z.array(z.string()).optional(),
         })),
@@ -254,6 +352,76 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                           moreClasses="w-full justify-start"
                         />
                       </div>
+                      <div className="w-full mb-4 mt-4">
+                        <label className="block font-bold text-lg mb-2 text-white">
+                          Header Image
+                        </label>
+                        <input
+                          ref={titleImageInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          name={`data.displays[${displayIndex}].titleImage`}
+                        />
+                        
+                        {/* Current image preview or upload area */}
+                        <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
+                          {form?.data?.displays?.[displayIndex]?.titleImage ? (
+                            <div className="space-y-3">
+                              {/* Image thumbnail */}
+                              <div className="relative inline-block">
+                                <img
+                                  src={titleImageSrc}
+                                  alt="Header preview"
+                                  className="max-w-xs max-h-32 rounded border object-cover"
+                                />
+                                {/* Remove button overlay */}
+                                <button
+                                  type="button"
+                                  onClick={handleImageRemove}
+                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                  title="Remove image"
+                                >
+                                  <TrashIcon width="16" height="16" />
+                                </button>
+                              </div>
+                              
+                              {/* Replace button */}
+                              <button
+                                type="button"
+                                onClick={triggerFileUpload}
+                                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                              >
+                                <UploadIcon width="16" height="16" />
+                                Replace Image
+                              </button>
+                            </div>
+                          ) : (
+                            /* Upload area when no image */
+                            <div className="text-center">
+                              <div className="mb-3">
+                                <UploadIcon width="48" height="48" className="mx-auto text-gray-400" />
+                              </div>
+                              <p className="text-gray-300 mb-3">
+                                Click to upload a header image
+                              </p>
+                              <button
+                                type="button"
+                                onClick={triggerFileUpload}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mx-auto"
+                              >
+                                <UploadIcon width="16" height="16" />
+                                Choose Image
+                              </button>
+                              <p className="text-xs text-gray-400 mt-2">
+                                Supports JPG, PNG, GIF files
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                   </div>
                 </div>
               </div>

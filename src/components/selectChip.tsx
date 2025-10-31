@@ -146,10 +146,10 @@ function SelectChip(props: ComponentProps): JSX.Element {
                 </Select.Label>
               )}
               {selections &&
-                selections.map((item) => {
+                selections.map((item, index) => {
                   return (
                     <SelectItem
-                      key={`${selectPrefix || selectLabel || 'select'}-${item.label}`}
+                      key={`${selectPrefix || selectLabel || 'select'}-${item.label}-${index}`}
                       value={(item.value as string) || ''}
                     >
                       <div className="flex flex-row items-center gap-2 text-xl p-1 pl-8 rounded-full">
