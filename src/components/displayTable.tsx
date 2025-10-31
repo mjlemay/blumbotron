@@ -73,9 +73,23 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     
     return { allowedPlayers: allowed, playersData: playerData };
   }, [rosterData, players]);
+
+  // Get offset value before using it in tableData
+  const offset = displayData?.offset || 0;
+  const direction = displayData?.direction || 'descending';
+  
   // Memoize table data processing
   const tableData = useMemo(() => {
-    return gameScores[game || '']?.map((scoreItem: ScoreDataItem) => {
+    const sortedPlayers = gameScores[game || '']?.sort((a, b) => {
+      return direction === 'ascending' 
+        ? (a?.amount || 0) - (b?.amount || 0)  // ascending: low to high
+        : (b?.amount || 0) - (a?.amount || 0); // descending: high to low
+    }) || [];
+    
+    // Apply offset by slicing the sorted array (skip top N players)
+    const offsetPlayers = sortedPlayers.slice(offset);
+    
+    return offsetPlayers?.map((scoreItem: ScoreDataItem) => {
       const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
       if(typeof playerData?.name !== 'undefined') {
         return {
@@ -83,8 +97,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           score: scoreItem?.amount,
         };
       }
-    });
-  }, [gameScores, game, playersData]);
+    }).filter(item => item !== undefined);
+  }, [gameScores, game, playersData, offset, direction]);
 
   const colors = {
     background: 'black',
@@ -186,10 +200,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const title = displayData?.title || 'High Scores';
   const numberOfRows = displayData?.rows || numberOfScores;
 
-  // Memoize table data sorting
+  // Use tableData directly since it's already sorted based on direction
   const tableDataSorted = useMemo(() => {
     return tableData && tableData.length > 0 ? 
-      [...tableData].sort((a, b) => (b?.score || 0) - (a?.score || 0)) : [];
+      tableData.filter(item => item !== undefined) : [];
   }, [tableData]);
 
 

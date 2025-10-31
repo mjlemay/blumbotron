@@ -95,14 +95,29 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
             }
             return val;
           }).refine((val) => val >= 1, 'Must be at least 1'),
+          offset: z.union([z.string(), z.number()]).transform((val) => {
+            if (typeof val === 'string') {
+              const parsed = parseInt(val, 10);
+              if (isNaN(parsed)) throw new Error('Must be a valid number');
+              return parsed;
+            }
+            return val;
+          }).refine((val) => val >= 0, 'Must be at least 0').optional(),
+          direction: z.enum(['ascending', 'descending']).optional(),
+          category: z.enum(['table', 'slide']).optional(),
+          filteredUnits: z.array(z.string()).optional(),
         })),
       }),
     });
     try {
-      formSchema.parse(formData);
+      const validatedData = formSchema.parse(formData);
       // Merge existing data with new changes
       const existingData = game?.data || {};
-      const newDisplays = formData.data?.displays || [];
+      const existingDisplays = existingData.displays || [];
+      const newDisplays = validatedData.data?.displays?.map((newDisplay, index) => ({
+        ...existingDisplays[index], // Preserve existing fields like category, filteredUnits
+        ...newDisplay // Override with new validated values
+      })) || [];
       const newMedia = formData.data?.media || {};
       const mergedData = {
         ...existingData,
