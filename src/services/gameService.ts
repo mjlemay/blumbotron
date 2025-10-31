@@ -28,7 +28,7 @@ const addGame = async (game: GameDataItem) => {
       snowflake: String(snowflake),
       description: game.description || '',
       roster: game.roster || null,
-      data: JSON.stringify(cleanData)
+      data: cleanData  // Let Drizzle handle JSON serialization since schema has { mode: 'json' }
     };
     
     // Insert without .returning() to avoid JSON parse issues
