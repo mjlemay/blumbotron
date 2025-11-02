@@ -125,8 +125,70 @@ jobs:
             src-tauri/target/release/bundle/
           retention-days: 30
 
+  build-raspberry-pi:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Rust with ARM64 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
+
+      - name: Setup cross-compilation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu \
+            libc6-dev-arm64-cross \
+            libssl-dev:arm64 \
+            libgtk-3-dev:arm64 \
+            libwebkit2gtk-4.1-dev:arm64 \
+            libappindicator3-dev:arm64 \
+            librsvg2-dev:arm64 \
+            patchelf
+
+      - name: Configure cross-compilation
+        run: |
+          mkdir -p ~/.cargo
+          echo "[target.aarch64-unknown-linux-gnu]" >> ~/.cargo/config.toml
+          echo "linker = \"aarch64-linux-gnu-gcc\"" >> ~/.cargo/config.toml
+          echo "strip = \"aarch64-linux-gnu-strip\"" >> ~/.cargo/config.toml
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri app for ARM64
+        run: npm run tauri build -- --target aarch64-unknown-linux-gnu
+        env:
+          RUST_BACKTRACE: 1
+          PKG_CONFIG_SYSROOT_DIR: /usr/aarch64-linux-gnu
+          PKG_CONFIG_PATH: /usr/lib/aarch64-linux-gnu/pkgconfig
+
+      - name: Upload Raspberry Pi artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blumbotron-raspberry-pi
+          path: |
+            src-tauri/target/aarch64-unknown-linux-gnu/release/
+            src-tauri/target/aarch64-unknown-linux-gnu/release/bundle/
+          retention-days: 30
+
   release:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-windows, build-macos, build-raspberry-pi]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -142,6 +204,7 @@ jobs:
             blumbotron-linux/**/*
             blumbotron-windows/**/*
             blumbotron-macos/**/*
+            blumbotron-raspberry-pi/**/*
           draft: false
           prerelease: false
           generate_release_notes: true 
