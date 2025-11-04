@@ -56,7 +56,7 @@ function Header(): JSX.Element {
                 <HamburgerMenuIcon width="20" height="20" /> <span>Options</span>
               </Menubar.Trigger>
               <Menubar.Portal>
-                <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
+                <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg z-[9999]">
                   <Menubar.Item
                     className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
                     onClick={() =>

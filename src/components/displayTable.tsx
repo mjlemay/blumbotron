@@ -384,11 +384,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           }}
           >
           <div
-            className="flex flex-row grow min-w-full min-h-full"
-            data-augmented-ui={isFullScreen ? "tl-rect tr-2-clip-y br-2-clip-y bl-rect l-clip both" : ""}
+            className="flex flex-row grow min-w-full min-h-full theme-padding"
           >
             <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
-              <div className="flex flex-col justify-start min-w-full min-h-full">
+              <div className="flex flex-col justify-start min-w-full min-h-full primary-mixin"
+                data-augmented-ui={isFullScreen ? "tl-rect br-rect tr-clip bl-clip both" : ""}
+              >
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">
                   {titleImageSrc ? <img src={titleImageSrc} alt="Title" className="flex-1" /> : title && title.length > 0 && (
                     <div className={`
