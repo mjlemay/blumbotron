@@ -135,13 +135,43 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const logoImageVerticalOffset = gameData?.data?.media?.logoImageVerticalOffset || 0;
   const calculatedLogoPosition = () => {
     const positions = logoImagePosition.split(' ');
+    
+    // Handle 'center' case
     if (logoImagePosition === 'center') {
-      return logoImagePosition; // return as is if not in expected format
+      return `${50 + logoImageHorizontalOffset}% ${50 + logoImageVerticalOffset}%`;
     }
-    if (positions.length === 1) {
-      return `${positions[0]} ${logoImageHorizontalOffset}% top 50%`;
-    }
-    return `${positions[0]} ${logoImageVerticalOffset}% ${positions[1]} ${logoImageHorizontalOffset}%`;
+    
+    // Parse position values and calculate with offsets
+    let horizontal = 50; // default center
+    let vertical = 50;   // default center
+    
+    // Map position keywords to percentage values
+    const horizontalMap: { [key: string]: number } = {
+      'left': 0,
+      'center': 50,
+      'right': 100
+    };
+    
+    const verticalMap: { [key: string]: number } = {
+      'top': 0,
+      'center': 50,
+      'bottom': 100
+    };
+    
+    // Parse the position string (e.g., 'top left', 'bottom center', etc.)
+    positions.forEach(pos => {
+      if (horizontalMap.hasOwnProperty(pos)) {
+        horizontal = horizontalMap[pos];
+      } else if (verticalMap.hasOwnProperty(pos)) {
+        vertical = verticalMap[pos];
+      }
+    });
+    
+    // Apply offsets
+    const finalHorizontal = Math.max(0, Math.min(100, horizontal + logoImageHorizontalOffset));
+    const finalVertical = Math.max(0, Math.min(100, vertical + logoImageVerticalOffset));
+    
+    return `${finalHorizontal}% ${finalVertical}%`;
   };
   const backgroundImageOpacity = gameData?.data?.media?.backgroundImageOpacity || 100;
 
@@ -330,35 +360,46 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       `}
       style={{
         backgroundColor: colors.background || themeColors.background,
-        backgroundImage: backgroundImageSrc ? `url("${backgroundImageSrc}")` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
         color: colors.text || themeColors.text,
-        opacity: backgroundImageOpacity / 100,
         minWidth: isFullScreen ? '100vw' : '100%',
         minHeight: isFullScreen ? '100vh' : '100%',
+        position: 'relative',
       }}
     >
-      <div className={`
-      ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
-       flex items-start justify-center
-      `}
-      style={{
-        backgroundImage: logoImageSrc ? `url("${logoImageSrc}")` : 'none',
-        backgroundPosition: logoImagePosition ? calculatedLogoPosition() : 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: `${logoImageScale}%`,
-        color: colors.text || themeColors.text,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: 0,
-        opacity: logoImageOpacity / 100,
-        maxWidth: isFullScreen ? `100vw` : `100%`,
-        maxHeight: isFullScreen ? `100vh` : `100%`,
-      }}
-    ></div>
+      {/* Background image layer with its own opacity */}
+      {backgroundImageSrc && (
+        <div className={`
+          ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
+          absolute inset-0
+        `}
+        style={{
+          backgroundImage: `url("${backgroundImageSrc}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: backgroundImageOpacity / 100,
+          zIndex: 1,
+        }}
+        ></div>
+      )}
+      {/* Logo image layer with its own opacity */}
+      {logoImageSrc && (
+        <div className={`
+          ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
+          absolute inset-0
+        `}
+        style={{
+          backgroundImage: `url("${logoImageSrc}")`,
+          backgroundPosition: logoImagePosition ? calculatedLogoPosition() : 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: `${logoImageScale}%`,
+          opacity: logoImageOpacity / 100,
+          zIndex: 2,
+          maxWidth: isFullScreen ? `100vw` : `100%`,
+          maxHeight: isFullScreen ? `100vh` : `100%`,
+        }}
+        ></div>
+      )}
       
       {!gameData && (
         <div className="min-h-full z-10 opacity-100 min-w-full flex items-center justify-center">

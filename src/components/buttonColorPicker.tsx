@@ -1,7 +1,6 @@
 import * as Menubar from '@radix-ui/react-menubar';
 import { Pencil2Icon } from '@radix-ui/react-icons';
-import ColorPicker, { Color } from '@rc-component/color-picker';
-import '@rc-component/color-picker/assets/index.css';
+import { SketchPicker, ColorResult } from 'react-color';
 
 type ButtonColorPickerProps = {
   color: string;
@@ -11,9 +10,8 @@ type ButtonColorPickerProps = {
 function ButtonColorPicker(props: ButtonColorPickerProps): JSX.Element {
   const { color,  setColor } = props;
 
-  const handleColorChange = (color: Color) => {
-    const colorString = color.toHexString();
-    setColor(colorString);
+  const handleColorChange = (colorResult: ColorResult) => {
+    setColor(colorResult.hex);
   };
 
   return (
@@ -27,11 +25,26 @@ function ButtonColorPicker(props: ButtonColorPickerProps): JSX.Element {
           <Pencil2Icon width="20" height="20" />
           </Menubar.Trigger>
           <Menubar.Portal>
-            <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] rounded-md shadow-lg">
+            <Menubar.Content className="bg-slate-700/50 rounded-md p-3 mt-1 min-w-[250px] rounded-md shadow-lg z-[9999]">
              <Menubar.Item>
-              <ColorPicker
-                value={color}
+              <SketchPicker
+                color={color}
                 onChange={handleColorChange}
+                disableAlpha={false}
+                presetColors={[
+                  '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff',
+                  '#ffff00', '#ff00ff', '#00ffff', '#808080', '#ffa500'
+                ]}
+                styles={{
+                  default: {
+                    picker: {
+                      backgroundColor: '#1e293b',
+                      borderRadius: '8px',
+                      border: '1px solid #475569',
+                      fontFamily: 'inherit'
+                    }
+                  }
+                }}
               />
               </Menubar.Item>
             </Menubar.Content>
