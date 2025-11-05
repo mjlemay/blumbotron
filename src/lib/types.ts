@@ -23,6 +23,7 @@ export type DisplayData = {
     backgroundImage?: string;
     backgroundVideo?: string | null;
     titleImage?: string | null;
+    showAvatars?: boolean;
     category: DisplayCategory,
     filteredUnits: string[]
 }
@@ -47,6 +48,7 @@ export type GameDataItem = DataItem & {
       score?: string;
     };
     media?: {
+      showAvatars?: boolean;
       backgroundImage?: string | null;
       backgroundImageOpacity?: number | null;
       logoImage?: string | null;
@@ -96,4 +98,13 @@ export type Experience = {
   modal: string;
   selected: Record<string, DataItem | SelectedItem> | null;
   subSelected: number | string | null;
+};
+
+export type GameAvatar = {
+  game?: string | null;
+  location?: string | null;
+}
+
+export type PlayerDataItem = DataItem & {
+  avatars?: GameAvatar[];
 };

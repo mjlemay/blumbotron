@@ -2,9 +2,11 @@ import { useShallow } from 'zustand/react/shallow';
 import { useExperienceStore } from '../stores/experienceStore';
 import { useGameStore } from '../stores/gamesStore';
 import { useRosterStore } from '../stores/rostersStore';
+import { usePlayerStore } from '../stores/playersStore';
 import { Separator } from '@radix-ui/react-separator';
 import { PersonIcon } from '@radix-ui/react-icons';
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 
 function ViewPlayer() {
   const { selected, setExpView, setExpSelected } = useExperienceStore(
@@ -17,17 +19,58 @@ function ViewPlayer() {
   
   const { games, fetchGames } = useGameStore();
   const { rosters, fetchRosters } = useRosterStore();
+  const { players, fetchPlayers } = usePlayerStore();
   
-  const selectedPlayer = selected?.player || null;
+  const [playerImageSrc, setPlayerImageSrc] = useState<string>('');
+  
+  // Get the fresh player data from the players store instead of just the selected state
+  const selectedPlayerFromStore = selected?.player || null;
+  const selectedPlayer = useMemo(() => {
+    if (!selectedPlayerFromStore) return null;
+    // Find the updated player data from the players store
+    return players.find(p => p.snowflake === selectedPlayerFromStore.snowflake) || selectedPlayerFromStore;
+  }, [players, selectedPlayerFromStore]);
+  
   const { name = '', id = '', snowflake, created_at, updated_at } = selectedPlayer || {};
 
-  // Fetch games and rosters when component mounts or player changes
+  // Load player image
+  const loadPlayerImage = async (imageFileName?: string) => {
+    const fileName = imageFileName || (selectedPlayer?.data as any)?.avatarImage;
+    if (fileName) {
+      try {
+        // If it's already a data URL, use it directly
+        if (fileName.startsWith('data:')) {
+          setPlayerImageSrc(fileName);
+          return;
+        }
+        
+        // Otherwise, load from Tauri backend
+        const dataUrl = await invoke('get_background_image_data', { fileName: fileName }) as string;
+        setPlayerImageSrc(dataUrl);
+      } catch (error) {
+        console.error('Failed to load player image:', fileName, error);
+        setPlayerImageSrc('');
+      }
+    } else {
+      setPlayerImageSrc('');
+    }
+  };
+
+  // Fetch data when component mounts or player changes
   useEffect(() => {
-    if (selectedPlayer) {
+    if (selectedPlayerFromStore) {
       fetchGames();
       fetchRosters();
+      fetchPlayers(); // Ensure we have fresh player data
     }
-  }, [selectedPlayer, fetchGames, fetchRosters]);
+  }, [selectedPlayerFromStore, fetchGames, fetchRosters, fetchPlayers]);
+
+  // Load player image when selectedPlayer data changes (including updates)
+  useEffect(() => {
+    if (selectedPlayer) {
+      loadPlayerImage();
+    }
+  }, [selectedPlayer]);
 
   // Find games where this player can participate
   const availableGames = games.filter(game => {
@@ -153,11 +196,30 @@ function ViewPlayer() {
         "
       >
         <div className="w-full rounded bg-slate-700 p-4 mb-4 shadow-lg">
-          <h2 className="text-3xl font-thin pl-2 pb-2 flex flex-row items-center gap-2">
-            <PersonIcon className="w-8 h-8" />
-            {name}
-            {snowflake && <span className="text-2xl text-slate-400">#{snowflake}</span>}
-          </h2>
+          <div className="flex flex-row items-center gap-4 mb-2">
+            {/* Player Image */}
+            <div className="relative">
+              {playerImageSrc ? (
+                <img
+                  src={playerImageSrc}
+                  alt={`${name} avatar`}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-500"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-slate-600 flex items-center justify-center border-2 border-slate-500">
+                  <PersonIcon className="w-10 h-10 text-slate-400" />
+                </div>
+              )}
+            </div>
+            
+            {/* Player Info */}
+            <div>
+              <h2 className="text-3xl font-thin flex flex-row items-center gap-2">
+                {name}
+                {snowflake && <span className="text-2xl text-slate-400">#{snowflake}</span>}
+              </h2>
+            </div>
+          </div>
           <div className="w-full text-slate-400 flex flex row items-center gap-2 justify-start">
             {created_at && (
               <span>

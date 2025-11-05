@@ -7,6 +7,71 @@ import { useExperienceStore } from "../stores/experienceStore";
 import { DisplayData, ScoreDataItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
 import { customThemeSettings } from '../lib/consts';
+import { createAvatar } from '@dicebear/core';
+import { shapes } from '@dicebear/collection';
+
+// Avatar component for score table
+const AvatarImage = ({ playerName }: { playerName: string }) => {
+  const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const { players } = usePlayerStore();
+  
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!playerName) {
+        // Generate placeholder for empty name
+        const avatar = createAvatar(shapes, {
+          size: 80,
+          seed: 'unknown',
+        });
+        setAvatarSrc(avatar.toDataUri());
+        return;
+      }
+      
+      // Find player data
+      const player = players.find(p => p.name === playerName);
+      const avatarImage = (player?.data as any)?.avatarImage;
+      
+      if (avatarImage) {
+        try {
+          // Check if it's already a data URL
+          if (avatarImage.startsWith('data:')) {
+            setAvatarSrc(avatarImage);
+            return;
+          }
+          
+          // Load from file
+          const imageData = await invoke<string>('get_background_image_data', { fileName: avatarImage });
+          if (imageData) {
+            setAvatarSrc(imageData);
+            return;
+          }
+        } catch (error) {
+          console.log('Failed to load player image, using generated avatar');
+        }
+      }
+      
+      // Always fallback to generated avatar (when no avatar image or loading failed)
+      // Find player's snowflake for consistent avatar generation
+      const playerSnowflake = player?.snowflake || playerName;
+      const avatar = createAvatar(shapes, {
+        size: 80,
+        seed: playerSnowflake,
+      });
+      setAvatarSrc(avatar.toDataUri());
+    };
+    
+    loadAvatar();
+  }, [playerName, players]);
+  
+  return (
+    <img 
+      src={avatarSrc}
+      alt={`${playerName} avatar`}
+      className="rounded object-cover flex-shrink-0 aspect-square self-center"
+      style={{ height: '1.5em', width: '1.5em' }}
+    />
+  );
+};
 
 type ComponentProps = {
   game?: string;
@@ -93,9 +158,13 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     return offsetPlayers?.map((scoreItem: ScoreDataItem) => {
       const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
       if(typeof playerData?.name !== 'undefined') {
+        const avatar = Array.isArray(playerData?.data?.avatar) && playerData!.data!.avatar.length > 0
+          ? playerData!.data!.avatar[0]
+          : null;
         return {
           player: playerData?.name,
           score: scoreItem?.amount,
+          avatar,
         };
       }
     }).filter(item => item !== undefined);
@@ -294,10 +363,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           flex-1
           text-white
           font-bold
-          text-center
           flex
           items-center
-          justify-center
+          justify-start
+          gap-2
+          min-h-[1.5em]
+          pl-4
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
@@ -305,6 +376,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           fontFamily: fonts.player,
         }}
         >
+          {displayData?.showAvatars && (
+            <AvatarImage 
+              playerName={scoreItem?.player || ''}
+            />
+          )}
           {scoreItem?.player || ' [ REMOVED ]'}
         </div>
         <div className={`

@@ -53,7 +53,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
   const { name = '' } = game || {};
 
 
-  const updateFormInput = (formKey: string, formValue: string) => {
+  const updateFormInput = (formKey: string, formValue: string | boolean | number) => {
     setForm(form => {
       setNestedValue(form, formKey, formValue);
     });
@@ -202,6 +202,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
           }).refine((val) => val >= 0, 'Must be at least 0').optional(),
           direction: z.enum(['ascending', 'descending']).optional(),
           titleImage: z.string().nullable().optional(),
+          showAvatars: z.boolean().optional(),
           category: z.enum(['table', 'slide']).optional(),
           filteredUnits: z.array(z.string()).optional(),
         })),
@@ -337,7 +338,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                       changeHandler={handleFormChange}
                     />
                     <div>
-                        <label className="block text-lg font-bold text-white mb-2">
+                        <label className="block text-lg font-bold text-white mb-1">
                           Direction
                         </label>
                         <SelectChip
@@ -349,6 +350,24 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                           ]}
                           defaultValue={form?.data?.displays?.[displayIndex]?.direction || 'descending'}
                           handleSelect={handleSelect(`data.displays[${displayIndex}].direction`)}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-lg font-bold text-white mt-2 mb-1">
+                          Show Avatars
+                        </label>
+                        <SelectChip
+                          selectLabel="Show Avatars"
+                          selectPlaceholder="Choose Option"
+                          selections={[
+                            { value: 'true', label: 'Yes' },
+                            { value: 'false', label: 'No' },
+                          ]}
+                          defaultValue={form?.data?.displays?.[displayIndex]?.showAvatars ? 'true' : 'false'}
+                          handleSelect={(value) => {
+                            updateFormInput(`data.displays[${displayIndex}].showAvatars`, value === 'true');
+                          }}
                           moreClasses="w-full justify-start"
                         />
                       </div>
