@@ -7,6 +7,7 @@ import { Separator } from '@radix-ui/react-separator';
 import { PersonIcon } from '@radix-ui/react-icons';
 import { useEffect, useState, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 
 function ViewPlayer() {
   const { selected, setExpView, setExpSelected } = useExperienceStore(
@@ -180,19 +181,20 @@ function ViewPlayer() {
   });
 
   return (
-    <div key={`${id}-${name}`}>
+    <div key={`${id}-${name}`} className="h-[calc(100vh-8rem)] overflow-hidden">
       <div
         className="
-            flex 
-            flex-col
-            min-h-[calc(100vh-8rem)]
-            min-w-[calc(100vw-8rem)]
-            bg-slate-600
-            justify-start
-            rounded-lg
-            p-2 m-2
-            pt-4
-            shadow-lg
+          flex 
+          flex-col
+          h-full
+          min-w-[calc(100vw-8rem)]
+          bg-slate-600
+          justify-start
+          rounded-lg
+          p-2 m-2
+          pt-4
+          shadow-lg
+          overflow-y-auto
         "
       >
         <div className="w-full rounded bg-slate-700 p-4 mb-4 shadow-lg">
@@ -236,103 +238,120 @@ function ViewPlayer() {
             )}
           </div>
         </div>
-        <div className="w-full">
-          <h3 className="text-2xl font-thin pl-2 pb-2">Included in Games</h3>
-          <div className="flex flex-wrap gap-2 p-1 mb-4">
-            {availableGames.length > 0 ? (
-              availableGames.map(game => (
-                <div 
-                  key={game.snowflake || game.id} 
-                  className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
-                  onClick={() => navigateToGame(game)}
-                >
-                  <span className="text-white font-medium">{game.name}</span>
-                  {game.roster && (
-                    <span className="text-slate-300 text-sm ml-2">
-                      (via roster)
-                    </span>
-                  )}
-                  {!game.roster && (
-                    <span className="text-green-300 text-sm ml-2">
-                      (open to all)
-                    </span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-slate-400 p-1 text-lg">No games found.</p>
-            )}
-          </div>
-          <h3 className="text-2xl font-thin pl-2 pb-2">Banned in Games</h3>
-          <div className="flex flex-wrap gap-2 p-1 mb-4">
-            {bannedGames.length > 0 ? (
-              bannedGames.map(game => (
-                <div 
-                  key={game.snowflake || game.id} 
-                  className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
-                  onClick={() => navigateToGame(game)}
-                >
-                  <span className="text-white font-medium">{game.name}</span>
-                  <span className="text-red-200 text-sm ml-2">
-                    (restricted)
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="text-slate-400 p-1 text-lg">No games found.</p>
-            )}
-          </div>
-          <h3 className="text-2xl font-thin pl-2 pb-2">Included in Rosters</h3>
-          <div className="flex flex-wrap gap-2 p-1 mb-4">
-            {includedRosters.length > 0 ? (
-              includedRosters.map(roster => (
-                <div 
-                  key={roster.snowflake || roster.id} 
-                  className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
-                >
-                  <span className="text-white font-medium">{roster.name}</span>
-                  {roster.allow && roster.allow.includes(selectedPlayer?.snowflake || '') && (
-                    <span className="text-blue-200 text-sm ml-2">
-                      (explicitly allowed)
-                    </span>
-                  )}
-                  {(!roster.allow || roster.allow.length === 0) && (
-                    <span className="text-blue-200 text-sm ml-2">
-                      (default access)
-                    </span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-slate-400 p-1 text-lg">No rosters found.</p>
-            )}
-          </div>
-          <h3 className="text-2xl font-thin pl-2 pb-2">Banned in Rosters</h3>
-          <div className="flex flex-wrap gap-2 p-1 mb-4">
-            {bannedRosters.length > 0 ? (
-              bannedRosters.map(roster => (
-                <div 
-                  key={roster.snowflake || roster.id} 
-                  className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
-                >
-                  <span className="text-white font-medium">{roster.name}</span>
-                  {roster.deny && roster.deny.includes(selectedPlayer?.snowflake || '') && (
-                    <span className="text-red-200 text-sm ml-2">
-                      (explicitly denied)
-                    </span>
-                  )}
-                  {roster.allow && roster.allow.length > 0 && !roster.allow.includes(selectedPlayer?.snowflake || '') && (
-                    <span className="text-red-200 text-sm ml-2">
-                      (not in allow list)
-                    </span>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-slate-400 p-1 text-lg">No rosters found.</p>
-            )}
-          </div>
-        </div>
+        <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden mb-2">
+          <ScrollArea.Viewport className="h-full w-full rounded p-4">
+            <div className="w-full">
+              <h3 className="text-2xl font-thin pl-2 pb-2">Included in Games</h3>
+              <div className="flex flex-wrap gap-2 p-1 mb-4">
+                {availableGames.length > 0 ? (
+                  availableGames.map(game => (
+                    <div 
+                      key={game.snowflake || game.id} 
+                      className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
+                      onClick={() => navigateToGame(game)}
+                    >
+                      <span className="text-white font-medium">{game.name}</span>
+                      {game.roster && (
+                        <span className="text-slate-300 text-sm ml-2">
+                          (via roster)
+                        </span>
+                      )}
+                      {!game.roster && (
+                        <span className="text-green-300 text-sm ml-2">
+                          (open to all)
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 p-1 text-lg">No games found.</p>
+                )}
+              </div>
+              <h3 className="text-2xl font-thin pl-2 pb-2">Banned in Games</h3>
+              <div className="flex flex-wrap gap-2 p-1 mb-4">
+                {bannedGames.length > 0 ? (
+                  bannedGames.map(game => (
+                    <div 
+                      key={game.snowflake || game.id} 
+                      className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
+                      onClick={() => navigateToGame(game)}
+                    >
+                      <span className="text-white font-medium">{game.name}</span>
+                      <span className="text-red-200 text-sm ml-2">
+                        (restricted)
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 p-1 text-lg">No games found.</p>
+                )}
+              </div>
+              <h3 className="text-2xl font-thin pl-2 pb-2">Included in Rosters</h3>
+              <div className="flex flex-wrap gap-2 p-1 mb-4">
+                {includedRosters.length > 0 ? (
+                  includedRosters.map(roster => (
+                    <div 
+                      key={roster.snowflake || roster.id} 
+                      className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
+                    >
+                      <span className="text-white font-medium">{roster.name}</span>
+                      {roster.allow && roster.allow.includes(selectedPlayer?.snowflake || '') && (
+                        <span className="text-blue-200 text-sm ml-2">
+                          (explicitly allowed)
+                        </span>
+                      )}
+                      {(!roster.allow || roster.allow.length === 0) && (
+                        <span className="text-blue-200 text-sm ml-2">
+                          (default access)
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 p-1 text-lg">No rosters found.</p>
+                )}
+              </div>
+              <h3 className="text-2xl font-thin pl-2 pb-2">Banned in Rosters</h3>
+              <div className="flex flex-wrap gap-2 p-1 mb-4">
+                {bannedRosters.length > 0 ? (
+                  bannedRosters.map(roster => (
+                    <div 
+                      key={roster.snowflake || roster.id} 
+                      className="bg-slate-500 hover:bg-slate-400 transition-colors duration-200 rounded px-3 py-2 cursor-pointer"
+                    >
+                      <span className="text-white font-medium">{roster.name}</span>
+                      {roster.deny && roster.deny.includes(selectedPlayer?.snowflake || '') && (
+                        <span className="text-red-200 text-sm ml-2">
+                          (explicitly denied)
+                        </span>
+                      )}
+                      {roster.allow && roster.allow.length > 0 && !roster.allow.includes(selectedPlayer?.snowflake || '') && (
+                        <span className="text-red-200 text-sm ml-2">
+                          (not in allow list)
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 p-1 text-lg">No rosters found.</p>
+                )}
+              </div>
+            </div>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+            orientation="vertical"
+          >
+            <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar
+            className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-600/75 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+            orientation="horizontal"
+          >
+            <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-slate-500 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner className="bg-slate-700/50" />
+        </ScrollArea.Root>
       </div>
     </div>
   );
