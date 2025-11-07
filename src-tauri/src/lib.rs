@@ -189,7 +189,188 @@ async fn get_background_image_data(
     Ok(data_url)
 }
 
+// Nokhwa camera integration commands  
+use nokhwa::pixel_format::RgbFormat;
+use nokhwa::utils::{CameraIndex, RequestedFormat, RequestedFormatType};
+use nokhwa::Camera;
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
+use tokio::time::{sleep, Duration};
+use std::sync::atomic::{AtomicBool, Ordering};
+use image::GenericImageView;
 
+// Global storage for active camera streams
+lazy_static::lazy_static! {
+    static ref ACTIVE_STREAMS: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>> = Arc::new(Mutex::new(HashMap::new()));
+}
+
+#[tauri::command]
+async fn initialize_camera_system() -> Result<(), String> {
+    println!("Nokhwa camera system initialized");
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_available_cameras() -> Result<Vec<String>, String> {
+    match nokhwa::query(nokhwa::utils::ApiBackend::Auto) {
+        Ok(cameras) => {
+            let camera_names: Vec<String> = cameras
+                .iter()
+                .map(|info| format!("{} ({})", info.human_name(), info.index().to_string()))
+                .collect();
+            
+            if camera_names.is_empty() {
+                Ok(vec!["No cameras detected".to_string()])
+            } else {
+                Ok(camera_names)
+            }
+        }
+        Err(e) => {
+            eprintln!("Error querying cameras: {}", e);
+            Ok(vec!["Error detecting cameras".to_string()])
+        }
+    }
+}
+
+#[tauri::command]
+async fn start_camera_preview(camera_id: String) -> Result<String, String> {
+    println!("Starting camera preview for: {}", camera_id);
+    
+    // Parse camera index from the ID
+    let camera_index = if camera_id.contains("No cameras") || camera_id.contains("Error") {
+        return Err("No valid camera available".to_string());
+    } else if let Some(idx_str) = camera_id.split('(').nth(1).and_then(|s| s.split(')').next()) {
+        idx_str.parse::<u32>().unwrap_or(0)
+    } else {
+        0
+    };
+
+    // Test camera access by creating and immediately releasing it
+    let format = RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
+    
+    match Camera::new(CameraIndex::Index(camera_index), format) {
+        Ok(mut camera) => {
+            // Test that we can open the camera stream
+            match camera.open_stream() {
+                Ok(()) => {
+                    let stream_id = format!("camera_{}_{}", camera_index, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
+                    
+                    // Stop the test stream - nokhwa doesn't support persistent video streams
+                    // Each photo capture will create a new camera instance
+                    let _ = camera.stop_stream();
+                    
+                    println!("Camera preview ready - stream ID: {}", stream_id);
+                    Ok(stream_id)
+                }
+                Err(e) => {
+                    let error_msg = if e.to_string().contains("lockForConfiguration") {
+                        "Camera busy! Make sure no other Blumbotron instances or camera apps are running.".to_string()
+                    } else {
+                        format!("Failed to access camera: {}", e)
+                    };
+                    Err(error_msg)
+                }
+            }
+        }
+        Err(e) => Err(format!("Failed to initialize camera: {}", e))
+    }
+}
+
+#[tauri::command]
+async fn stop_camera_preview(stream_id: String) -> Result<(), String> {
+    println!("Stopping camera preview: {}", stream_id);
+    // In a full implementation, you'd look up and stop the stored camera
+    // For this simple implementation, just acknowledge the stop request
+    Ok(())
+}
+
+// Helper function to capture a frame from camera
+async fn capture_camera_frame(camera_index: u32) -> Result<String, String> {
+    let format = RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
+    
+    match Camera::new(CameraIndex::Index(camera_index), format) {
+        Ok(mut camera) => {
+            // Open stream and capture frame
+            if let Err(e) = camera.open_stream() {
+                return Err(format!("Failed to open camera stream: {}", e));
+            }
+            
+            // Capture frame
+            match camera.frame() {
+                Ok(frame) => {
+                    // Convert frame to JPEG and encode as base64
+                    let image_buffer = frame.decode_image::<RgbFormat>().map_err(|e| format!("Failed to decode frame: {}", e))?;
+                    
+                    // Create dynamic image from buffer
+                    let mut dynamic_image = image::DynamicImage::ImageRgb8(image_buffer);
+                    
+                    // Crop to square (center crop)
+                    let (width, height) = dynamic_image.dimensions();
+                    let size = width.min(height); // Use the smaller dimension for square
+                    let x = (width - size) / 2;
+                    let y = (height - size) / 2;
+                    
+                    // Crop to square
+                    dynamic_image = dynamic_image.crop_imm(x, y, size, size);
+                    
+                    // Convert to JPEG using image crate
+                    let mut jpeg_data = Vec::new();
+                    {
+                        use std::io::Cursor;
+                        let mut cursor = Cursor::new(&mut jpeg_data);
+                        dynamic_image
+                            .write_to(&mut cursor, image::ImageFormat::Jpeg)
+                            .map_err(|e| format!("Failed to encode JPEG: {}", e))?;
+                    }
+                    
+                    // Encode as base64
+                    let base64_data = general_purpose::STANDARD.encode(&jpeg_data);
+                    let data_url = format!("data:image/jpeg;base64,{}", base64_data);
+                    
+                    // Clean up
+                    let _ = camera.stop_stream();
+                    
+                    Ok(data_url)
+                }
+                Err(e) => {
+                    let _ = camera.stop_stream();
+                    Err(format!("Failed to capture frame: {}", e))
+                }
+            }
+        }
+        Err(e) => Err(format!("Failed to create camera: {}", e))
+    }
+}
+
+#[tauri::command]
+async fn get_camera_frame(camera_id: String) -> Result<String, String> {
+    // Parse camera index from the ID
+    let camera_index = if camera_id.contains("No cameras") || camera_id.contains("Error") {
+        return Err("No valid camera available".to_string());
+    } else if let Some(idx_str) = camera_id.split('(').nth(1).and_then(|s| s.split(')').next()) {
+        idx_str.parse::<u32>().unwrap_or(0)
+    } else {
+        0
+    };
+
+    capture_camera_frame(camera_index).await
+}
+
+#[tauri::command]
+async fn capture_photo_from_camera(camera_id: String) -> Result<String, String> {
+    println!("Capturing photo from camera: {}", camera_id);
+    
+    // Parse camera index from the ID
+    let camera_index = if camera_id.contains("No cameras") || camera_id.contains("Error") {
+        return Err("No valid camera available".to_string());
+    } else if let Some(idx_str) = camera_id.split('(').nth(1).and_then(|s| s.split(')').next()) {
+        idx_str.parse::<u32>().unwrap_or(0)
+    } else {
+        0
+    };
+
+    capture_camera_frame(camera_index).await
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -206,7 +387,20 @@ pub fn run() {
                 .add_migrations(DB_PATH, migrations)
                 .build()
         )
-        .invoke_handler(tauri::generate_handler![greet, create_display_window, save_background_image, delete_background_image, get_background_image_path, get_background_image_data])
+        .invoke_handler(tauri::generate_handler![
+            greet, 
+            create_display_window, 
+            save_background_image, 
+            delete_background_image, 
+            get_background_image_path, 
+            get_background_image_data,
+            initialize_camera_system,
+            get_available_cameras,
+            start_camera_preview,
+            stop_camera_preview,
+            capture_photo_from_camera,
+            get_camera_frame
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
