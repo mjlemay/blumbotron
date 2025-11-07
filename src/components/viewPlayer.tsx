@@ -20,7 +20,7 @@ function ViewPlayer() {
   
   const { games, fetchGames } = useGameStore();
   const { rosters, fetchRosters } = useRosterStore();
-  const { players, fetchPlayers } = usePlayerStore();
+  const { players, fetchPlayers, editPlayer } = usePlayerStore();
   
   const [playerImageSrc, setPlayerImageSrc] = useState<string>('');
   
@@ -340,7 +340,12 @@ function ViewPlayer() {
               {/* Camera Preview Section */}
               <div className="mt-8 pt-4 border-t border-slate-600">
                 <h3 className="text-2xl font-thin pl-2 pb-2">Camera Preview</h3>
-                <CameraPreview selectedPlayer={selectedPlayer} />
+                <CameraPreview 
+                  selectedPlayer={selectedPlayer} 
+                  editPlayer={editPlayer}
+                  setExpSelected={setExpSelected}
+                  loadPlayerImage={loadPlayerImage}
+                />
               </div>
             </div>
           </ScrollArea.Viewport>
@@ -364,7 +369,17 @@ function ViewPlayer() {
 }
 
 // Camera Preview Component
-function CameraPreview({ selectedPlayer }: { selectedPlayer: any }) {
+function CameraPreview({ 
+  selectedPlayer, 
+  editPlayer, 
+  setExpSelected, 
+  loadPlayerImage 
+}: { 
+  selectedPlayer: any;
+  editPlayer: (player: any) => Promise<void>;
+  setExpSelected: (selection: any) => void;
+  loadPlayerImage: (fileName?: string) => Promise<void>;
+}) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [availableCameras, setAvailableCameras] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
@@ -485,17 +500,36 @@ function CameraPreview({ selectedPlayer }: { selectedPlayer: any }) {
       setCapturedPhoto(photoData);
       setError('');
       
-      // Optionally save the photo automatically
+      // Save the photo and set as player avatar
       if (selectedPlayer && photoData !== "data:image/jpeg;base64,placeholder_image_data") {
         const base64Data = photoData.split(',')[1];
-        const fileName = `${selectedPlayer.snowflake || selectedPlayer.id}_camera_${Date.now()}.jpg`;
+        const fileName = `player_${selectedPlayer.snowflake || selectedPlayer.id}_camera_${Date.now()}.jpg`;
         
+        // Save the image file
         await invoke('save_background_image', {
           fileName,
           imageData: base64Data
         });
         
-        alert(`Photo captured and saved for ${selectedPlayer.name}!`);
+        // Update player data with the new avatar
+        const updatedPlayer = {
+          ...selectedPlayer,
+          data: {
+            ...selectedPlayer.data,
+            avatarImage: fileName
+          }
+        };
+
+        // Update player in database
+        await editPlayer(updatedPlayer);
+        
+        // Update the selected player in the experience store
+        setExpSelected({ player: updatedPlayer });
+        
+        // Reload the player image to show the new avatar immediately
+        loadPlayerImage(fileName);
+        
+        alert(`Photo captured and set as avatar for ${selectedPlayer.name}!`);
       }
     } catch (err) {
       console.error('Failed to capture photo:', err);
@@ -628,11 +662,11 @@ function CameraPreview({ selectedPlayer }: { selectedPlayer: any }) {
                 {/* Grid Lines (Rule of Thirds) */}
                 <div className="absolute inset-0 opacity-30">
                   {/* Vertical Lines */}
-                  <div className="absolute left-1/3 top-0 w-0.5 h-full bg-white shadow-sm"></div>
-                  <div className="absolute right-1/3 top-0 w-0.5 h-full bg-white shadow-sm"></div>
+                  <div className="absolute left-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
+                  <div className="absolute right-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
                   {/* Horizontal Lines */}
-                  <div className="absolute top-1/3 left-0 h-0.5 w-full bg-white shadow-sm"></div>
-                  <div className="absolute bottom-1/3 left-0 h-0.5 w-full bg-white shadow-sm"></div>
+                  <div className="absolute top-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
+                  <div className="absolute bottom-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
                 </div>
               </div>
               
@@ -643,9 +677,6 @@ function CameraPreview({ selectedPlayer }: { selectedPlayer: any }) {
               </div>
               <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-10">
                 {selectedCamera}
-              </div>
-              <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-10">
-                📐 Square Crop
               </div>
             </div>
           ) : isPreviewActive ? (
@@ -707,29 +738,6 @@ function CameraPreview({ selectedPlayer }: { selectedPlayer: any }) {
             </button>
           )}
         </div>
-
-        {/* Debug Info */}
-        <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-600">
-          <div>Preview Active: {isPreviewActive ? '✅ Yes' : '❌ No'}</div>
-          <div>Live Video: {currentFrame ? '✅ Streaming' : '❌ No frames'}</div>
-          <div>Stream ID: {previewStreamId || 'None'}</div>
-          <div>Selected Camera: {selectedCamera || 'None'}</div>
-          <div>Available Cameras: {availableCameras.length}</div>
-          <div>Frame Updates: {frameUpdateInterval ? '✅ Active' : '❌ Stopped'}</div>
-          {currentFrame && (
-            <div>Frame Data: {currentFrame.substring(0, 30)}...</div>
-          )}
-          {error && (
-            <div className="text-red-400">Error: {error}</div>
-          )}
-        </div>
-
-        {/* Player Info */}
-        {selectedPlayer && (
-          <div className="text-center text-sm text-slate-400 pt-2 border-t border-slate-600">
-            Taking photos for: <span className="text-white font-medium">{selectedPlayer.name}</span>
-          </div>
-        )}
       </div>
     </div>
   );
