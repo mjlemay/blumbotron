@@ -195,8 +195,7 @@ use nokhwa::utils::{CameraIndex, RequestedFormat, RequestedFormatType};
 use nokhwa::Camera;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
-use tokio::time::{sleep, Duration};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::AtomicBool;
 use image::GenericImageView;
 
 // Global storage for active camera streams
