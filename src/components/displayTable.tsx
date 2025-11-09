@@ -11,12 +11,15 @@ import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 
 // Avatar component for score table
-const AvatarImage = ({ playerName }: { playerName: string }) => {
+const AvatarImage = ( { playerName, isFullScreen }: { playerName: string, isFullScreen: boolean } ) => {
   const [avatarSrc, setAvatarSrc] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { players } = usePlayerStore();
   
   useEffect(() => {
     const loadAvatar = async () => {
+      setIsLoading(true);
+      
       if (!playerName) {
         // Generate placeholder for empty name
         const avatar = createAvatar(shapes, {
@@ -24,52 +27,86 @@ const AvatarImage = ({ playerName }: { playerName: string }) => {
           seed: 'unknown',
         });
         setAvatarSrc(avatar.toDataUri());
+        console.log('placeholder', avatar.toDataUri())
+        setIsLoading(false);
         return;
       }
       
-      // Find player data
       const player = players.find(p => p.name === playerName);
       const avatarImage = (player?.data as any)?.avatarImage;
       
       if (avatarImage) {
         try {
-          // Check if it's already a data URL
           if (avatarImage.startsWith('data:')) {
             setAvatarSrc(avatarImage);
+            setIsLoading(false);
             return;
           }
           
-          // Load from file
           const imageData = await invoke<string>('get_background_image_data', { fileName: avatarImage });
           if (imageData) {
             setAvatarSrc(imageData);
+            setIsLoading(false);
             return;
           }
         } catch (error) {
-          console.log('Failed to load player image, using generated avatar');
+          console.log('Failed to load player image, using generated avatar:', error);
         }
       }
       
       // Always fallback to generated avatar (when no avatar image or loading failed)
       // Find player's snowflake for consistent avatar generation
       const playerSnowflake = player?.snowflake || playerName;
-      const avatar = createAvatar(shapes, {
-        size: 80,
-        seed: playerSnowflake,
-      });
-      setAvatarSrc(avatar.toDataUri());
+    
+      try {
+        const avatar = createAvatar(shapes, {
+          size: 80,
+          seed: playerSnowflake,
+        });
+        const avatarDataUri = avatar.toDataUri();
+      
+        setAvatarSrc(avatarDataUri);
+      } catch (error) {
+           // Set a simple colored div as ultimate fallback
+        setAvatarSrc('');
+      }
+      
+      setIsLoading(false);
     };
     
     loadAvatar();
   }, [playerName, players]);
   
   return (
-    <img 
-      src={avatarSrc}
-      alt={`${playerName} avatar`}
-      className="rounded object-cover flex-shrink-0 aspect-square self-center"
-      style={{ height: '1.5em', width: '1.5em' }}
-    />
+    <div 
+      aria-label={`${playerName} avatar`}
+      className={`
+        rounded flex-shrink-0 self-stretch 
+        ${isFullScreen ? 'border border-[2em] border-transparent' : ''}
+         items-center justify-center overflow-hidden relative
+      `}
+      style={{
+        height: '100%',
+        aspectRatio: '1',
+      }}
+    >
+      {isLoading && (
+        <div className="text-white text-xs">...</div>
+      )}
+      {!isLoading && avatarSrc && (
+        <img 
+          src={avatarSrc} 
+          alt={`${playerName} avatar`}
+          className="absolute inset-0 w-full h-full object-cover rounded"
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
+        />
+      )}
+      {!isLoading && !avatarSrc && (
+        <div className="text-white text-sm font-bold">
+          {playerName ? playerName.charAt(0).toUpperCase() : '?'}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -359,6 +396,12 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           backgroundColor: index % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
         }}
       >
+        {displayData?.showAvatars && AvatarImage && (
+          <AvatarImage 
+            playerName={scoreItem?.player || ''} 
+            isFullScreen={isFullScreen}
+          />
+        )}
         <div className={`
           flex-1
           text-white
@@ -376,11 +419,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           fontFamily: fonts.player,
         }}
         >
-          {displayData?.showAvatars && (
-            <AvatarImage 
-              playerName={scoreItem?.player || ''}
-            />
-          )}
           {scoreItem?.player || ' [ REMOVED ]'}
         </div>
         <div className={`
@@ -538,7 +576,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                     </div>
                   )}
                 </div>
+                {/* Table rows */}
                 {tableDataSortedLimited()}
+                {/* No scores found */}
                 {!tableDataSorted && (
                   <div className="flex flex-row items-stretch justify-start w-full flex-1">
                     <div className="flex-1 text-white rounded-md p-1 text-center flex items-center justify-center">
