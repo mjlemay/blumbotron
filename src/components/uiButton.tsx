@@ -13,6 +13,7 @@ import {
   FrameIcon,
   ImageIcon,
   HobbyKnifeIcon,
+  MixerVerticalIcon
 } from '@radix-ui/react-icons';
 
 interface UiButtonProps {
@@ -73,6 +74,9 @@ function UiButton(props: UiButtonProps): JSX.Element {
         break;
       case 'layout':
         icon = <HobbyKnifeIcon width={size} height={size} />;
+        break;
+      case 'mechanics':
+        icon = <MixerVerticalIcon width={size} height={size} />;
         break;
       default:
         icon = <QuestionMarkCircledIcon width={size} height={size} />;

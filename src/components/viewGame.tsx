@@ -6,6 +6,7 @@ import FormGameStyles from './formGameStyles';
 import FormGameDisplayConfig from './formGameDisplayConfig';
 import FormGameMedia from './formGameMedia';
 import FormGameLayout from './formGameLayout';
+import FormGameMechanics from './formGameMechanics';
 
 function ViewGame() {
   const { selected, subView, setExpSubView } = useExperienceStore(
@@ -82,6 +83,13 @@ function ViewGame() {
           <UiButton uiIcon="layout" size="30" isSelected={subView === 'layout'} />
           <span className="text-sm">Layout</span>
         </div>
+        <div
+          className="flex flex-col items-center justify-center p-2"
+          onClick={() => handleSubViewSelect('mechanics')}
+        >
+          <UiButton uiIcon="mechanics" size="30" isSelected={subView === 'mechanics'} />
+          <span className="text-sm">Mechanics</span>
+        </div>
       </div>
       <div
         className="
@@ -100,6 +108,7 @@ function ViewGame() {
         {subView === 'media' && <FormGameMedia />}
         {subView === 'styles' && <FormGameStyles />}
         {subView === 'layout' && <FormGameLayout />}
+        {subView === 'mechanics' && <FormGameMechanics />}
         {subView === 'displayConfig' && <FormGameDisplayConfig />}
       </div>
     </div>

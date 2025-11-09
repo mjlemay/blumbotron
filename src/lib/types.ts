@@ -11,7 +11,7 @@ export type DataItem = {
 
 export type UnitItem = {
   name: string;
-  type: string;
+  type: scoreUnitType;
 }
 
 export type DisplayData = {
@@ -91,6 +91,8 @@ export type RosterDataItem = DataItem & {
 export type SelectedItem = DataItem | GameDataItem | RosterDataItem | ScoreDataItem;
 
 export type DisplayCategory = 'table' | 'slide';
+
+export type scoreUnitType = 'score' | 'flag' | 'time';
 
 export type Experience = {
   view: string;

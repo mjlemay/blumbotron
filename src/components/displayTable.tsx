@@ -82,7 +82,7 @@ const AvatarImage = ( { playerName, isFullScreen }: { playerName: string, isFull
       aria-label={`${playerName} avatar`}
       className={`
         rounded flex-shrink-0 self-stretch 
-        ${isFullScreen ? 'border border-[2em] border-transparent' : ''}
+        ${isFullScreen ? 'border border-[2vh] border-transparent' : ''}
          items-center justify-center overflow-hidden relative
       `}
       style={{

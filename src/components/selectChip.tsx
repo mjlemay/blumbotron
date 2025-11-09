@@ -32,7 +32,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
     selectIcon,
     selections,
     selectLabel,
-    selectPlaceholder = 'Add',
+    selectPlaceholder = 'Select an option',
     selectPrefix,
   } = props;
   const [selected, setSelected] = useState<string | undefined>(defaultValue || undefined);
@@ -45,19 +45,19 @@ function SelectChip(props: ComponentProps): JSX.Element {
       return (
         <Select.Item
           className="
-                        relative
-                        flex
-                        select-none
-                        items-center
-                        rounded-lg
-                        bg-slate-600/75
-                        mb-1
-                        text-sm
-                        leading-none
-                        cursor-pointer
-                        hover:bg-blue-600/20
-                        data-[disabled]:pointer-events-none
-                    "
+              relative
+              flex
+              select-none
+              items-center
+              rounded-lg
+              bg-slate-600/75
+              mb-1
+              text-sm
+              leading-none
+              cursor-pointer
+              hover:bg-blue-600/20
+              data-[disabled]:pointer-events-none
+          "
           ref={forwardedRef}
           value={value}
         >
@@ -123,7 +123,9 @@ function SelectChip(props: ComponentProps): JSX.Element {
             `}
         aria-label="items"
       >
-        <Select.Value placeholder={<div className="p-1 pr-0">{selectPlaceholder}</div>} />
+        <Select.Value>
+          <div className="indent-3 min-w-[100px]">{selections?.find(item => item?.value === selected)?.label || selectPlaceholder}</div>
+        </Select.Value>
         <Select.Icon className="ml-auto pr-2">
           {selectIcon ||
             (resetOnSelect ? (
