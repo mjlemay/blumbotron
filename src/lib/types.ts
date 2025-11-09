@@ -11,7 +11,9 @@ export type DataItem = {
 
 export type UnitItem = {
   name: string;
+  id: number;
   type: scoreUnitType;
+  data?: Record<string, unknown>;
 }
 
 export type DisplayData = {

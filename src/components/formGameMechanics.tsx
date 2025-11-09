@@ -4,15 +4,16 @@ import SelectChip from './selectChip';
 import { z } from 'zod';
 import { useGameStore } from '../stores/gamesStore';
 import { useExperienceStore } from '../stores/experienceStore';
+import { useScoreStore } from '../stores/scoresStore';
 import { GameDataItem, UnitItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon, UploadIcon, TrashIcon } from '@radix-ui/react-icons';
+import { generateSnowflake } from '../lib/snowflake';
+import { Pencil1Icon, TrashIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { useRef, useState, useEffect } from 'react';
-import { setNestedValue } from '../lib/helpers';
+import { useEffect } from 'react';
 
 type FormGameMechanicsProps = {
   onSuccess?: () => void;
@@ -22,11 +23,20 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
+  const { gameScores } = useScoreStore();
   const game = getSelected('games') as GameDataItem;
-  const backgroundImageInputRef = useRef<HTMLInputElement>(null);
-  const logoImageInputRef = useRef<HTMLInputElement>(null);
-  const [backgroundSrc, setBackgroundSrc] = useState<string>('');
-  const [logoSrc, setLogoSrc] = useState<string>('');
+
+  // Function to calculate total scores for a specific unit type
+  const calculateUnitTotal = (unitName: string) => {
+    if (!game?.snowflake || !gameScores[game.snowflake]) {
+      return 0;
+    }
+    
+    const scores = gameScores[game.snowflake];
+    return scores
+      .filter(score => score.units === unitName)
+      .reduce((total, score) => total + (score.amount || 0), 0);
+  };
 
   // todo: refactor fullForm and gameData parsing logic
   let gameData: any = {};
@@ -53,187 +63,17 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   const [errors, setErrors] = useImmer({});
   const { name = '' } = game || {};
 
-  // Update image source when form data changes
+  // Ensure all units have IDs
   useEffect(() => {
-    const updateImageSrc = async () => {
-      const { 
-        backgroundImage,
-        logoImage,
-      } = form?.data?.media || defaultGame?.data?.media || {};
-      if (backgroundImage) {
-        try {
-          const src = await getImageSrc(backgroundImage);
-          setBackgroundSrc(src || '');
-        } catch (error) {
-          console.error('FormGameMechanics: Error loading image:', error);
-          setBackgroundSrc('');
-        }
-      } else {
-        console.log('No backgroundImage found, clearing src');
-        setBackgroundSrc('');
+    setForm(draft => {
+      if (draft.data?.mechanics?.units) {
+        draft.data.mechanics.units = draft.data.mechanics.units.map((unit: any) => ({
+          ...unit,
+          id: unit.id || Number(generateSnowflake())
+        }));
       }
-      if (logoImage) {
-        try {
-          const src = await getImageSrc(logoImage);
-          setLogoSrc(src || '');
-        } catch (error) {
-          console.error('FormGameMechanics: Error loading image:', error);
-          setLogoSrc('');
-        }
-      } else {
-        console.log('No logoImage found, clearing src');
-        setLogoSrc('');
-      }
-    };
-    
-    updateImageSrc();
-  }, [form?.data?.media]);
-
-  const updateFormInput = (formKey: string, formValue: string) => {
-    setForm(form => {
-      // Convert string values to numbers for numeric fields
-      let processedValue: string | number = formValue;
-      if (formKey.includes('Opacity') 
-        || formKey.includes('Scale')
-        || formKey.includes('Offset')
-      ) {
-        processedValue = parseInt(formValue, 10);
-      }
-      setNestedValue(form, formKey, processedValue);
     });
-  };
-
-  const selectedRef = (name: string) => {
-    switch (name) {
-      case 'backgroundImage':
-        return backgroundImageInputRef;
-      case 'logoImage':
-      default:
-        return logoImageInputRef;
-    }
-  };
-
-  const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
-    const eventTarget = Event?.target;
-    const formKey = eventTarget?.name;
-    const formValue = eventTarget?.value;
-    updateFormInput(formKey, formValue);
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    const name = event.target.name;
-    if (!file) {
-      console.warn('FormGameMechanics: No file selected');
-      return;
-    }
-    
-    if (!file.type.startsWith('image/')) {
-      console.error('FormGameMechanics: Invalid file type:', file.type);
-      alert('Please select an image file (PNG, JPG, GIF, etc.)');
-      return;
-    }
-    
-    try {
-      // Generate unique filename with timestamp
-      const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop() || 'png';
-      const fileName = `bg_${game?.snowflake || 'unknown'}_${timestamp}.${fileExtension}`;
-    
-      // Convert file to base64 for transfer to Rust
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const base64 = btoa(String.fromCharCode.apply(null, Array.from(bytes)));
-      
-      // Use Tauri invoke to save file on the Rust side
-      const { invoke } = await import('@tauri-apps/api/core');
-      
-      await invoke('save_background_image', {
-        fileName: fileName,
-        imageData: base64
-      });
-      
-      // Store the filename instead of base64 data
-      updateFormInput(name, fileName);
-      
-    } catch (error) {
-      console.error('FormGameMechanics: Failed to save image:', error);
-      // Fallback to base64 if file system operations fail
-      console.log('FormGameMechanics: Attempting fallback to base64...');
-      try {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const base64String = event.target?.result as string;
-          console.log('FormGameMechanics: Fallback - storing base64 data, length:', base64String.length);
-          updateFormInput(name, base64String);
-        };
-        reader.onerror = (error) => {
-          console.error('FormGameMechanics: FileReader error:', error);
-        };
-        reader.readAsDataURL(file);
-      } catch (fallbackError) {
-        console.error('FormGameMechanics: Fallback also failed:', fallbackError);
-        alert('Failed to upload image. Please try again.');
-      }
-    }
-  };
-
-  const handleImageRemove = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const name = event.currentTarget.dataset.name || '';
-    const currentImage = form?.data?.media?.[name as keyof typeof form.data.media];
-    if (!currentImage) {
-      console.warn(`FormGameMechanics: No currentImage for ${name} found`);
-      return;
-    }
-    
-    // If it's a filename (not base64), try to delete the file
-    if (currentImage && !currentImage.startsWith('data:')) {
-      try {
-        const { invoke } = await import('@tauri-apps/api/core');
-        await invoke('delete_background_image', { fileName: currentImage });
-      } catch (error) {
-        console.warn('Failed to delete background image file:', error);
-      }
-    }
-
-    const uploadRef = selectedRef(name);
-    updateFormInput(`data.media.${name}`, '');
-    if (uploadRef.current) {
-      uploadRef.current.value = '';
-    }
-  };
-
-  const triggerFileUpload = (inputName: string) => {
-    const ref = selectedRef(inputName);
-    ref.current?.click();
-  };
-
-  const getImageSrc = async (imagePath: string): Promise<string> => {
-    if (!imagePath) {
-      return '';
-    }
-    
-    if (imagePath.startsWith('data:')) {
-      return imagePath;
-    }
-    // If it's a filename, get the base64 data from Tauri
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      const dataUrl = await invoke('get_background_image_data', { fileName: imagePath }) as string;
-      return dataUrl;
-    } catch (error) {
-      console.error('getImageSrc: Failed to get image data for', imagePath, ':', error);
-      // If the file is missing, return an empty string instead of the filename
-      if (error && typeof error === 'string' && error.includes('Image file not found')) {
-        console.warn('Image file missing, returning empty string:', imagePath);
-        return '';
-      }
-      console.warn('getImageSrc: fallback - returning original path:', imagePath);
-      return imagePath; // Fallback to original path for other errors
-    }
-  };
-
-
+  }, []);
 
   const handleSubmitClose = (
     view: string = 'home',
@@ -248,41 +88,55 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   };
 
   const editGameData = async (formData: GameDataItem) => {
+    console.log('editGameData called with:', {
+      formData,
+      unitsArray: formData.data?.mechanics?.units,
+      gameId: game?.id,
+      gameName: game?.name
+    });
     
     let formSchema = z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
       data: z.object({
-        media: z.object({
-          backgroundImage: z.string().nullable().optional(),
-          backgroundImageOpacity: z.number().min(0).max(100).optional(),
-          logoImage: z.string().nullable().optional(),
-          logoImageOpacity: z.number().min(0).max(100).optional(),
-          logoImagePosition: z.string().optional(),
-          logoImageHorizontalOffset: z.number().optional(),
-          logoImageVerticalOffset: z.number().optional(),
-          logoImageScale: z.number().min(0).max(50).optional(),
+        mechanics: z.object({
+          units: z.array(z.object({
+            id: z.union([z.number(), z.bigint()]).optional(),
+            name: z.string(),
+            type: z.string(),
+            data: z.record(z.unknown()).optional(),
+          })).optional(),
         }).optional(),
-      }),
+      }).optional(),
     });
     try {
       formSchema.parse(formData);
       // Merge existing data with new changes
       const existingData = game?.data || {};
-      const newMedia = formData.data?.media || {};
+      const newMechanics = formData.data?.mechanics || {};
       const mergedData = {
         ...existingData,
-        media: newMedia
+        mechanics: newMechanics
       };
+      
+      console.log('Merged data:', {
+        existingData,
+        newMechanics,
+        mergedData
+      });
       
       // Ensure we're sending the correct data structure
       // Use the original game's ID to ensure we're updating the right record
       const updateData: GameDataItem = {
         id: game?.id || formData.id,
         snowflake: game?.snowflake || formData.snowflake,
-        name: formData.name,
-        description: formData.description,
+        name: game?.name || formData.name,
+        description: game?.description || formData.description,
         data: mergedData,
-        roster: formData.roster
+        roster: game?.roster || formData.roster
       };
+      
+      console.log('About to call editGame with:', updateData);
       
       await editGame(updateData);
       
@@ -376,17 +230,21 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                             if (!draft.data) draft.data = {};
                             if (!draft.data.mechanics) draft.data.mechanics = {};
                             if (!draft.data.mechanics.units) draft.data.mechanics.units = [];
-                            draft.data.mechanics.units.push({ name: '', type: 'points' });
+                            draft.data.mechanics.units.push({ 
+                              name: '', 
+                              type: 'score',
+                              id: Number(generateSnowflake())
+                            });
                           });
                         }}
-                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-1"
+                        className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700 text-white hover:bg-sky-600"
                       >
                         <span>+</span> Add Unit
                       </button>
                     </div>
                     
                     {form.data?.mechanics?.units?.map((unit: UnitItem, index: number) => (
-                      <div key={index} className="flex flex-row items-center gap-2 mb-2 p-3 bg-slate-600 rounded-md">
+                      <div key={unit.id || `unit-${index}`} className="flex flex-row items-center gap-2 mb-2 p-3 bg-slate-600 rounded-md">
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-slate-300 mb-1">Name</label>
                           <input
@@ -395,35 +253,52 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                             onChange={(e) => {
                               setForm(draft => {
                                 if (draft.data?.mechanics?.units?.[index]) {
-                                  draft.data.mechanics.units[index].name = e.target.value;
+                                  draft.data.mechanics.units[index].name = e.target.value.toLowerCase();
                                 }
                               });
                             }}
                             className="w-full px-3 py-2 bg-slate-700 border border-slate-500 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Unit name"
+                            placeholder="Unit name (e.g., points, coins, lives)"
                           />
                         </div>
                         
                         <div className="flex-1">
-                          <label className="block text-sm font-medium text-slate-300 mb-1">Type</label>
-                          <SelectChip
-                            key={`unit-type-${index}-${unit.type || 'score'}`}
-                            defaultValue={unit.type || 'score'}
-                            handleSelect={(value) => {
-                              setForm(draft => {
-                                if (draft.data?.mechanics?.units?.[index]) {
-                                  draft.data.mechanics.units[index].type = value;
+                          <label className="block text-sm font-medium text-slate-300 mb-1">
+                            Type
+                            {calculateUnitTotal(unit.name || '') > 0 && (
+                              <LockClosedIcon className="ml-2 w-3 h-3 text-slate-400 inline" />
+                            )}
+                          </label>
+                          <div className="flex items-center gap-2 p-1">
+                            <SelectChip
+                              key={`unit-type-${unit.id || index}-${unit.type || 'score'}`}
+                              defaultValue={unit.type || 'score'}
+                              handleSelect={(value) => {
+                                // Only allow changes if there are no scores for this unit
+                                const totalScores = calculateUnitTotal(unit.name || '');
+                                if (totalScores === 0) {
+                                  setForm(draft => {
+                                    if (draft.data?.mechanics?.units?.[index]) {
+                                      draft.data.mechanics.units[index].type = value;
+                                    }
+                                  });
                                 }
-                              });
-                            }}
-                            selections={[
-                              { label: 'Score', value: 'score' },
-                              { label: 'Flag', value: 'flag' },
-                              { label: 'Time', value: 'time' }
-                            ]}
-                            selectPlaceholder="Select Type"
-                            moreClasses="w-full"
-                          />
+                              }}
+                              selections={[
+                                { label: 'Score', value: 'score' },
+                                { label: 'Flag', value: 'flag' },
+                                { label: 'Time', value: 'time' }
+                              ]}
+                              selectPlaceholder="Select Type"
+                              moreClasses={`flex-1 !h-[42px] !py-2 !px-3 ${calculateUnitTotal(unit.name || '') > 0 ? 'opacity-50 pointer-events-none' : ''}`}
+                            />
+                            <div className="flex flex-col items-end min-w-[50px]">
+                              <span className="text-xs text-slate-400">Total</span>
+                              <span className="text-sm font-bold text-slate-200">
+                                {calculateUnitTotal(unit.name || '')}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                         
                         <button
@@ -436,14 +311,14 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                             });
                           }}
                           disabled={form.data?.mechanics?.units?.length === 1}
-                          className={`mt-6 px-2 py-2 text-white rounded-md ${
+                          className={`mt-6 flex select-none items-center justify-center cursor-pointer rounded px-3 py-2 text-lg font-medium ${
                             form.data?.mechanics?.units?.length === 1
                               ? 'bg-gray-500 cursor-not-allowed'
-                              : 'bg-red-600 hover:bg-red-700'
+                              : 'bg-sky-700 hover:bg-sky-600 text-white'
                           }`}
                           title={form.data?.mechanics?.units?.length === 1 ? "Cannot remove the last unit" : "Remove unit"}
                         >
-                          <TrashIcon width="16" height="16" />
+                          <TrashIcon width="20" height="20" />
                         </button>
                       </div>
                     ))}
