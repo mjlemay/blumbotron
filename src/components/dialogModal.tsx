@@ -9,6 +9,7 @@ import {
 import FormGame from './formGame';
 import FormRoster from './formRoster';
 import FormPlayer from './formPlayer';
+import FormPhoto from './formPhoto';
 import DisplayTable from './displayTable';
 import { refreshData } from '../lib/fetchCalls';
 import { useExperienceStore } from '../stores/experienceStore';
@@ -114,6 +115,12 @@ function DialogModal({
       deleteRoster: (
         <FormRoster
           action="delete"
+          onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
+        />
+      ),
+      capturePhoto: (
+        <FormPhoto
+          action="capturePhoto"
           onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
         />
       ),
