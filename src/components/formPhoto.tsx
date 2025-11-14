@@ -9,12 +9,11 @@ import { PlayIcon, StopIcon, CameraIcon, TrashIcon, CheckIcon } from '@radix-ui/
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 
 type FormPlayerProps = {
-  action?: string;
   onSuccess?: () => void;
 };
 
 function FormPhoto(props: FormPlayerProps): JSX.Element {
-  const { action = null, onSuccess = null } = props;
+  const { onSuccess = null } = props;
   const { editPlayer } = usePlayerStore();
   const { setExpSelected, setExpModal, experience } = useExperienceStore();
   const selectedPlayer = experience?.selected?.player as PlayerDataItem;
@@ -29,21 +28,6 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
   const [error, setError] = useState<string>('');
   const [currentFrame, setCurrentFrame] = useState<string>('');
   const [frameUpdateInterval, setFrameUpdateInterval] = useState<NodeJS.Timeout | null>(null);
-
-  // Initialize camera system on component mount
-  useEffect(() => {
-    initializeCameraSystem();
-    
-    // Cleanup on unmount
-    return () => {
-      if (frameUpdateInterval) {
-        clearInterval(frameUpdateInterval);
-      }
-      if (previewStreamId) {
-        invoke('stop_camera_preview', { streamId: previewStreamId }).catch(console.error);
-      }
-    };
-  }, []);
 
   const initializeCameraSystem = async () => {
     try {
@@ -64,11 +48,8 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
   const startPreview = async () => {
     if (!selectedCamera) return;
     
-    console.log('Starting camera preview for:', selectedCamera);
-    
     try {
       const streamId = await invoke('start_camera_preview', { cameraId: selectedCamera }) as string;
-      console.log('Camera preview started with stream ID:', streamId);
       setPreviewStreamId(streamId);
       setIsPreviewActive(true);
       setError('');
@@ -103,9 +84,7 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     if (!selectedCamera || !isPreviewActive) return;
     
     try {
-      console.log('Fetching frame from camera:', selectedCamera);
       const frameData = await invoke('get_camera_frame', { cameraId: selectedCamera }) as string;
-      console.log('Received frame data:', frameData ? `${frameData.substring(0, 50)}...` : 'No data');
       setCurrentFrame(frameData);
     } catch (err) {
       console.error('Failed to fetch camera frame:', err);
@@ -113,11 +92,24 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     }
   };
 
+  // Initialize camera system on component mount
+  useEffect(() => {
+    initializeCameraSystem();
+    
+    // Cleanup on unmount
+    return () => {
+      if (frameUpdateInterval) {
+        clearInterval(frameUpdateInterval);
+      }
+      if (previewStreamId) {
+        invoke('stop_camera_preview', { streamId: previewStreamId }).catch(console.error);
+      }
+    };
+  }, []);
+
   // Start frame updates when preview becomes active
   useEffect(() => {
-    if (isPreviewActive && selectedCamera && !frameUpdateInterval) {
-      console.log('Starting frame updates for camera preview');
-      
+    if (isPreviewActive && selectedCamera && !frameUpdateInterval) {      
       // Start fetching frames every 200ms (5 FPS) for smooth video
       const interval = setInterval(fetchCameraFrame, 200);
       setFrameUpdateInterval(interval);
@@ -425,7 +417,6 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     );
   };
 
-  console.log(action, onSuccess);
   return (
     <DialogContainer 
       title="Capture Photo" 

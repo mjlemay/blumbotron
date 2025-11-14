@@ -120,7 +120,6 @@ function DialogModal({
       ),
       capturePhoto: (
         <FormPhoto
-          action="capturePhoto"
           onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
         />
       ),
