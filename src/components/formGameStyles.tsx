@@ -1,4 +1,5 @@
 import { useImmer } from 'use-immer';
+import { useState } from 'react';
 import Input from './input';
 import SelectChip from './selectChip';
 import { z } from 'zod';
@@ -56,6 +57,7 @@ function FormGameStyles(props: FormGameStylesProps) {
   const fullForm = { ...game, data: gameData };
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
+  const [showColorOverrides, setShowColorOverrides] = useState(false);
 
   // Font options based on available fonts
   const fontOptions = [
@@ -277,9 +279,36 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Basic Colors
-                    </h3>
+                    
+                    {/* Color Override Toggle */}
+                    <div className="w-full mb-4 mt-4">
+                      <label className="flex items-center justify-between cursor-pointer p-3 bg-slate-800 rounded-lg hover:bg-slate-750 transition-colors">
+                        <span className="text-base font-medium text-white">
+                          Override Default Colors
+                        </span>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            checked={showColorOverrides}
+                            onChange={(e) => setShowColorOverrides(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div 
+                      className="overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{ 
+                        maxHeight: showColorOverrides ? '2000px' : '0px',
+                        opacity: showColorOverrides ? 1 : 0
+                      }}
+                    >
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                          Basic Colors
+                        </h3>
                     <Input
                       name="data.colors.background"
                       label="Background Color"
@@ -475,6 +504,8 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       }
                     />
+                      </div>
+                    </div>
                      <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
                       Fonts
                     </h3>
