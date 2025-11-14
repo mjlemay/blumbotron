@@ -4,6 +4,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { usePlayerStore } from '../stores/playersStore';
 import { useExperienceStore } from '../stores/experienceStore';
 import { PlayerDataItem } from '../lib/types';
+import * as Menubar from '@radix-ui/react-menubar';
+import { PlayIcon, StopIcon, CameraIcon, TrashIcon, CheckIcon } from '@radix-ui/react-icons';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 
 type FormPlayerProps = {
   action?: string;
@@ -13,7 +16,7 @@ type FormPlayerProps = {
 function FormPhoto(props: FormPlayerProps): JSX.Element {
   const { action = null, onSuccess = null } = props;
   const { editPlayer } = usePlayerStore();
-  const { setExpSelected, experience } = useExperienceStore();
+  const { setExpSelected, setExpModal, experience } = useExperienceStore();
   const selectedPlayer = experience?.selected?.player as PlayerDataItem;
 
   // Camera state
@@ -175,6 +178,19 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     }
   };
 
+  const closeModal = () => {
+    // Stop preview if active
+    if (isPreviewActive) {
+      stopPreview();
+    }
+    // Close the modal
+    setExpModal('none');
+    // Call success callback if provided
+    if (onSuccess) {
+      onSuccess();
+    }
+  };
+
   const renderCameraContent = () => {
     if (!isInitialized) {
       return (
@@ -199,189 +215,213 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     }
 
     return (
-      <div className="space-y-4">
-        {/* Important Note */}
-        <div className="bg-blue-900 border border-blue-700 rounded-lg p-3 text-sm">
-          <div className="flex items-start gap-2">
-            <div className="text-blue-400 mt-0.5">💡</div>
-            <div className="text-blue-100">
-              <strong>Camera Tip:</strong> For best results, close other camera apps (FaceTime, Zoom, etc.) and run only one Blumbotron instance at a time.
+      <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
+        <ScrollArea.Viewport className="h-full w-full">
+          <div className="px-5 py-[15px] min-h-[calc(100vh-250px)] max-h-[calc(100vh-250px)]">
+            <div className="space-y-4">
+              {/* Camera Selection */}
+              <div>
+                <label className="block text-slate-300 text-sm font-medium mb-2">
+                  Select Camera ({availableCameras.length} detected):
+                </label>
+                <select
+                  value={selectedCamera}
+                  onChange={(e) => setSelectedCamera(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {availableCameras.map((camera, index) => (
+                    <option key={index} value={camera}>
+                      {camera}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2 text-xs text-slate-400">
+                  Current selection: {selectedCamera || 'None'}
+                </div>
+              </div>
+
+              {/* Camera Preview Area */}
+              <div className="bg-slate-700 rounded-lg w-80 h-80 mx-auto flex items-center justify-center relative overflow-hidden">
+                {capturedPhoto && !capturedPhoto.includes("placeholder_image_data") ? (
+                  <div className="relative w-full h-full">
+                    <img 
+                      src={capturedPhoto} 
+                      alt="Captured Photo" 
+                      className="w-full h-full object-cover rounded"
+                    />
+                  </div>
+                ) : isPreviewActive && currentFrame ? (
+                  <div className="relative w-full h-full">
+                    {/* Camera Feed */}
+                    <img 
+                      src={currentFrame} 
+                      alt="Live Camera Feed" 
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        console.error('Image load error:', e);
+                        setError('Failed to load camera frame');
+                      }}
+                      onLoad={() => {
+                        console.log('Frame loaded successfully');
+                      }}
+                    />
+                    
+                    {/* Crop Marks Overlay */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {/* Corner Crop Marks */}
+                      {/* Top Left */}
+                      <div className="absolute top-4 left-4">
+                        <div className="w-6 h-0.5 bg-white shadow-lg"></div>
+                        <div className="w-0.5 h-6 bg-white shadow-lg"></div>
+                      </div>
+                      {/* Top Right */}
+                      <div className="absolute top-4 right-4">
+                        <div className="w-6 h-0.5 bg-white shadow-lg ml-auto"></div>
+                        <div className="w-0.5 h-6 bg-white shadow-lg ml-auto"></div>
+                      </div>
+                      {/* Bottom Left */}
+                      <div className="absolute bottom-4 left-4">
+                        <div className="w-0.5 h-6 bg-white shadow-lg"></div>
+                        <div className="w-6 h-0.5 bg-white shadow-lg"></div>
+                      </div>
+                      {/* Bottom Right */}
+                      <div className="absolute bottom-4 right-4">
+                        <div className="w-0.5 h-6 bg-white shadow-lg ml-auto"></div>
+                        <div className="w-6 h-0.5 bg-white shadow-lg ml-auto"></div>
+                      </div>
+                      
+                      {/* Center Cross Hair */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="w-4 h-0.5 bg-white opacity-60 shadow-lg"></div>
+                        <div className="w-0.5 h-4 bg-white opacity-60 shadow-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                      </div>
+                      
+                      {/* Grid Lines (Rule of Thirds) */}
+                      <div className="absolute inset-0 opacity-30">
+                        {/* Vertical Lines */}
+                        <div className="absolute left-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
+                        <div className="absolute right-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
+                        {/* Horizontal Lines */}
+                        <div className="absolute top-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
+                        <div className="absolute bottom-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
+                      </div>
+                    </div>
+                    
+                    {/* UI Overlays */}
+                    <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      LIVE
+                    </div>
+                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-10">
+                      {selectedCamera}
+                    </div>
+                  </div>
+                ) : isPreviewActive ? (
+                  <div className="text-green-400 text-center">
+                    <div className="animate-pulse">
+                      <svg className="mx-auto mb-4 w-16 h-16 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-lg font-semibold">🎥 Loading Video...</p>
+                      <p className="text-sm">Connecting to camera</p>
+                      <p className="text-xs text-slate-400 mt-2">Camera: {selectedCamera}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-slate-400 text-center">
+                    <svg className="mx-auto mb-4 w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-lg">Camera Preview</p>
+                    <p className="text-sm">Click "Start Preview" to see live video</p>
+                    <p className="text-xs text-green-400">✓ Nokhwa camera system ready</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Camera Controls moved to menu bar */}
+
+              {/* Selected Player Info */}
+              {selectedPlayer && (
+                <div className="mt-4 p-3 bg-slate-600 rounded-lg text-center">
+                  <p className="text-slate-300 text-sm">
+                    Capturing photo for: <span className="font-bold text-white">{selectedPlayer.name}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar
+          className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+          orientation="vertical"
+        >
+          <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-slate-500 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+        </ScrollArea.Scrollbar>
+        <ScrollArea.Corner className="bg-slate-700/50" />
+      </ScrollArea.Root>
+    );
+  };
 
-        {/* Camera Selection */}
-        <div>
-          <label className="block text-slate-300 text-sm font-medium mb-2">
-            Select Camera ({availableCameras.length} detected):
-          </label>
-          <select
-            value={selectedCamera}
-            onChange={(e) => setSelectedCamera(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {availableCameras.map((camera, index) => (
-              <option key={index} value={camera}>
-                {camera}
-              </option>
-            ))}
-          </select>
-          <div className="mt-2 text-xs text-slate-400">
-            Current selection: {selectedCamera || 'None'}
-          </div>
-        </div>
+  const renderMenuBar = () => {
+    if (!isInitialized || error) return null;
 
-        {/* Camera Preview Area */}
-        <div className="bg-slate-700 rounded-lg w-80 h-80 mx-auto flex items-center justify-center relative overflow-hidden">
-          {capturedPhoto && !capturedPhoto.includes("placeholder_image_data") ? (
-            <div className="relative w-full h-full">
-              <img 
-                src={capturedPhoto} 
-                alt="Captured Photo" 
-                className="w-full h-full object-cover rounded"
-              />
-              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-10">
-                📸 Captured Photo (Square)
-              </div>
-              <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-10">
-                📐 Square Crop
-              </div>
-            </div>
-          ) : isPreviewActive && currentFrame ? (
-            <div className="relative w-full h-full">
-              {/* Camera Feed */}
-              <img 
-                src={currentFrame} 
-                alt="Live Camera Feed" 
-                className="w-full h-full object-cover rounded"
-                onError={(e) => {
-                  console.error('Image load error:', e);
-                  setError('Failed to load camera frame');
-                }}
-                onLoad={() => {
-                  console.log('Frame loaded successfully');
-                }}
-              />
-              
-              {/* Crop Marks Overlay */}
-              <div className="absolute inset-0 pointer-events-none">
-                {/* Corner Crop Marks */}
-                {/* Top Left */}
-                <div className="absolute top-4 left-4">
-                  <div className="w-6 h-0.5 bg-white shadow-lg"></div>
-                  <div className="w-0.5 h-6 bg-white shadow-lg"></div>
-                </div>
-                {/* Top Right */}
-                <div className="absolute top-4 right-4">
-                  <div className="w-6 h-0.5 bg-white shadow-lg ml-auto"></div>
-                  <div className="w-0.5 h-6 bg-white shadow-lg ml-auto"></div>
-                </div>
-                {/* Bottom Left */}
-                <div className="absolute bottom-4 left-4">
-                  <div className="w-0.5 h-6 bg-white shadow-lg"></div>
-                  <div className="w-6 h-0.5 bg-white shadow-lg"></div>
-                </div>
-                {/* Bottom Right */}
-                <div className="absolute bottom-4 right-4">
-                  <div className="w-0.5 h-6 bg-white shadow-lg ml-auto"></div>
-                  <div className="w-6 h-0.5 bg-white shadow-lg ml-auto"></div>
-                </div>
-                
-                {/* Center Cross Hair */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-4 h-0.5 bg-white opacity-60 shadow-lg"></div>
-                  <div className="w-0.5 h-4 bg-white opacity-60 shadow-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-                </div>
-                
-                {/* Grid Lines (Rule of Thirds) */}
-                <div className="absolute inset-0 opacity-30">
-                  {/* Vertical Lines */}
-                  <div className="absolute left-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
-                  <div className="absolute right-1/3 top-0 w-0.5 h-full bg-white opacity-50 shadow-sm"></div>
-                  {/* Horizontal Lines */}
-                  <div className="absolute top-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
-                  <div className="absolute bottom-1/3 left-0 h-0.5 w-full bg-white opacity-50 shadow-sm"></div>
-                </div>
-              </div>
-              
-              {/* UI Overlays */}
-              <div className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                LIVE
-              </div>
-              <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-10">
-                {selectedCamera}
-              </div>
-            </div>
-          ) : isPreviewActive ? (
-            <div className="text-green-400 text-center">
-              <div className="animate-pulse">
-                <svg className="mx-auto mb-4 w-16 h-16 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                </svg>
-                <p className="text-lg font-semibold">🎥 Loading Video...</p>
-                <p className="text-sm">Connecting to camera</p>
-                <p className="text-xs text-slate-400 mt-2">Camera: {selectedCamera}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-slate-400 text-center">
-              <svg className="mx-auto mb-4 w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-              </svg>
-              <p className="text-lg">Camera Preview</p>
-              <p className="text-sm">Click "Start Preview" to see live video</p>
-              <p className="text-xs text-green-400">✓ Nokhwa camera system ready</p>
-            </div>
-          )}
-        </div>
-
-        {/* Camera Controls */}
-        <div className="flex gap-2 justify-center flex-wrap">
-          {!isPreviewActive ? (
-            <button
+    return (
+      <Menubar.Root className="flex rounded-md p-2 gap-2">
+        {/* Start/Stop Preview Button OR Clear Photo Button */}
+        <Menubar.Menu>
+          {capturedPhoto ? (
+            // Show Clear Photo button when photo is captured
+            <Menubar.Trigger
+              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-yellow-700 hover:bg-yellow-800"
+              onClick={() => setCapturedPhoto('')}
+            >
+              <TrashIcon width="20" height="20" /> <span>Retake Photo</span>
+            </Menubar.Trigger>
+          ) : !isPreviewActive ? (
+            // Show Start Preview when no photo and preview not active
+            <Menubar.Trigger
+              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-green-700 hover:bg-green-800 disabled:bg-gray-600 disabled:cursor-not-allowed"
               onClick={startPreview}
               disabled={!selectedCamera}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
             >
-              📹 Start Preview
-            </button>
+              <PlayIcon width="20" height="20" /> <span>Start Preview</span>
+            </Menubar.Trigger>
           ) : (
-            <button
+            // Show Stop Preview when preview is active
+            <Menubar.Trigger
+              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-red-700 hover:bg-red-800"
               onClick={stopPreview}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
-              ⏹️ Stop Preview
-            </button>
+              <StopIcon width="20" height="20" /> <span>Stop Preview</span>
+            </Menubar.Trigger>
           )}
-          
-          <button
-            onClick={capturePhoto}
-            disabled={!selectedCamera}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors"
-          >
-            📸 Capture & Save as Avatar
-          </button>
-          
-          {capturedPhoto && (
-            <button
-              onClick={() => setCapturedPhoto('')}
-              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
-            >
-              🗑️ Clear Photo
-            </button>
-          )}
-        </div>
+        </Menubar.Menu>
 
-        {/* Selected Player Info */}
-        {selectedPlayer && (
-          <div className="mt-4 p-3 bg-slate-600 rounded-lg text-center">
-            <p className="text-slate-300 text-sm">
-              Capturing photo for: <span className="font-bold text-white">{selectedPlayer.name}</span>
-            </p>
-          </div>
+        {/* Capture Photo Button OR Exit Button - Only show when preview is active or photo is captured */}
+        {(isPreviewActive || capturedPhoto) && (
+          <Menubar.Menu>
+            {capturedPhoto ? (
+              // Show Exit/Done button when photo is captured
+              <Menubar.Trigger
+                className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-green-700 hover:bg-green-800"
+                onClick={closeModal}
+              >
+                <CheckIcon width="20" height="20" /> <span>Done</span>
+              </Menubar.Trigger>
+            ) : (
+              // Show Capture button when preview is active but no photo captured
+              <Menubar.Trigger
+                className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-blue-700 hover:bg-blue-800 disabled:bg-gray-600 disabled:cursor-not-allowed"
+                onClick={capturePhoto}
+                disabled={!selectedCamera}
+              >
+                <CameraIcon width="20" height="20" /> <span>Capture & Save Avatar</span>
+              </Menubar.Trigger>
+            )}
+          </Menubar.Menu>
         )}
-      </div>
+      </Menubar.Root>
     );
   };
 
@@ -390,7 +430,9 @@ function FormPhoto(props: FormPlayerProps): JSX.Element {
     <DialogContainer 
       title="Capture Photo" 
       content={renderCameraContent()}
-    />
+    >
+      {renderMenuBar()}
+    </DialogContainer>
   );
 }
 
