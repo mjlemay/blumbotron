@@ -133,7 +133,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const { rosters } = useRosterStore();
   const { experience } = useExperienceStore();
   const subSelected = experience?.subSelected || 0;
-  const { gameScores, fetchUniqueScoresByGame } = useScoreStore();
+  const { gameScores, fetchScoresByGame } = useScoreStore();
   const [backgroundImageSrc, setBackgroundImageSrc] = useState<string>('');
   const [logoImageSrc, setLogoImageSrc] = useState<string>('');
   const [titleImageSrc, setTitleImageSrc] = useState<string>('');
@@ -180,14 +180,33 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   // Get offset value before using it in tableData
   const offset = displayData?.offset || 0;
   const direction = displayData?.direction || 'descending';
+  const sortUnit = displayData?.sortUnit || gameData?.data?.mechanics?.units?.[0]?.id;
   
   // Memoize table data processing
   const tableData = useMemo(() => {
-    const sortedPlayers = gameScores[game || '']?.sort((a, b) => {
+    const allScores = gameScores[game || ''];
+    
+    const filteredScores = allScores?.filter((scoreItem: ScoreDataItem) => {
+      // Convert both to numbers for comparison since unit IDs are numbers
+      return Number(scoreItem.unit_id) === Number(sortUnit);
+    }) || [];
+
+
+    filteredScores.sort((a, b) => {
       return direction === 'ascending' 
         ? (Number(a?.datum) || 0) - (Number(b?.datum) || 0)  // ascending: low to high
         : (Number(b?.datum) || 0) - (Number(a?.datum) || 0); // descending: high to low
     }) || [];
+
+    // Filter to keep only unique players (first occurrence after sorting)
+    const seenPlayers = new Set<string>();
+    const sortedPlayers = filteredScores.filter((scoreItem: ScoreDataItem) => {
+      if (seenPlayers.has(scoreItem.player)) {
+        return false;
+      }
+      seenPlayers.add(scoreItem.player);
+      return true;
+    });
     
     // Apply offset by slicing the sorted array (skip top N players)
     const offsetPlayers = sortedPlayers.slice(offset);
@@ -205,7 +224,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         };
       }
     }).filter(item => item !== undefined);
-  }, [gameScores, game, playersData, offset, direction]);
+  }, [gameScores, game, playersData, offset, direction, sortUnit, displayData, gameData]);
 
   const colors = {
     background: 'black',
@@ -369,15 +388,15 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
 
   useEffect(() => {
-    // Initial fetch of scores - use unique scores for display
-    fetchUniqueScoresByGame(game || '');
+    // Fetch ALL scores for the game (not just unique)
+    fetchScoresByGame(game || '');
     const interval = setInterval(() => {
-      fetchUniqueScoresByGame(game || '');
+      fetchScoresByGame(game || '');
     }, fetchIntervalSeconds * 1000);
     
     // Cleanup interval on unmount
     return () => clearInterval(interval);
-  }, [game, fetchUniqueScoresByGame, fetchIntervalSeconds]);
+  }, [game, fetchScoresByGame, fetchIntervalSeconds]);
 
   const tableDataSortedLimited = () => {
     let limitedTableData = [];

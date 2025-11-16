@@ -240,7 +240,6 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
       
       // If we get here and there's no error in the store, edit was successful
       if (!error) {
-        console.log('Update successful, closing form...');
         handleSubmitClose('game', 'none', updateData);
         return true;
       } else {

@@ -22,7 +22,7 @@ export type DisplayData = {
     rows?: number;
     offset?: number;
     direction?: 'ascending' | 'descending';
-    sortUnit?: string;
+    sortUnit?: number;
     backgroundImage?: string;
     backgroundVideo?: string | null;
     titleImage?: string | null;
