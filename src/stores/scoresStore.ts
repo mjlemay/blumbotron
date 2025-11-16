@@ -9,6 +9,7 @@ type ScoresStore = {
   error: string | null;
   gameScores: Record<string, ScoreDataItem[]>;
   lastUpdated: number;
+  fetchUniqueScoresByGame: (game: string) => Promise<void>;
   fetchScoresByGame: (game: string) => Promise<void>;
   fetchScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;

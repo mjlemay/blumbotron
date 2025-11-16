@@ -369,7 +369,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
 
   useEffect(() => {
-    // Initial fetch of scores
+    // Initial fetch of scores - use unique scores for display
     fetchUniqueScoresByGame(game || '');
     const interval = setInterval(() => {
       fetchUniqueScoresByGame(game || '');

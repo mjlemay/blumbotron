@@ -201,6 +201,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
             return val;
           }).refine((val) => val >= 0, 'Must be at least 0').optional(),
           direction: z.enum(['ascending', 'descending']).optional(),
+          sortUnit: z.string().optional(),
           titleImage: z.string().nullable().optional(),
           showAvatars: z.boolean().optional(),
           category: z.enum(['table', 'slide']).optional(),
@@ -339,8 +340,9 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                     />
                     <div>
                         <label className="block text-lg font-bold text-white mb-1">
-                          Direction
+                          Filter Direction
                         </label>
+                        <div className='flex flex-row'>
                         <SelectChip
                           selectLabel="Direction"
                           selectPlaceholder="Choose Direction"
@@ -352,6 +354,23 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                           handleSelect={handleSelect(`data.displays[${displayIndex}].direction`)}
                           moreClasses="w-full justify-start"
                         />
+                        <SelectChip
+                          selectLabel="Unit"
+                          selectPlaceholder="Choose Unit"
+                          selections={
+                            form?.data?.mechanics?.units?.map((unit: any) => ({
+                              value: String(unit.id),
+                              label: unit.name,
+                            })) || []
+                          }
+                          defaultValue={
+                            form?.data?.displays?.[displayIndex]?.sortUnit || 
+                            (form?.data?.mechanics?.units?.[0] ? String(form.data.mechanics.units[0].id) : '')
+                          }
+                          handleSelect={handleSelect(`data.displays[${displayIndex}].sortUnit`)}
+                          moreClasses="w-full justify-start"
+                        />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-lg font-bold text-white mt-2 mb-1">
