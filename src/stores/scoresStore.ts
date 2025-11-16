@@ -13,6 +13,7 @@ type ScoresStore = {
   fetchScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;
   createScore: (Score: ScoreDataItem) => Promise<ScoreDataItem>;
+  deleteScoresByUnitId: (unitId: number, gameSnowflake: string) => Promise<void>;
 };
 
 const MAGIC_LIMIT = 1000;
@@ -130,6 +131,32 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     } catch (error) {
       console.error('Failed to create Score:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create Score';
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+  deleteScoresByUnitId: async (unitId: number, gameSnowflake: string) => {
+    set({ loading: true, error: null });
+    try {
+      await scoreData.deleteScoresByUnitId(unitId, gameSnowflake);
+      
+      // Refresh the game scores to reflect the deletion
+      const result = await scoreData.getUniqueScoresByGame(gameSnowflake, MAGIC_LIMIT);
+      set((state) => {
+        const updatedGameScores = { ...state.gameScores };
+        updatedGameScores[gameSnowflake] = result as ScoreDataItem[];
+        
+        return {
+          gameScores: updatedGameScores,
+          lastUpdated: Date.now(),
+          error: null,
+        };
+      });
+    } catch (error) {
+      console.error('Failed to delete scores by unit_id:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete scores';
       set({ error: errorMessage });
       throw error;
     } finally {

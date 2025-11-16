@@ -8,12 +8,14 @@ import { useScoreStore } from '../stores/scoresStore';
 import { GameDataItem, UnitItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
 import { generateSnowflake } from '../lib/snowflake';
-import { Pencil1Icon, TrashIcon, LockClosedIcon } from '@radix-ui/react-icons';
+import { EraserIcon, Pencil1Icon, TrashIcon, LockClosedIcon, Cross2Icon } from '@radix-ui/react-icons';
 import '@rc-component/color-picker/assets/index.css';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
-import { useEffect } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { useEffect, useState } from 'react';
+import DialogContainer from './dialogContainer';
 
 type FormGameMechanicsProps = {
   onSuccess?: () => void;
@@ -23,19 +25,52 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-  const { gameScores } = useScoreStore();
+  const { gameScores, deleteScoresByUnitId } = useScoreStore();
   const game = getSelected('games') as GameDataItem;
+  
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [unitToDelete, setUnitToDelete] = useState<{ id: number; name: string; count: number } | null>(null);
+  const [confirmationText, setConfirmationText] = useState('');
 
-  // Function to calculate total scores for a specific unit type
+  // Function to count total number of scores for a specific unit type
   const calculateUnitTotal = (unitId: number) => {
     if (!game?.snowflake || !gameScores[game.snowflake]) {
       return 0;
     }
     
     const scores = gameScores[game.snowflake];
-    return scores
-      .filter(score => score.unit_id === unitId)
-      .reduce((total, score) => total + (Number(score.datum) || 0), 0);
+    return scores.filter(score => score.unit_id === unitId).length;
+  };
+
+  // Function to open delete confirmation modal
+  const openDeleteModal = (unitId: number, unitName: string) => {
+    const count = calculateUnitTotal(unitId);
+    setUnitToDelete({ id: unitId, name: unitName, count });
+    setConfirmationText('');
+    setDeleteModalOpen(true);
+  };
+
+  // Function to clear all scores for a specific unit
+  const handleClearUnitScores = async () => {
+    if (!game?.snowflake || !unitToDelete) {
+      console.error('No game snowflake or unit to delete');
+      return;
+    }
+    
+    if (confirmationText !== unitToDelete.name) {
+      console.error('Confirmation text does not match unit name');
+      return;
+    }
+    
+    try {
+      await deleteScoresByUnitId(unitToDelete.id, game.snowflake);
+      console.log(`Successfully deleted ${unitToDelete.count} scores for unit ${unitToDelete.id}`);
+      setDeleteModalOpen(false);
+      setUnitToDelete(null);
+      setConfirmationText('');
+    } catch (error) {
+      console.error('Failed to delete scores:', error);
+    }
   };
 
   // todo: refactor fullForm and gameData parsing logic
@@ -177,6 +212,65 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
     }
   };
 
+  // Helper function for delete modal content
+  const deleteModalContent = () => {
+    return (
+      <div className="flex flex-col gap-4 p-2">
+        <div className="text-slate-300">
+          {unitToDelete && (
+            <>
+              You are about to permanently delete{' '}
+              <strong className="text-red-400">{unitToDelete.count}</strong> score
+              {unitToDelete.count !== 1 ? 's' : ''} for the unit{' '}
+              <strong className="text-white">"{unitToDelete.name}"</strong>.
+              <br />
+              <br />
+              This action cannot be undone. To confirm, please type the unit name below:
+            </>
+          )}
+        </div>
+        <input
+          type="text"
+          name="confirmation"
+          value={confirmationText}
+          placeholder={`Type "${unitToDelete?.name}" to confirm`}
+          onChange={(e) => setConfirmationText(e.target.value)}
+          autoCapitalize="off"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck="false"
+          className="peer outline-none bg-gradient-to-b from-slate-900 to-slate-900/75 
+            text-left border-none rounded-lg block w-full p-2.5 text-xl outline outline-0 
+            focus:outline-0 transition-all px-3 py-2.5 ring-1 ring-neutral-700 focus:ring-2 
+            focus:ring-slate-600"
+        />
+      </div>
+    );
+  };
+
+  // Helper function for delete modal submit bar
+  const deleteModalSubmitBar = () => {
+    return (
+      <Menubar.Root className="flex rounded-md p-2">
+        <Menubar.Menu>
+          <Menubar.Trigger
+            onClick={handleClearUnitScores}
+            disabled={confirmationText !== unitToDelete?.name}
+            className={`flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium ${
+              confirmationText === unitToDelete?.name
+                ? 'bg-sky-700'
+                : 'bg-slate-600 text-slate-400 cursor-not-allowed opacity-50'
+            }`}
+          >
+            <TrashIcon width="20" height="20" />{' '}
+            <span>
+              Delete {unitToDelete?.count} Score{unitToDelete?.count !== 1 ? 's' : ''}
+            </span>
+          </Menubar.Trigger>
+        </Menubar.Menu>
+      </Menubar.Root>
+    );
+  };
 
   return (
     <>
@@ -243,7 +337,12 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                       </button>
                     </div>
                     
-                    {form.data?.mechanics?.units?.map((unit: UnitItem, index: number) => (
+                    {form.data?.mechanics?.units?.map((unit: UnitItem, index: number) => {
+                      // Calculate total scores for this unit before rendering
+                      const unitTotal = calculateUnitTotal(unit.id || -1);
+                      const hasScores = unitTotal > 0;
+                      
+                      return (
                       <div key={unit.id || `unit-${index}`} data-id={unit.id || `unit-${index}`} className="flex flex-row items-center gap-2 mb-2 p-3 bg-slate-600 rounded-md">
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-slate-300 mb-1">Name</label>
@@ -265,7 +364,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-slate-300 mb-1">
                             Type
-                            {calculateUnitTotal(unit.id || -1) > 0 && (
+                            {hasScores && (
                               <LockClosedIcon className="ml-2 w-3 h-3 text-slate-400 inline" />
                             )}
                           </label>
@@ -275,8 +374,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                               defaultValue={unit.type || 'score'}
                               handleSelect={(value) => {
                                 // Only allow changes if there are no scores for this unit
-                                const totalScores = calculateUnitTotal(unit.id || -1);
-                                if (totalScores === 0) {
+                                if (!hasScores) {
                                   setForm(draft => {
                                     if (draft.data?.mechanics?.units?.[index]) {
                                       draft.data.mechanics.units[index].type = value;
@@ -290,17 +388,29 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                                 { label: 'Time', value: 'time' }
                               ]}
                               selectPlaceholder="Select Type"
-                              moreClasses={`flex-1 !h-[42px] !py-2 !px-3 ${calculateUnitTotal(unit.id || -1) > 0 ? 'opacity-50 pointer-events-none' : ''}`}
+                              moreClasses={`flex-1 !h-[42px] !py-2 !px-3 ${hasScores ? 'opacity-50 pointer-events-none' : ''}`}
                             />
                             <div className="flex flex-col items-end min-w-[50px]">
                               <span className="text-xs text-slate-400">Total</span>
                               <span className="text-sm font-bold text-slate-200">
-                                {calculateUnitTotal(unit.id || -1)}
+                                {unitTotal}
                               </span>
                             </div>
                           </div>
                         </div>
                         
+                        { hasScores ? (
+                          <button
+                          type="button"
+                          onClick={() => {
+                            openDeleteModal(unit.id || -1, unit.name);
+                          }}
+                          className="mt-6 flex select-none items-center justify-center cursor-pointer rounded px-3 py-2 text-lg font-medium bg-sky-700 hover:bg-sky-600 text-white"
+                          title={`Clear all ${unitTotal} score(s) for this unit`}
+                        >
+                          <EraserIcon width="20" height="20" />
+                        </button>
+                        ) : (
                         <button
                           type="button"
                           onClick={() => {
@@ -320,8 +430,10 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                         >
                           <TrashIcon width="20" height="20" />
                         </button>
+                        )}
                       </div>
-                    ))}
+                    );
+                    })}
                     
                     {(!form.data?.mechanics?.units || form.data.mechanics.units.length === 0) && (
                       <div className="text-slate-400 text-center py-6 border-2 border-dashed border-slate-600 rounded-md">
@@ -357,7 +469,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
           {error && <div>Error: {error}</div>}
           {!loading && !error && (
             <Menubar.Trigger
-              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+              className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600"
               onClick={() => {
                 editGameData(form);
               }}
@@ -368,6 +480,33 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
         </Menubar.Menu>
       </Menubar.Root>
     </div>
+
+    {/* Delete Confirmation Modal */}
+    <Dialog.Root open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <DialogContainer
+            title="Confirm Score Deletion"
+            content={deleteModalContent()}
+          >
+            {deleteModalSubmitBar()}
+          </DialogContainer>
+          <Dialog.Close asChild>
+            <button
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              aria-label="Close"
+              onClick={() => {
+                setConfirmationText('');
+                setUnitToDelete(null);
+              }}
+            >
+              <Cross2Icon width="20" height="20" />
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
     </>
   );
 }

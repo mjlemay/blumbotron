@@ -137,7 +137,7 @@ function Header(): JSX.Element {
           <Menubar.Root className="flex rounded-md p-2">
             <Menubar.Menu>
               <Menubar.Trigger
-                className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700"
+                className="flex select-none items-center justify-between cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600"
                 onClick={() => {}}
               >
                 <HamburgerMenuIcon width="20" height="20" /> <span>Options</span>

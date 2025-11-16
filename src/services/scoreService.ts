@@ -107,9 +107,26 @@ const deleteScore = async (Score: ScoreDataItem) => {
   return await db.delete(scores).where(eq(scores.id, id)).returning();
 };
 
+const deleteScoresByUnitId = async (unitId: number, gameSnowflake: string) => {
+  try {
+    const result = await db
+      .delete(scores)
+      .where(
+        sql`${scores.unit_id} = ${unitId} AND ${scores.game} = ${gameSnowflake}`
+      )
+      .returning();
+    console.log(`Deleted ${result.length} scores for unit_id ${unitId}`);
+    return result;
+  } catch (error) {
+    console.error('Error in deleteScoresByUnitId:', error);
+    throw error;
+  }
+};
+
 const scoreData = {
   addScore,
   deleteScore,
+  deleteScoresByUnitId,
   getScore,
   getScores,
   getUniqueScoresByGame,
