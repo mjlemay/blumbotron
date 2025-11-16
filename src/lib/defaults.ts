@@ -61,8 +61,9 @@ export const defaultScore = {
   id: -1,
   snowflake: 'BAD_ID',
   name: '',
-  game: null,
-  player: null,
-  units: null,
-  amount: null,
+  game: '',
+  player: '',
+  unit_id: -1,
+  unit_type: 'score',
+  datum: 0,
 };

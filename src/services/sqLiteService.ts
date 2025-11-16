@@ -15,23 +15,39 @@ interface SQLiteError extends Error {
 const dbName = 'sqlite:blumbo.db';
 
 let sqlite: any = null;
+let dbInitialized = false;
 
-try {
-  console.log('Attempting to load database:', dbName);
-  sqlite = await Database.load(dbName);
+const initializeDatabase = async () => {
+  if (dbInitialized) return sqlite;
+  
+  try {
+    console.log('Attempting to load database:', dbName);
+    sqlite = await Database.load(dbName);
+    dbInitialized = true
+    return sqlite;
+  } catch (error) {
+    const sqlError = error as SQLiteError;
+    console.error('Error loading SQLite database:', {
+      code: sqlError.code,
+      message: sqlError.message,
+      fullError: error,
+    });
+    throw error;
+  }
+};
 
-} catch (error) {
-  const sqlError = error as SQLiteError;
-  console.error('Error loading SQLite database:', {
-    code: sqlError.code,
-    message: sqlError.message,
-    fullError: error,
-  });
-  throw error;
-}
+// Initialize on module load
+initializeDatabase().catch(err => {
+  console.error('Failed to initialize database on module load:', err);
+});
 
 const db = drizzle<typeof schema>(
   async (sql, params, method) => {
+    // Ensure database is initialized before any query
+    if (!dbInitialized) {
+      await initializeDatabase();
+    }
+    
     let rows: any = [];
     let results = [];
 
@@ -73,4 +89,4 @@ const db = drizzle<typeof schema>(
   { schema: schema, logger: true }
 );
 
-export { db };
+export { db, initializeDatabase };

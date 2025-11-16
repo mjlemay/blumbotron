@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Input from './input';
 import SelectChip from './selectChip';
 import { toTitleCase } from '../lib/formatting';
-import { DataItem, GameDataItem, RosterDataItem, ScoreDataItem } from '../lib/types';
+import { DataItem, GameDataItem, RosterDataItem, ScoreDataItem, UnitItem } from '../lib/types';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
 import { usePlayerStore } from '../stores/playersStore';
 import { useRosterStore } from '../stores/rostersStore';
@@ -15,9 +15,17 @@ type ComponentProps = {
 };
 
 type FormData = {
-  units: string;
-  amount: number | string;
+  unit_id: number;
+  unit_type: string;
+  datum: number | string;
   player: string | undefined;
+  game: string | undefined;
+};
+
+type FormState = {
+  units: string;
+  amount: string;
+  player: string;
   game: string | undefined;
 };
 
@@ -55,17 +63,35 @@ function UpdateScore(props: ComponentProps): JSX.Element {
       game: snowflake,
     });
   };
-  const createNewScore = async (formData: FormData) => {
-    const formSchema = z.object({
-      units: z.string().min(1, 'Please add an amount to update'),
-      amount: z.coerce.number().min(1, 'Please add an amount to update'),
-      player: z.string().min(18, 'Please select a player'),
-      game: z.string().min(18, 'Please select a game'),
-    });
-
+  const createNewScore = async (formData: FormState) => {
+  const formSchema = z.object({
+    unit_id: z.number(),
+    unit_type: z.string().min(1, 'Unit type is required'),
+    datum: z.union([z.number(), z.string().min(1, 'Amount is required')]),
+    player: z.string().min(1, 'Player is required').optional(),
+    game: z.string().min(1, 'Game ID is required').optional(),
+  });    
     try {
-      formSchema.parse(formData);
-      const createdScore = await createScore(formData as unknown as ScoreDataItem);
+      // Find the selected unit to get its ID
+      const selectedUnit = gameData?.data?.mechanics?.units?.find(
+        (u: UnitItem) => u.name === formData.units
+      );
+
+      if (!selectedUnit) {
+        throw new Error('Selected unit not found');
+      }
+
+      // Transform the form data to match the new schema
+      const scoreData: FormData = {
+        unit_id: selectedUnit.id,
+        unit_type: selectedUnit.name,
+        datum: typeof formData.amount === 'string' ? Number(formData.amount) : formData.amount,
+        player: formData.player,
+        game: formData.game,
+      };
+
+      formSchema.parse(scoreData);
+      const createdScore = await createScore(scoreData as unknown as ScoreDataItem);
       // If we get here and there's no error in the store, creation was successful
       if (!error && createdScore) {
         resetForm();
@@ -78,7 +104,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
         setFormErrors(err.errors[0].message);
       } else {
         // Handle other errors (like creation/editing failure)
-        setFormErrors('Failed to process player');
+        setFormErrors(err instanceof Error ? err.message : 'Failed to process score');
       }
       return false;
     }

@@ -31,13 +31,14 @@ CREATE TABLE IF NOT EXISTS `rosters` (
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `scores` (
+CREATE TABLE `scores` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`snowflake` text NOT NULL,
 	`player` text NOT NULL,
 	`game` text NOT NULL,
-	`unit` text NOT NULL,
-	`amount` integer NOT NULL,
+	`unit_id` integer NOT NULL,
+	`unit_type` text NOT NULL,
+	`datum` integer NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );

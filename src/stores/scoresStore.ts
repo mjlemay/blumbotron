@@ -82,7 +82,7 @@ export const useScoreStore = create<ScoresStore>((set) => ({
       
       // Instead of manually updating arrays, refresh from database to get true unique scores
       // This ensures we always show the highest score per player correctly
-      const gameId = newScore.game;
+      const gameId = newScore.game?.toString();
       if (gameId) {
         // Refresh the scores for this game from database (which handles uniqueness)
         await scoreData.getUniqueScoresByGame(gameId, MAGIC_LIMIT)

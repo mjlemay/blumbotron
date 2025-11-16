@@ -26,8 +26,9 @@ export const scores = sqliteTable('scores', {
   snowflake: text('snowflake').notNull(),
   player: text('player').notNull(),
   game: text('game').notNull(),
-  units: text('unit').notNull(),
-  amount: integer('amount').notNull(),
+  unit_id: integer('unit_id').notNull(),
+  unit_type: text('unit_type').notNull(),
+  datum: integer('datum').notNull(),
   created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
   updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`),
 });

@@ -185,8 +185,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   const tableData = useMemo(() => {
     const sortedPlayers = gameScores[game || '']?.sort((a, b) => {
       return direction === 'ascending' 
-        ? (a?.amount || 0) - (b?.amount || 0)  // ascending: low to high
-        : (b?.amount || 0) - (a?.amount || 0); // descending: high to low
+        ? (Number(a?.datum) || 0) - (Number(b?.datum) || 0)  // ascending: low to high
+        : (Number(b?.datum) || 0) - (Number(a?.datum) || 0); // descending: high to low
     }) || [];
     
     // Apply offset by slicing the sorted array (skip top N players)
@@ -200,7 +200,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           : null;
         return {
           player: playerData?.name,
-          score: scoreItem?.amount,
+          score: scoreItem?.datum,
           avatar,
         };
       }

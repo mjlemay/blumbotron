@@ -78,10 +78,11 @@ export type GameDataItem = DataItem & {
 };
 
 export type ScoreDataItem = DataItem & {
-  game?: string | null;
-  player?: string | null;
-  units?: string | null;
-  amount?: number | null;
+  game: string;
+  player: string;
+  unit_id: number;
+  unit_type: string;
+  datum: number | string;
 };
 
 export type RosterDataItem = DataItem & {

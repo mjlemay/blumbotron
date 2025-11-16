@@ -27,15 +27,15 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   const game = getSelected('games') as GameDataItem;
 
   // Function to calculate total scores for a specific unit type
-  const calculateUnitTotal = (unitName: string) => {
+  const calculateUnitTotal = (unitId: number) => {
     if (!game?.snowflake || !gameScores[game.snowflake]) {
       return 0;
     }
     
     const scores = gameScores[game.snowflake];
     return scores
-      .filter(score => score.units === unitName)
-      .reduce((total, score) => total + (score.amount || 0), 0);
+      .filter(score => score.unit_id === unitId)
+      .reduce((total, score) => total + (Number(score.datum) || 0), 0);
   };
 
   // todo: refactor fullForm and gameData parsing logic
@@ -265,7 +265,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-slate-300 mb-1">
                             Type
-                            {calculateUnitTotal(unit.name || '') > 0 && (
+                            {calculateUnitTotal(unit.id || -1) > 0 && (
                               <LockClosedIcon className="ml-2 w-3 h-3 text-slate-400 inline" />
                             )}
                           </label>
@@ -275,7 +275,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                               defaultValue={unit.type || 'score'}
                               handleSelect={(value) => {
                                 // Only allow changes if there are no scores for this unit
-                                const totalScores = calculateUnitTotal(unit.name || '');
+                                const totalScores = calculateUnitTotal(unit.id || -1);
                                 if (totalScores === 0) {
                                   setForm(draft => {
                                     if (draft.data?.mechanics?.units?.[index]) {
@@ -290,12 +290,12 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                                 { label: 'Time', value: 'time' }
                               ]}
                               selectPlaceholder="Select Type"
-                              moreClasses={`flex-1 !h-[42px] !py-2 !px-3 ${calculateUnitTotal(unit.name || '') > 0 ? 'opacity-50 pointer-events-none' : ''}`}
+                              moreClasses={`flex-1 !h-[42px] !py-2 !px-3 ${calculateUnitTotal(unit.id || -1) > 0 ? 'opacity-50 pointer-events-none' : ''}`}
                             />
                             <div className="flex flex-col items-end min-w-[50px]">
                               <span className="text-xs text-slate-400">Total</span>
                               <span className="text-sm font-bold text-slate-200">
-                                {calculateUnitTotal(unit.name || '')}
+                                {calculateUnitTotal(unit.id || -1)}
                               </span>
                             </div>
                           </div>

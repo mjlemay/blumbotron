@@ -5,15 +5,16 @@ import { ScoreDataItem } from '../lib/types';
 import { generateSnowflake } from '../lib/snowflake';
 
 const addScore = async (score: ScoreDataItem) => {
-  const { name, game, player, units, amount } = score;
+  const { name, game, player, unit_id, unit_type, datum } = score;
   const snowflake = generateSnowflake();
   const values = {
     name,
     snowflake: String(snowflake),
     game: game || 'BAD_GAME',
     player: player || 'BAD_PLAYER',
-    units: units || 'BAD_UNITS',
-    amount: amount || 0,
+    unit_id: unit_id || -1,
+    unit_type: unit_type || 'score',
+    datum: Number(datum) || 0,
   };
   try {
     await db.insert(scores).values(values);
@@ -28,6 +29,9 @@ const addScore = async (score: ScoreDataItem) => {
     return newScore[0];
   } catch (error) {
     console.error('Error in addScore:', error);
+    if (error instanceof Error) {
+      throw error; // Preserve the original error message
+    }
     throw new Error('Failed to process Score');
   }
 };
@@ -39,7 +43,7 @@ const getScore = async (id: number) => {
 const getScores = async (limit: number) => {
   try {
     // Try a direct SQL query first to verify table access
-    const result = await db.select().from(scores).orderBy(asc(scores.amount)).limit(limit);
+    const result = await db.select().from(scores).orderBy(asc(scores.datum)).limit(limit);
     return result;
   } catch (error) {
     console.error('Error in getscores:', error);
@@ -60,7 +64,7 @@ const getUniqueScoresByGame = async (game:string, limit: number) => {
           group by ${scores.player}
         )`
       )
-      .orderBy(sql`${scores.player} COLLATE NOCASE asc`, asc(scores.amount))
+      .orderBy(sql`${scores.player} COLLATE NOCASE asc`, asc(scores.datum))
       .limit(limit);
 
     return result;
@@ -71,14 +75,15 @@ const getUniqueScoresByGame = async (game:string, limit: number) => {
 };
 
 const updateScore = async (score: ScoreDataItem) => {
-  const { id = -1, snowflake = 'BAD_ID', name, game, player, units, amount } = score;
+  const { id = -1, snowflake = 'BAD_ID', name, game, player, unit_id, unit_type, datum } = score;
   const values = {
     name,
     snowflake,
     game: game || 'BAD_GAME',
     player: player || 'BAD_PLAYER',
-    units: units || 'BAD_UNITS',
-    amount: amount || 0,
+    unit_id: unit_id || -1,
+    unit_type: unit_type || 'score',
+    datum: Number(datum) || 0,
   };
   try {
     await db.update(scores).set(values).where(eq(scores.id, id));
