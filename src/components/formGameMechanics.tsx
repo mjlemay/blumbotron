@@ -25,7 +25,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
   const { onSuccess } = props;
   const { editGame,  loading, error } = useGameStore();
   const { setExpView, setExpModal, setExpSelected } = useExperienceStore();
-  const { gameScores, deleteScoresByUnitId } = useScoreStore();
+  const { gameScores, deleteScoresByUnitId, fetchScoresByGame } = useScoreStore();
   const game = getSelected('games') as GameDataItem;
   
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -39,10 +39,11 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
     }
     
     const scores = gameScores[game.snowflake];
+    console.log('Calculating total for unit ID:', unitId);
+    console.log('All scores:', scores);
+    console.log('Filtered scores:', scores.filter(score => score.unit_id === unitId));
     return scores.filter(score => score.unit_id === unitId).length;
-  };
-
-  // Function to open delete confirmation modal
+  };  // Function to open delete confirmation modal
   const openDeleteModal = (unitId: number, unitName: string) => {
     const count = calculateUnitTotal(unitId);
     setUnitToDelete({ id: unitId, name: unitName, count });
@@ -109,6 +110,13 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
       }
     });
   }, []);
+
+  // Fetch scores for this game when component mounts
+  useEffect(() => {
+    if (game?.snowflake) {
+      fetchScoresByGame(game.snowflake);
+    }
+  }, [game?.snowflake, fetchScoresByGame]);
 
   const handleSubmitClose = (
     view: string = 'home',

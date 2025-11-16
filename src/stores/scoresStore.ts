@@ -9,7 +9,7 @@ type ScoresStore = {
   error: string | null;
   gameScores: Record<string, ScoreDataItem[]>;
   lastUpdated: number;
-  fetchUniqueScoresByGame: (game: string) => Promise<void>;
+  fetchScoresByGame: (game: string) => Promise<void>;
   fetchScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;
   createScore: (Score: ScoreDataItem) => Promise<ScoreDataItem>;
@@ -71,6 +71,28 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     } finally {
       set({ loading: false });
     }
+  },
+  fetchScoresByGame: async (game: string) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await scoreData.getAllScoresByGame(game, MAGIC_LIMIT);
+      set((state) => {
+        const updatedGameScores = { ...state.gameScores };
+        updatedGameScores[game] = result as ScoreDataItem[];
+        
+        return {
+          gameScores: updatedGameScores,
+          lastUpdated: Date.now(),
+          error: null 
+        };
+      });
+    } catch (error) {
+      console.error('Failed to fetch All Scores by Game:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch All Scores by Game';
+      set({ error: errorMessage });
+    } finally {
+      set({ loading: false });
+    }
   },  
   createScore: async (Score: ScoreDataItem) => {
     set({ loading: true, error: null });
@@ -85,12 +107,12 @@ export const useScoreStore = create<ScoresStore>((set) => ({
       // This ensures we always show the highest score per player correctly
       const gameId = newScore.game?.toString();
       if (gameId) {
-        // Refresh the scores for this game from database (which handles uniqueness)
-        await scoreData.getUniqueScoresByGame(gameId, MAGIC_LIMIT)
-          .then((uniqueScores) => {
+        // Refresh the scores for this game from database
+        await scoreData.getAllScoresByGame(gameId, MAGIC_LIMIT)
+          .then((allScores) => {
             set((state) => {
               const updatedGameScores = { ...state.gameScores };
-              updatedGameScores[gameId] = uniqueScores as ScoreDataItem[];
+              updatedGameScores[gameId] = allScores as ScoreDataItem[];
               
               return {
                 scores: [...state.scores, newScore], // Keep general scores array
@@ -142,11 +164,11 @@ export const useScoreStore = create<ScoresStore>((set) => ({
     try {
       await scoreData.deleteScoresByUnitId(unitId, gameSnowflake);
       
-      // Refresh the game scores to reflect the deletion
-      const result = await scoreData.getUniqueScoresByGame(gameSnowflake, MAGIC_LIMIT);
+      // Refresh all game scores to reflect the deletion
+      const allResult = await scoreData.getAllScoresByGame(gameSnowflake, MAGIC_LIMIT);
       set((state) => {
         const updatedGameScores = { ...state.gameScores };
-        updatedGameScores[gameSnowflake] = result as ScoreDataItem[];
+        updatedGameScores[gameSnowflake] = allResult as ScoreDataItem[];
         
         return {
           gameScores: updatedGameScores,

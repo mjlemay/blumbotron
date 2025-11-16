@@ -10,7 +10,6 @@ import { useScoreStore } from '../stores/scoresStore';
 import { z } from 'zod';
 
 type ComponentProps = {
-  children?: React.ReactNode;
   gameData: GameDataItem | null;
 };
 
@@ -22,27 +21,19 @@ type FormData = {
   game: string | undefined;
 };
 
-type FormState = {
-  units: string;
-  amount: string;
-  player: string;
-  game: string | undefined;
-};
-
 function UpdateScore(props: ComponentProps): JSX.Element {
   const { gameData } = props;
   const { data, snowflake, roster } = gameData || {};
 
-  const displayData = data?.displays?.[0] || {};
-  // Handle both old 'units' and new 'filteredUnits' properties for backwards compatibility
-  const units = (displayData as any)?.filteredUnits || (displayData as any)?.units || ['Score'];
-  const firstUnit = (units as string[])[0] || 'Score';
+  // Get the actual unit objects from mechanics, not just the filtered unit names
+  const units = data?.mechanics?.units || [];
+  const firstUnitId = units.length > 0 ? units[0].id : 0;
   const { players, fetchPlayers } = usePlayerStore();
   const { rosters } = useRosterStore(); 
   const { createScore, error } = useScoreStore();
   const [formErrors, setFormErrors] = useState<string>('');
   const [form, setForm] = useState({
-    units:firstUnit,
+    unit_id: firstUnitId,
     amount: '',
     player: '',
     game: snowflake,
@@ -57,13 +48,13 @@ function UpdateScore(props: ComponentProps): JSX.Element {
 
   const resetForm = () => {
     setForm({
-      units: firstUnit,
+      unit_id: firstUnitId,
       amount: '',
       player: '',
       game: snowflake,
     });
   };
-  const createNewScore = async (formData: FormState) => {
+  const createNewScore = async (formData: typeof form) => {
   const formSchema = z.object({
     unit_id: z.number(),
     unit_type: z.string().min(1, 'Unit type is required'),
@@ -74,7 +65,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     try {
       // Find the selected unit to get its ID
       const selectedUnit = gameData?.data?.mechanics?.units?.find(
-        (u: UnitItem) => u.name === formData.units
+        (u: UnitItem) => u.id === formData.unit_id
       );
 
       if (!selectedUnit) {
@@ -84,8 +75,8 @@ function UpdateScore(props: ComponentProps): JSX.Element {
       // Transform the form data to match the new schema
       const scoreData: FormData = {
         unit_id: selectedUnit.id,
-        unit_type: selectedUnit.name,
-        datum: typeof formData.amount === 'string' ? Number(formData.amount) : formData.amount,
+        unit_type: selectedUnit.type,
+        datum: typeof formData.amount === 'string' ? Number(formData.amount) : Number(formData.amount),
         player: formData.player,
         game: formData.game,
       };
@@ -119,9 +110,13 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     setForm(clonedForm);
   };
 
-  const handleSelectFormChange = (value: string) => {
+  const handleSelectFormChange = (value: string, fieldName: string = 'player') => {
     const clonedForm = JSON.parse(JSON.stringify(form));
-    clonedForm.player = value;
+    if (fieldName === 'unit_id') {
+      clonedForm.unit_id = Number(value);
+    } else {
+      clonedForm[fieldName] = value;
+    }
     setForm(clonedForm);
   };
   const handleFormFocus = (Event: React.FocusEvent<HTMLInputElement>) => {
@@ -140,8 +135,24 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     <div className=" bg-slate-700 rounded-lg p-2 shadow-sm">
       <div className="flex flex-col items-center justify-start p-2 pt-0">
         <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">
-          {`Update Player ${toTitleCase(firstUnit)}`}
+          {`Update Player ${units.length > 0 ? toTitleCase(units[0].name) : 'Score'}`}
         </h3>
+        <SelectChip
+          moreClasses="min-w-full rounded-md mb-3 min-h-[44px]"
+          selections={
+            units
+              ? units.map((item: UnitItem) => ({
+                  label: item.name,
+                  key: item.id,
+                  value: String(item.id),
+                  data: { snowflake: item.id },
+                }))
+              : []
+          }
+          defaultValue={String(form.unit_id)}
+          selectPlaceholder="Select Unit"
+          handleSelect={(value) => handleSelectFormChange(value, 'unit_id')}
+        />
         <Input
           name="amount"
           value={form.amount}
@@ -156,6 +167,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
             players
               ? usedPlayers.map((item: DataItem) => ({
                   label: item.name,
+                  key: item.snowflake,
                   value: item.snowflake,
                   data: { snowflake: item.snowflake },
                 }))

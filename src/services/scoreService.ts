@@ -74,6 +74,22 @@ const getUniqueScoresByGame = async (game:string, limit: number) => {
   }
 };
 
+const getAllScoresByGame = async (game: string, limit: number) => {
+  try {
+    const result = await db
+      .select()
+      .from(scores)
+      .where(eq(scores.game, game))
+      .orderBy(asc(scores.created_at))
+      .limit(limit);
+
+    return result;
+  } catch (error) {
+    console.error('Error in getAllScoresByGame:', error);
+    throw error;
+  }
+};
+
 const updateScore = async (score: ScoreDataItem) => {
   const { id = -1, snowflake = 'BAD_ID', name, game, player, unit_id, unit_type, datum } = score;
   const values = {
@@ -127,6 +143,7 @@ const scoreData = {
   addScore,
   deleteScore,
   deleteScoresByUnitId,
+  getAllScoresByGame,
   getScore,
   getScores,
   getUniqueScoresByGame,
