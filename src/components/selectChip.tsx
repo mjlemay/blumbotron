@@ -21,6 +21,7 @@ type ComponentProps = {
   selectLabel?: string;
   selectPlaceholder?: string;
   selectPrefix?: string;
+  noAvatar?: boolean;
 };
 
 function SelectChip(props: ComponentProps): JSX.Element {
@@ -28,6 +29,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
     defaultValue,
     handleSelect = () => {},
     moreClasses = '',
+    noAvatar = false,
     resetOnSelect = false,
     selectIcon,
     selections,
@@ -155,7 +157,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
                       value={(item.value as string) || ''}
                     >
                       <div className="flex flex-row items-center gap-2 text-xl p-1 pl-8 rounded-full">
-                        {item.data?.snowflake && (
+                        {!noAvatar && item.data?.snowflake && (
                           <img
                             src={avatar(item.data?.snowflake)}
                             className="rounded"

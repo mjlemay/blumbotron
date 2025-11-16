@@ -134,11 +134,11 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   return (
     <div className=" bg-slate-700 rounded-lg p-2 shadow-sm">
       <div className="flex flex-col items-center justify-start p-2 pt-0">
-        <h3 className="text-lg font-medium border-b border-slate-600 pb-1 w-full text-center">
+        <h3 className="text-lg font-medium pb-1 w-full text-center">
           {`Update Player ${units.length > 0 ? toTitleCase(units[0].name) : 'Score'}`}
         </h3>
         <SelectChip
-          moreClasses="min-w-full rounded-md mb-3 min-h-[44px]"
+          moreClasses="min-w-full rounded-md min-h-[44px]"
           selections={
             units
               ? units.map((item: UnitItem) => ({
@@ -149,6 +149,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
                 }))
               : []
           }
+          noAvatar={true}
           defaultValue={String(form.unit_id)}
           selectPlaceholder="Select Unit"
           handleSelect={(value) => handleSelectFormChange(value, 'unit_id')}
