@@ -244,7 +244,7 @@ function FormGameMechanics(props: FormGameMechanicsProps) {
                     </div>
                     
                     {form.data?.mechanics?.units?.map((unit: UnitItem, index: number) => (
-                      <div key={unit.id || `unit-${index}`} className="flex flex-row items-center gap-2 mb-2 p-3 bg-slate-600 rounded-md">
+                      <div key={unit.id || `unit-${index}`} data-id={unit.id || `unit-${index}`} className="flex flex-row items-center gap-2 mb-2 p-3 bg-slate-600 rounded-md">
                         <div className="flex-1">
                           <label className="block text-sm font-medium text-slate-300 mb-1">Name</label>
                           <input

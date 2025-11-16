@@ -18,6 +18,7 @@ export type UnitItem = {
 
 export type DisplayData = {
     title?: string;
+    markdown?: string;
     rows?: number;
     offset?: number;
     direction?: 'ascending' | 'descending';

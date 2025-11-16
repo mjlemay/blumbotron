@@ -1,4 +1,5 @@
-import { Experience, DataItem, GameDataItem, RosterDataItem } from './types';
+import { generateSnowflake } from './snowflake';
+import { Experience, DataItem, GameDataItem, RosterDataItem, UnitItem } from './types';
 
 export const defaultExperience: Experience = {
   view: 'home',
@@ -15,9 +16,10 @@ export const defaultDisplayData = {
   filteredUnits: ['points']
 };
 
-export const defaultUnitItem = {
+export const defaultUnitItem: UnitItem = {
   name: 'points',
-  type: 'score'
+  type: 'score',
+  id: Number(generateSnowflake())
 }
 
 export const defaultGameMetaData = {

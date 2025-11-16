@@ -134,6 +134,7 @@ function FormGame(props: FormGameProps) {
           units: z.array(z.object({
             name: z.string(),
             type: z.string(),
+            id: z.number(),
           })).optional(),
         }).optional(),
         displays: z.array(z.object({
