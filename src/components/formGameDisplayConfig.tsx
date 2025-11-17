@@ -11,6 +11,7 @@ import * as Menubar from '@radix-ui/react-menubar';
 import { defaultGame } from '../lib/defaults';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import SelectChip from './selectChip';
+import Chip from './chip';
 import { setNestedValue } from '../lib/helpers';
 import { useRef, useState, useEffect } from 'react';
 
@@ -164,6 +165,42 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
     titleImageInputRef.current?.click();
   };
 
+  const getUnitBySnowflake = (snowflake: string, units: any[]) => {
+    return units?.find((unit) => String(unit.id) === String(snowflake));
+  };
+
+  const handleAddUnit = async (unitSnowflake: string) => {
+    const currentFilteredUnits = form?.data?.displays?.[displayIndex]?.filteredUnits || [];
+    if (!currentFilteredUnits.includes(unitSnowflake)) {
+      setForm(draft => {
+        if (!draft.data) draft.data = {};
+        if (!draft.data.displays) draft.data.displays = [];
+        if (!draft.data.displays[displayIndex]) draft.data.displays[displayIndex] = {};
+        if (!draft.data.displays[displayIndex].filteredUnits) {
+          draft.data.displays[displayIndex].filteredUnits = [];
+        }
+        draft.data.displays[displayIndex].filteredUnits!.push(unitSnowflake);
+      });
+    }
+  };
+
+  const handleRemoveUnit = async (unitSnowflake: string) => {
+    setForm(draft => {
+      if (draft.data?.displays?.[displayIndex]?.filteredUnits) {
+        draft.data.displays[displayIndex].filteredUnits = 
+          draft.data.displays[displayIndex].filteredUnits!.filter(
+            (snowflake: string) => snowflake !== unitSnowflake
+          );
+      }
+    });
+  };
+
+  const unUsedUnits = form?.data?.mechanics?.units?.filter((unit: any) => {
+    const currentFilteredUnits = form?.data?.displays?.[displayIndex]?.filteredUnits || [];
+    return !currentFilteredUnits.includes(String(unit.id));
+  }) || [];
+
+
   const handleSubmitClose = (
     view: string = 'home',
     modal: string = 'none',
@@ -201,7 +238,14 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
             return val;
           }).refine((val) => val >= 0, 'Must be at least 0').optional(),
           direction: z.enum(['ascending', 'descending']).optional(),
-          sortUnit: z.string().optional(),
+          sortUnit: z.union([z.string(), z.number()]).transform((val) => {
+            if (typeof val === 'string') {
+              const parsed = parseInt(val, 10);
+              if (isNaN(parsed)) return undefined;
+              return parsed;
+            }
+            return val;
+          }).optional(),
           titleImage: z.string().nullable().optional(),
           showAvatars: z.boolean().optional(),
           category: z.enum(['table', 'slide']).optional(),
@@ -243,7 +287,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
         handleSubmitClose('game', 'none', updateData);
         return true;
       } else {
-        console.log('Store has error:', error);
+        console.error('Store has error:', error);
         throw new Error(error || 'Failed to edit game');
       }
     } catch (error) {
@@ -261,12 +305,12 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
           const key = path[0];
           newErrs[`${key}`] = message;
         });
-        console.log('Validation errors:', newErrs);
+        console.error('Validation errors:', newErrs);
         setErrors(newErrs);
       } else {
         // Handle other errors (like creation/editing failure)
         const errorMessage = error instanceof Error ? error.message : 'Failed to process game';
-        console.log('Setting error:', errorMessage);
+        console.error('Setting error:', errorMessage);
         setErrors({ name: errorMessage });
       }
       console.log('errors', errors);
@@ -337,6 +381,35 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                       value={form?.data?.displays?.[displayIndex]?.offset || ''}
                       changeHandler={handleFormChange}
                     />
+                     <div className="gap-2 p-1 mb-4">
+                        <label className="block text-lg font-bold text-white mb-1">
+                          Units to Show
+                        </label>
+                      <div className="block flex flex-row gap-2 mb-2">
+                      {form?.data?.displays?.[displayIndex]?.filteredUnits &&
+                        form?.data?.displays?.[displayIndex]?.filteredUnits.map((unitSnowflake: string) => (
+                          <Chip
+                            key={`unit-${unitSnowflake}_allow`}
+                            text={getUnitBySnowflake(unitSnowflake, form?.data?.mechanics?.units)?.name || unitSnowflake}
+                            actionIcon="remove"
+                            handleClick={() => handleRemoveUnit(unitSnowflake)}
+                          />
+                        ))}
+                      <SelectChip
+                        selectPlaceholder="Add Unit"
+                        selections={
+                          unUsedUnits?.map((item: any) => ({
+                                label: item.name,
+                                value: String(item.id),
+                                data: { snowflake: String(item.id) },
+                              })) || []
+                        }
+                        handleSelect={(value) => handleAddUnit(value)}
+                        resetOnSelect={true}
+                        noAvatar
+                      />
+                      </div>
+                    </div>
                     <div>
                         <label className="block text-lg font-bold text-white mb-1">
                           Filter Direction

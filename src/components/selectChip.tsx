@@ -115,6 +115,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
                 items-center
                 rounded-full
                 shadow-sm
+                indent-1
                 outline-none 
                 hover:bg-blue-600/20
                 data-[placeholder]:text-slate-300
@@ -125,8 +126,10 @@ function SelectChip(props: ComponentProps): JSX.Element {
             `}
         aria-label="items"
       >
-        <Select.Value>
-          <div className="indent-3 min-w-[100px]">{selections?.find(item => item?.value === selected)?.label || selectPlaceholder}</div>
+        <Select.Value placeholder={selectPlaceholder}>
+          <div className="indent-3 min-w-[100px]">
+            {selected && selections?.find(item => item?.value === selected)?.label || selectPlaceholder}
+          </div>
         </Select.Value>
         <Select.Icon className="ml-auto pr-2">
           {selectIcon ||

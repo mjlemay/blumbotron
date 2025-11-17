@@ -13,7 +13,7 @@ export const defaultDisplayData = {
   title: 'High Scores',
   rows: 5,
   category: 'table' as const,
-  filteredUnits: ['points']
+  filteredUnits: []
 };
 
 export const defaultUnitItem: UnitItem = {

@@ -14,7 +14,7 @@ const addGame = async (game: GameDataItem) => {
         title: 'High Scores',
         rows: 5,
         category: 'table',
-        filteredUnits: ['score']
+        filteredUnits: []
       }]
     };
 

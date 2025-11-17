@@ -4,11 +4,12 @@ import { useGameStore } from "../stores/gamesStore";
 import { useRosterStore } from "../stores/rostersStore";
 import { useScoreStore } from "../stores/scoresStore";
 import { useExperienceStore } from "../stores/experienceStore";
-import { DisplayData, ScoreDataItem } from "../lib/types";
+import { DisplayData, ScoreDataItem, UnitItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
 import { customThemeSettings } from '../lib/consts';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
+import { json } from "stream/consumers";
 
 // Avatar component for score table
 const AvatarImage = ( { playerName, isFullScreen }: { playerName: string, isFullScreen: boolean } ) => {
@@ -210,18 +211,53 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     
     // Apply offset by slicing the sorted array (skip top N players)
     const offsetPlayers = sortedPlayers.slice(offset);
+
+    const setColumnDatum = (player: string, unit: UnitItem) => {
+      let playerScores = allScores?.filter((scoreItem: ScoreDataItem) => {
+        return scoreItem.player === player && Number(scoreItem.unit_id) === Number(unit.id);
+      }) || [];
+      
+      // Sort by created_at descending to get most recent first
+      playerScores.sort((a, b) => {
+        const dateA = new Date(a.created_at || 0).getTime();
+        const dateB = new Date(b.created_at || 0).getTime();
+        return dateB - dateA; // Most recent first
+      });
+      
+      return playerScores.length > 0 ? playerScores[0].datum : null;
+    }
+    const allUnits = gameData?.data?.mechanics?.units || [];
+    const filteredUnitIds = displayData?.filteredUnits || [];
     
+    const displayUnits = filteredUnitIds.length > 0
+      ? allUnits.filter(unit => filteredUnitIds.includes(String(unit.id)))
+      : allUnits;
+
     return offsetPlayers?.map((scoreItem: ScoreDataItem) => {
       const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
       if(typeof playerData?.name !== 'undefined') {
         const avatar = Array.isArray(playerData?.data?.avatar) && playerData!.data!.avatar.length > 0
           ? playerData!.data!.avatar[0]
           : null;
-        return {
+        let additionalColumns: any[] = [];
+
+        console.log('displayUnits', displayUnits);
+        
+        if (displayUnits.length > 0) {
+          for (const unit of displayUnits) {
+            const columnValue = setColumnDatum(scoreItem.player, unit);
+            additionalColumns.push(columnValue);
+          }
+        }
+
+        let row = {
           player: playerData?.name,
-          score: scoreItem?.datum,
+          column_1: scoreItem?.datum,
           avatar,
-        };
+          additionalColumns
+        }
+
+        return row
       }
     }).filter(item => item !== undefined);
   }, [gameScores, game, playersData, offset, direction, sortUnit, displayData, gameData]);
@@ -440,28 +476,57 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         >
           {scoreItem?.player || ' [ REMOVED ]'}
         </div>
-        <div className={`
-          flex-1
-          text-white
-          font-bold
-          text-center
-          flex
-          items-center
-          justify-center
-          ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-        `}
-        style={{
-          color: colors.fontScore 
-            || themeColors.fontScore
-            || colors.secondary 
-            || themeColors.secondary
-            || colors.text
-            || themeColors.text,
-          fontFamily: fonts.score,
-        }}
-        >
-          {scoreItem?.score}
-        </div>
+        {scoreItem?.additionalColumns && scoreItem.additionalColumns.length > 0 ? (
+          scoreItem.additionalColumns.map((columnValue: any, colIndex: number) => (
+            <div 
+              key={`${scoreItem?.player}-col-${colIndex}`}
+              className={`
+                flex-1
+                text-white
+                font-bold
+                text-center
+                flex
+                items-center
+                justify-center
+                ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+              `}
+              style={{
+                color: colors.fontScore 
+                  || themeColors.fontScore
+                  || colors.secondary 
+                  || themeColors.secondary
+                  || colors.text
+                  || themeColors.text,
+                fontFamily: fonts.score,
+              }}
+            >
+              {columnValue}
+            </div>
+          ))
+        ) : (
+          <div className={`
+            flex-1
+            text-white
+            font-bold
+            text-center
+            flex
+            items-center
+            justify-center
+            ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+          `}
+          style={{
+            color: colors.fontScore 
+              || themeColors.fontScore
+              || colors.secondary 
+              || themeColors.secondary
+              || colors.text
+              || themeColors.text,
+            fontFamily: fonts.score,
+          }}
+          >
+            No scores
+          </div>
+        )}
       </div>
     )));
     if (limitedTableData.length < numberOfRows) {
