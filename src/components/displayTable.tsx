@@ -235,30 +235,27 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
     return offsetPlayers?.map((scoreItem: ScoreDataItem) => {
       const playerData = playersData.find((playerItem) => playerItem?.snowflake === scoreItem?.player);
-      if(typeof playerData?.name !== 'undefined') {
-        const avatar = Array.isArray(playerData?.data?.avatar) && playerData!.data!.avatar.length > 0
-          ? playerData!.data!.avatar[0]
-          : null;
-        let additionalColumns: any[] = [];
-
-        console.log('displayUnits', displayUnits);
-        
-        if (displayUnits.length > 0) {
-          for (const unit of displayUnits) {
-            const columnValue = setColumnDatum(scoreItem.player, unit);
-            additionalColumns.push(columnValue);
-          }
+      
+      const avatar = Array.isArray(playerData?.data?.avatar) && playerData!.data!.avatar.length > 0
+        ? playerData!.data!.avatar[0]
+        : null;
+      let additionalColumns: any[] = [];
+      
+      if (displayUnits.length > 0) {
+        for (const unit of displayUnits) {
+          const columnValue = setColumnDatum(scoreItem.player, unit);
+          additionalColumns.push(columnValue);
         }
-
-        let row = {
-          player: playerData?.name,
-          column_1: scoreItem?.datum,
-          avatar,
-          additionalColumns
-        }
-
-        return row
       }
+
+      let row = {
+        player: playerData?.name || '[Deleted Player]',
+        column_1: scoreItem?.datum,
+        avatar,
+        additionalColumns
+      }
+
+      return row;
     }).filter(item => item !== undefined);
   }, [gameScores, game, playersData, offset, direction, sortUnit, displayData, gameData]);
 
@@ -446,7 +443,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       scoreItem?.player && (
       <div 
         key={`${scoreItem?.player || 'deleted'}-${index}`} 
-        className="flex flex-row items-stretch justify-between w-full flex-1"
+        className="flex flex-row items-center justify-between w-full flex-1"
         style={{
           backgroundColor: index % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
         }}
@@ -465,8 +462,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           items-center
           justify-start
           gap-2
-          min-h-[1.5em]
+          py-2
           pl-4
+          min-w-0
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
@@ -474,7 +472,9 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           fontFamily: fonts.player,
         }}
         >
-          {scoreItem?.player || ' [ REMOVED ]'}
+          <span className="truncate">
+            {scoreItem?.player || ' [ REMOVED ]'}
+          </span>
         </div>
         {scoreItem?.additionalColumns && scoreItem.additionalColumns.length > 0 ? (
           scoreItem.additionalColumns.map((columnValue: any, colIndex: number) => (
@@ -500,7 +500,7 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                 fontFamily: fonts.score,
               }}
             >
-              {columnValue}
+              {columnValue !== null && columnValue !== undefined ? columnValue : '-'}
             </div>
           ))
         ) : (
@@ -534,16 +534,24 @@ function DisplayTable(props: ComponentProps): JSX.Element {
         limitedTableRows.push(
           <div 
             key={`empty-${i}`} 
-            className="flex flex-row items-stretch justify-between w-full flex-1"
-            style={{
-              backgroundColor: colors.tableRow || themeColors.tableRow || 'transparent',
-            }}
-          >
-            <div
+            className="flex flex-row items-center justify-between w-full flex-1"
             style={{
               backgroundColor: i % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
             }}
-            className="flex-1 text-white text-center flex items-center justify-center"/>
+          >
+            <div className={`
+          flex-1
+          text-white
+          font-bold
+          flex
+          items-center
+          justify-start
+          gap-2
+          py-2
+          pl-4
+          min-w-0
+          ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+        `}>&nbsp;</div>
           </div>
         );
       }
