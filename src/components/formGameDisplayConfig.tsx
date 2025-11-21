@@ -248,6 +248,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
           }).optional(),
           titleImage: z.string().nullable().optional(),
           showAvatars: z.boolean().optional(),
+          showSubHeaders: z.boolean().optional(),
           category: z.enum(['table', 'slide']).optional(),
           filteredUnits: z.array(z.string()).optional(),
         })),
@@ -458,6 +459,24 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                           defaultValue={form?.data?.displays?.[displayIndex]?.showAvatars ? 'true' : 'false'}
                           handleSelect={(value) => {
                             updateFormInput(`data.displays[${displayIndex}].showAvatars`, value === 'true');
+                          }}
+                          moreClasses="w-full justify-start"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-lg font-bold text-white mt-2 mb-1">
+                          Show Unit Column Headers
+                        </label>
+                        <SelectChip
+                          selectLabel="Show Unit Column Headers"
+                          selectPlaceholder="Choose Option"
+                          selections={[
+                            { value: 'true', label: 'Yes' },
+                            { value: 'false', label: 'No' },
+                          ]}
+                          defaultValue={form?.data?.displays?.[displayIndex]?.showSubHeaders ? 'true' : 'false'}
+                          handleSelect={(value) => {
+                            updateFormInput(`data.displays[${displayIndex}].showSubHeaders`, value === 'true');
                           }}
                           moreClasses="w-full justify-start"
                         />

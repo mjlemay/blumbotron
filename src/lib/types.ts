@@ -27,6 +27,7 @@ export type DisplayData = {
     backgroundVideo?: string | null;
     titleImage?: string | null;
     showAvatars?: boolean;
+    showSubHeaders?: boolean;
     category: DisplayCategory,
     filteredUnits: string[]
 }

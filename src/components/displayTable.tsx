@@ -10,6 +10,7 @@ import { customThemeSettings } from '../lib/consts';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { json } from "stream/consumers";
+import { map } from "zod";
 
 // Avatar component for score table
 const AvatarImage = ( { playerName, isFullScreen }: { playerName: string, isFullScreen: boolean } ) => {
@@ -431,6 +432,47 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     return () => clearInterval(interval);
   }, [game, fetchScoresByGame, fetchIntervalSeconds]);
 
+const subHeaders = () => {
+    if (!displayData?.showSubHeaders) {
+      return null;
+    }
+    return (
+      <div className="flex flex-row items-stretch justify-start w-full flex-1">
+          <div className={`
+                      flex-1
+                      text-white
+                      font-bold
+                      text-center
+                      flex
+                      items-center
+                      justify-center
+                      ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+                    `}
+                    style={{
+                      color: 
+                        colors.fontHeader 
+                        || themeColors.fontHeader
+                        || colors.primary 
+                        || themeColors.primary
+                        || colors.text
+                        || themeColors.text,
+                      backgroundColor: 
+                        colors.tableHeader 
+                        || themeColors.tableHeader 
+                        || 'transparent',
+                      fontFamily: fonts.header,
+                    }}
+                    >
+                      &nbsp;
+                      { displayData?.filteredUnits.map((unitId) => {
+                        const unit = gameData?.data?.mechanics?.units?.find(u => String(u.id) === String(unitId));
+                        return (<div key={unitId}>{unit?.name || unitId}</div>);
+                      })}
+                    </div>
+                  </div>
+    )
+  }
+
   const tableDataSortedLimited = () => {
     let limitedTableData = [];
     let limitedTableRows = null;
@@ -620,8 +662,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
             items-center
             justify-start
             opacity-100
+            overflow-hidden
+            relative
             z-10
-            ${isFullScreen ? 'min-w-[100vw] min-h-[100vh]' : 'w-full h-full backdrop-blur-xl'}
+            ${isFullScreen ? 'w-screen h-screen' : 'w-full h-full backdrop-blur-xl'}
           `}
           style={{
             paddingTop: `${isFullScreen ? placement?.paddingFrame?.top : 0}vh`,
@@ -631,10 +675,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
           }}
           >
           <div
-            className="flex flex-row grow min-w-full min-h-full theme-padding"
+            className="flex flex-row w-full h-full theme-padding"
           >
-            <div className="flex flex-col grow min-w-full min-h-full items-center justify-center flex-1">
-              <div className="flex flex-col justify-start min-w-full min-h-full primary-mixin"
+            <div className="flex flex-col w-full h-full items-center justify-center">
+              <div className="flex flex-col justify-start w-full h-full primary-mixin overflow-hidden"
                 data-augmented-ui={isFullScreen ? "tl-rect br-rect tr-clip bl-clip both" : ""}
               >
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">
@@ -668,9 +712,8 @@ function DisplayTable(props: ComponentProps): JSX.Element {
                     </div>
                   )}
                 </div>
-                {/* Table rows */}
+                {subHeaders()}
                 {tableDataSortedLimited()}
-                {/* No scores found */}
                 {!tableDataSorted && (
                   <div className="flex flex-row items-stretch justify-start w-full flex-1">
                     <div className="flex-1 text-white rounded-md p-1 text-center flex items-center justify-center">
