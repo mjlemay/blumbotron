@@ -438,38 +438,88 @@ const subHeaders = () => {
     }
     return (
       <div className="flex flex-row items-stretch justify-start w-full flex-1">
+        {/* Avatar placeholder */}
+        {displayData?.showAvatars && (
           <div className={`
-                      flex-1
-                      text-white
-                      font-bold
-                      text-center
-                      flex
-                      items-center
-                      justify-center
-                      ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
-                    `}
-                    style={{
-                      color: 
-                        colors.fontHeader 
-                        || themeColors.fontHeader
-                        || colors.primary 
-                        || themeColors.primary
-                        || colors.text
-                        || themeColors.text,
-                      backgroundColor: 
-                        colors.tableHeader 
-                        || themeColors.tableHeader 
-                        || 'transparent',
-                      fontFamily: fonts.header,
-                    }}
-                    >
-                      &nbsp;
-                      { displayData?.filteredUnits.map((unitId) => {
-                        const unit = gameData?.data?.mechanics?.units?.find(u => String(u.id) === String(unitId));
-                        return (<div key={unitId}>{unit?.name || unitId}</div>);
-                      })}
-                    </div>
-                  </div>
+            flex-shrink-0 self-stretch
+            ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+          `}
+          style={{
+            backgroundColor: 
+              colors.tableHeader 
+              || themeColors.tableHeader 
+              || 'transparent',
+            height: '100%',
+            aspectRatio: '1',
+          }}
+          >
+            &nbsp;
+          </div>
+        )}
+        {/* Name placeholder */}
+        <div className={`
+          flex-1
+          text-white
+          font-bold
+          flex
+          items-center
+          justify-start
+          pl-4
+          ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+        `}
+        style={{
+          color: 
+            colors.fontHeader 
+            || themeColors.fontHeader
+            || colors.primary 
+            || themeColors.primary
+            || colors.text
+            || themeColors.text,
+          backgroundColor: 
+            colors.tableHeader 
+            || themeColors.tableHeader 
+            || 'transparent',
+          fontFamily: fonts.header,
+        }}
+        >
+          &nbsp;
+        </div>
+        {/* Unit headers */}
+        {displayData?.filteredUnits.map((unitId) => {
+          const unit = gameData?.data?.mechanics?.units?.find(u => String(u.id) === String(unitId));
+          return (
+            <div 
+              key={unitId}
+              className={`
+                flex-1
+                text-white
+                font-bold
+                text-center
+                flex
+                items-center
+                justify-center
+                ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+              `}
+              style={{
+                color: 
+                  colors.fontHeader 
+                  || themeColors.fontHeader
+                  || colors.primary 
+                  || themeColors.primary
+                  || colors.text
+                  || themeColors.text,
+                backgroundColor: 
+                  colors.tableHeader 
+                  || themeColors.tableHeader 
+                  || 'transparent',
+                fontFamily: fonts.header,
+              }}
+            >
+              {unit?.name || unitId}
+            </div>
+          );
+        })}
+      </div>
     )
   }
 
