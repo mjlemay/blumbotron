@@ -13,6 +13,7 @@ import { Window } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
 import ThemeInjector from './themeInjector';
 import DisplayTable from './displayTable';
+import DisplaySlide from './displaySlide';
 
 type ComponentProps = {
   height?: number;
@@ -24,6 +25,11 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   const { game, height = 300, displayIndex = 0 } = props;
   const { setExpModal, setExpSubView, setExpSubSelected, setExpSelected, setExpView } = useExperienceStore();
   const { getGameBySnowflake, editGame } = useGameStore();
+
+  // Get the display type from the game data
+  const currentGameData = getGameBySnowflake(game || '');
+  const type = currentGameData?.data?.displays?.[displayIndex]?.category || 'table';
+
 
   const handleAllSidesClick = () => {
     setExpSubSelected(displayIndex);
@@ -141,7 +147,8 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
         justify-center
       `}>
         <ThemeInjector game={game} />
-        <DisplayTable game={game} displayIndex={displayIndex} fetchIntervalSeconds={60} />
+        {type == 'table' && <DisplayTable game={game} displayIndex={displayIndex} fetchIntervalSeconds={60} />}
+        {type == 'slide' && <DisplaySlide game={game} displayIndex={displayIndex} />}
       </div>
       <div
         className="

@@ -1,10 +1,11 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import * as Menubar from '@radix-ui/react-menubar';
 import UpdateScore from './widgetUpdateScore';
 import DisplayFrame from './displayFrame';
 import { GameDataItem } from '../lib/types';
 import { useGameStore } from '../stores/gamesStore';
 import { useRef, useEffect, useState } from 'react';
-import { PlusCircledIcon } from '@radix-ui/react-icons';
+import { PlusCircledIcon, TableIcon, IdCardIcon } from '@radix-ui/react-icons';
 import { defaultDisplayData } from '../lib/defaults';
 
 type LaunchProps = {
@@ -58,14 +59,15 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
     };
   }, []);
 
-  const addNewDisplay = async () => {
+  const addNewDisplay = async (type: 'table' | 'slide') => {
     if (!currentGameData || !currentGameData.snowflake) {
       console.error('No game data or snowflake available');
       return;
     }
     const newDisplayItem = {
       ...defaultDisplayData,
-      title: `Display ${(currentGameData.data?.displays?.length || 0) + 1}`,
+      category: type,
+      title: `${type} ${(currentGameData.data?.displays?.length || 0) + 1}`,
     };
     const updatedGameData = {
       ...currentGameData,
@@ -114,30 +116,36 @@ function SubViewLaunch(props: LaunchProps): JSX.Element {
               pb-4
               "
             >
-            <button
-              className="
-                select-none
-                items-center
-                justify-center
-                cursor-pointer
-                rounded
-                shadow-sm
-                text-lg
-                font-medium
-                bg-sky-700
-                p-2
-                min-h-full
-                hover:bg-sky-600/80
-                active:bg-sky-600/90
-                disabled:bg-sky-600/50
-                disabled:cursor-not-allowed
-                transition-colors
-                duration-200
-              "
-              onClick={addNewDisplay}
-            >
-              <PlusCircledIcon width="20" height="20" />
-            </button>
+            <Menubar.Root className="flex rounded-md">
+              <Menubar.Menu>
+                <Menubar.Trigger
+                  className="flex select-none items-center justify-center cursor-pointer rounded px-3 py-2 text-lg gap-1.5 font-medium bg-sky-700 hover:bg-sky-600 min-h-full"
+                  onClick={() => {}}
+                >
+                  <PlusCircledIcon width="20" height="20" />
+                </Menubar.Trigger>
+                <Menubar.Portal>
+                  <Menubar.Content className="bg-slate-700/50 rounded-md p-1 mt-1 min-w-[150px] shadow-lg z-[9999]">
+                    <Menubar.Item
+                      className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                      onClick={() => addNewDisplay('table')}
+                    >
+                      <div className="flex flex-row gap-2 items-center">
+                        <TableIcon width="20" height="20" /> New Table
+                      </div>
+                    </Menubar.Item>
+                      <Menubar.Item
+                      className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                      onClick={() => addNewDisplay('slide')}
+                    >
+                      <div className="flex flex-row gap-2 items-center">
+                        <IdCardIcon width="20" height="20" /> New Slide
+                      </div>
+                    </Menubar.Item>
+                  </Menubar.Content>
+                </Menubar.Portal>
+              </Menubar.Menu>
+            </Menubar.Root>
             </div>
           </div>
         </ScrollArea.Viewport>
