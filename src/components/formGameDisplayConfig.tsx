@@ -14,10 +14,16 @@ import SelectChip from './selectChip';
 import Chip from './chip';
 import { setNestedValue } from '../lib/helpers';
 import { useRef, useState, useEffect } from 'react';
+import MarkdownIt from 'markdown-it';
+import MdEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
+
 
 type FormGameDisplayConfigProps = {
   onSuccess?: () => void;
 };
+
+const mdParser = new MarkdownIt(/* Markdown-it options */);
  
 function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
   const { onSuccess } = props;
@@ -333,8 +339,8 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
         <ScrollArea.Viewport className="h-full w-full">
           <div className="px-5 py-[15px] min-h-[calc(100vh-250px)] max-h-[calc(100vh-250px)]">
             <div className="flex flex-row items-center justify-start">
-              <div className="flex flex-col items-center justify-start text-lg font-medium rounded-lg max-w-lg">
-                <div className="w-full pr-4 pl-4">
+              <div className="flex flex-col items-center justify-start text-lg font-medium rounded-lg min-w-full">
+                <div className="min-w-full pr-4 pl-4">
                   <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
                   <Input
                     name="snowflake"
@@ -360,9 +366,9 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                     hidden
                     changeHandler={() => {}}
                   />
-                  <div className="flex flex-col items-start justify-between">
+                  <div className="flex flex-col items-start justify-between min-w-full">
                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Table Display Configuration
+                      {form?.data?.displays?.[displayIndex]?.category?.charAt(0).toUpperCase() + form?.data?.displays?.[displayIndex]?.category?.slice(1)} Display Configuration
                     </h3>
                     <Input
                       name={`data.displays[${displayIndex}].title`}
@@ -370,6 +376,18 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                       value={form?.data?.displays?.[displayIndex]?.title || ''}
                       changeHandler={handleFormChange}
                     />
+                    { form?.data?.displays?.[displayIndex]?.category === 'slide' && <>
+                      <div className="w-full mb-4">
+                        <label className="block text-lg font-bold text-white mb-1">Slide Content</label>
+                           <MdEditor 
+                            style={{ height: '300px', width: '100%' }} 
+                            renderHTML={text => mdParser.render(text)} 
+                            onChange={()=>{}} 
+                            canView={{ menu: true, md: true, html: false, both: false, fullScreen: false, hideMenu: true }}
+                            />
+                      </div>
+                    </>}
+                    { form?.data?.displays?.[displayIndex]?.category === 'table' && <>
                     <Input
                       name={`data.displays[${displayIndex}].rows`}
                       label="Number of Rows"
@@ -495,7 +513,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                         />
                         
                         {/* Current image preview or upload area */}
-                        <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800">
+                        <div className="border-2 border-dashed border-gray-400 rounded-lg p-4 bg-gray-800 max-w-xs">
                           {form?.data?.displays?.[displayIndex]?.titleImage ? (
                             <div className="space-y-3">
                               {/* Image thumbnail */}
@@ -550,7 +568,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                           )}
                         </div>
                       </div>
-
+                    </>}
                   </div>
                 </div>
               </div>
