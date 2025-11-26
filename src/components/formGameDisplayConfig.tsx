@@ -257,6 +257,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
           showSubHeaders: z.boolean().optional(),
           category: z.enum(['table', 'slide']).optional(),
           filteredUnits: z.array(z.string()).optional(),
+          markdown: z.string().optional(),
         })),
       }),
     });
@@ -380,9 +381,10 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                       <div className="w-full mb-4">
                         <label className="block text-lg font-bold text-white mb-1">Slide Content</label>
                            <MdEditor 
-                            style={{ height: '300px', width: '100%' }} 
+                            style={{ height: '300px', width: '100%' }}
+                            value={form?.data?.displays?.[displayIndex]?.markdown || ''}
                             renderHTML={text => mdParser.render(text)} 
-                            onChange={()=>{}} 
+                            onChange={({ text }) => updateFormInput(`data.displays[${displayIndex}].markdown`, text)} 
                             canView={{ menu: true, md: true, html: false, both: false, fullScreen: false, hideMenu: true }}
                             />
                       </div>

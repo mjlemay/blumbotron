@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import DisplayTable from './displayTable';
+import DisplaySlide from './displaySlide';
 import { usePlayerStore } from '../stores/playersStore';
 import { useGameStore } from '../stores/gamesStore';
 import { useRosterStore } from '../stores/rostersStore';
@@ -24,6 +25,12 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   const { fetchGames, games } = useGameStore();
   const { fetchRosters } = useRosterStore();
   const { fetchUniqueScoresByGame } = useScoreStore();
+  
+  // Determine display type from game data
+  const displayType = useMemo(() => {
+    const currentGame = games.find(g => g.snowflake === game);
+    return currentGame?.data?.displays?.[displayIndex || 0]?.category || 'table';
+  }, [games, game, displayIndex]);
   
   // Theme loading effect - runs after stores are loaded
   useEffect(() => {
@@ -127,7 +134,12 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
   return (
     <>
       <ThemeInjector game={game} />
-      <DisplayTable game={game} isFullScreen={true} displayIndex={displayIndex} fetchIntervalSeconds={fetchIntervalSeconds} />
+      {displayType === 'table' && (
+        <DisplayTable game={game} isFullScreen={true} displayIndex={displayIndex} fetchIntervalSeconds={fetchIntervalSeconds} />
+      )}
+      {displayType === 'slide' && (
+        <DisplaySlide game={game} displayIndex={displayIndex} />
+      )}
     </>
   );
 }
