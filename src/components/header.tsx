@@ -6,19 +6,27 @@ import { Separator } from '@radix-ui/react-separator';
 import * as Menubar from '@radix-ui/react-menubar';
 import { SelectedItem, PlayerDataItem } from '../lib/types';
 import { findAnySelected, returnToParent, findCollectionType } from '../lib/selectedStates';
-import { CameraIcon, HamburgerMenuIcon, Pencil1Icon, TrashIcon, ImageIcon } from '@radix-ui/react-icons';
+import { 
+  CameraIcon,
+  HamburgerMenuIcon,
+  Pencil1Icon,
+  TrashIcon,
+  ImageIcon,
+  IdCardIcon
+} from '@radix-ui/react-icons';
 import { useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
 const selectedItemModals = {
   game: {
     edit: 'editGame',
-    delete: 'deleteGame',
+    delete: 'deleteGa∫me',
   },
   player: {
     edit: 'editPlayer',
     delete: 'deletePlayer',
     photo: 'capturePhoto',
+    alternateIds: 'manageAlternateIds',
   },
   roster: {
     edit: 'editRoster',
@@ -188,6 +196,17 @@ function Header(): JSX.Element {
                         <div className="flex flex-row gap-2 items-center">
                           <CameraIcon width="20" height="20" /> 
                           {uploading ? 'Uploading...' : 'Capture Photo'}
+                        </div>
+                      </Menubar.Item>
+                      <Menubar.Item
+                        className="cursor-pointer bg-slate-600/50 hover:bg-blue-600/20 rounded-md p-1 m-1"
+                        onClick={() => {
+                          setExpModal(selectedItemModals.player.alternateIds);
+                        }}
+                      >
+                        <div className="flex flex-row gap-2 items-center">
+                          <IdCardIcon width="20" height="20" /> 
+                          Alternate IDs
                         </div>
                       </Menubar.Item>
                     </>

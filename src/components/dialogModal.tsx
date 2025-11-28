@@ -10,6 +10,7 @@ import FormGame from './formGame';
 import FormRoster from './formRoster';
 import FormPlayer from './formPlayer';
 import FormPhoto from './formPhoto';
+import FormAlternateIds from './formAlternateIds';
 import DisplayTable from './displayTable';
 import { refreshData } from '../lib/fetchCalls';
 import { useExperienceStore } from '../stores/experienceStore';
@@ -120,6 +121,11 @@ function DialogModal({
       ),
       capturePhoto: (
         <FormPhoto
+          onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
+        />
+      ),
+      manageAlternateIds: (
+        <FormAlternateIds
           onSuccess={() => refreshData(fetchGames, fetchPlayers, fetchRosters)}
         />
       ),
