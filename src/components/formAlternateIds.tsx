@@ -5,7 +5,7 @@ import { usePlayerStore } from '../stores/playersStore';
 import { useExperienceStore } from '../stores/experienceStore';
 import { PlayerDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon } from '@radix-ui/react-icons';
+import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultPlayer } from '../lib/defaults';
 
@@ -66,6 +66,14 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
     }
   };
 
+  const handleDeleteId = (index: number) => {
+    const clonedForm = JSON.parse(JSON.stringify(form));
+    if (clonedForm.data?.alternateIds) {
+      clonedForm.data.alternateIds.splice(index, 1);
+      setForm(clonedForm);
+    }
+  };
+
  const setAlternateIds = async () => {
   // Add the new ID if it exists
   let alternateIds = (form.data?.alternateIds as string[]) || [];
@@ -118,10 +126,19 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
             {form?.data?.alternateIds && Array.isArray(form?.data?.alternateIds) && form?.data?.alternateIds.length > 0 ? 
             (form?.data?.alternateIds as string[]).map((idValue: string, index: number) => (
               <Input
+                key={`alternateId_${index}`}
                 name={`alternateId_${index}`}
                 label="Alternate ID"
                 value={idValue}
                 changeHandler={handleFormChange}
+                actionButton={
+                  <button
+                    onClick={() => handleDeleteId(index)}
+                    className="px-3 py-2 bg-sky-700 hover:bg-sky-600 rounded text-white"
+                  >
+                    <TrashIcon width="20" height="20" />
+                  </button>
+                }
               />
             )) : null}
               <Input
