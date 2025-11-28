@@ -20,6 +20,7 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
   const player = getSelected('players') as PlayerDataItem;
   const [form, setForm] = useState(player || defaultPlayer);
   const [error, setError] = useState<string | null>(null);
+  const [newIdValue, setNewIdValue] = useState('');
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
     const eventTarget = Event?.target;
@@ -30,15 +31,48 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
     // Handle alternateIds array update
     if (formKey?.includes('alternateId_')) {
       const index = parseInt(formKey.split('_')[1], 10);
-      clonedForm.data.alternateIds[index] = formValue;
+      if (!clonedForm.data) {
+        clonedForm.data = {};
+      }
+      if (!clonedForm.data.alternateIds) {
+        clonedForm.data.alternateIds = [];
+      }
+      
+      if (formKey === 'alternateId_new') {
+        // Just update the temporary state, don't add to form yet
+        setNewIdValue(formValue);
+        return;
+      } else {
+        clonedForm.data.alternateIds[index] = formValue;
+      }
     } else {
       clonedForm[`${formKey}`] = formValue;
     }
     setForm(clonedForm);
   };
 
+  const handleNewIdBlur = () => {
+    if (newIdValue.trim()) {
+      const clonedForm = JSON.parse(JSON.stringify(form));
+      if (!clonedForm.data) {
+        clonedForm.data = {};
+      }
+      if (!clonedForm.data.alternateIds) {
+        clonedForm.data.alternateIds = [];
+      }
+      clonedForm.data.alternateIds.push(newIdValue);
+      setForm(clonedForm);
+      setNewIdValue('');
+    }
+  };
+
  const setAlternateIds = async () => {
-  const alternateIds = form.alternateIds || [];
+  // Add the new ID if it exists
+  let alternateIds = (form.data?.alternateIds as string[]) || [];
+  if (newIdValue.trim()) {
+    alternateIds = [...alternateIds, newIdValue];
+  }
+  
     try {
       if (player) {
         const updatedPlayer = {
@@ -91,10 +125,11 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
               />
             )) : null}
               <Input
-                name={`alternateId_${form.data?.alternateIds?.length || 0}`}
+                name="alternateId_new"
                 label="Add New Alternate ID"
-                value={form.data?.alternateIds?.[form.data?.alternateIds?.length + 1] || ''}
+                value={newIdValue}
                 changeHandler={handleFormChange}
+                blurHandler={handleNewIdBlur}
               />
           </div>
       }

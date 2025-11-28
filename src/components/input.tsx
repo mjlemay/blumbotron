@@ -2,6 +2,7 @@ interface InputProps {
   actionButton?: React.ReactNode;
   changeHandler?: Function;
   focusHandler?: Function;
+  blurHandler?: Function;
   label?: string;
   name: string;
   hidden?: boolean;
@@ -18,6 +19,7 @@ export default function Input(props: InputProps): JSX.Element {
     actionButton,
     align,
     changeHandler = () => {},
+    blurHandler = () => {},
     errMsg,
     focusHandler = () => {},
     hidden = false,
@@ -47,6 +49,7 @@ export default function Input(props: InputProps): JSX.Element {
         type={hidden ? 'hidden' : type}
         onChange={(Event) => changeHandler(Event)}
         onFocus={(Event) => focusHandler(Event)}
+        onBlur={(Event) => blurHandler(Event)}
       />
         {actionButton && <div className="ml-2">{actionButton}</div>}
       </div>

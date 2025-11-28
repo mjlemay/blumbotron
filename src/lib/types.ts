@@ -114,5 +114,5 @@ export type GameAvatar = {
 
 export type PlayerDataItem = DataItem & {
   avatars?: GameAvatar[];
-  alternateIds?: string[];
+  data: Record<string, unknown | String []>
 };
