@@ -5,11 +5,12 @@ import { usePlayerStore } from '../stores/playersStore';
 import { useExperienceStore } from '../stores/experienceStore';
 import { PlayerDataItem } from '../lib/types';
 import { getSelected } from '../lib/selectedStates';
-import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+import { CircleBackslashIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
 import * as Menubar from '@radix-ui/react-menubar';
 import { defaultPlayer } from '../lib/defaults';
 import IconRfid from './iconRfid';
 import IconQr from './iconQr';
+import { useRFIDNumber } from '../lib/useRFIDNumber';
 
 type FormAlternateIdsProps = {
   onSuccess?: () => void;
@@ -22,7 +23,18 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
   const player = getSelected('players') as PlayerDataItem;
   const [form, setForm] = useState(player || defaultPlayer);
   const [error, setError] = useState<string | null>(null);
-  const [newIdValue, setNewIdValue] = useState({ key: '', value: '' });
+  const [newIdValue, setNewIdValue] = useState({value: '', key: ''});
+  const [injected, setInjected] = useState<string>('');
+  const rifdNumber = useRFIDNumber(injected !== '');
+
+  const handleRfidClick = (field: string) => {
+    if (injected === field) {
+      setInjected('');
+      return;
+    } else {
+      setInjected(field);
+    }
+  }
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
     const eventTarget = Event?.target;
@@ -122,6 +134,19 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
     setExpModal('none');
   };
 
+  useEffect(() => {
+    if (rifdNumber !== '' && injected !== '') {
+      if(injected === 'alternateId_value_new') {
+        setNewIdValue(prev => ({ ...prev, value: rifdNumber }));
+      } else {
+        const clonedForm = JSON.parse(JSON.stringify(form));
+        clonedForm[`${injected}`] = rifdNumber;
+        setForm(clonedForm);
+      }
+      setInjected('');
+    }
+  },[injected, rifdNumber]);
+
   return (
     <DialogContainer
       title="Configure Alternate Ids"
@@ -179,15 +204,16 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
                 <Input
                   name="alternateId_value_new"
                   label="Value"
+                  injectable={injected === 'alternateId_value_new'}
                   value={newIdValue.value}
                   changeHandler={handleFormChange}
                   blurHandler={handleNewIdBlur}
                 />
                 <button
-                  onClick={() => {}}
-                  className="px-3 py-2 mb-2 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
+                  onClick={() => handleRfidClick("alternateId_value_new")}
+                  className="flex items-center justify-center px-2 py-2 min-w-10 mb-2 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
                 >
-                  <IconRfid />
+                  {injected !== '' ? <CircleBackslashIcon /> : <IconRfid />}
                 </button>
                 <button
                   onClick={() => {}}
