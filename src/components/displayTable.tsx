@@ -9,8 +9,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { customThemeSettings } from '../lib/consts';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
-import { json } from "stream/consumers";
-import { map } from "zod";
 
 // Avatar component for score table
 const AvatarImage = ( { playerName, isFullScreen }: { playerName: string, isFullScreen: boolean } ) => {

@@ -1,32 +1,84 @@
 @import "./augmented-ui.min.css";
 
-   /* Change these colors to customize the theme */
-    :root {
-      --background-color: #120458;
-      --text-color: #faf0e6;
-      --primary-color:#41c5ff;
-      --secondary-color:#ff00a0;
-      --tertiary-color:#7a04eb;
-      --bg-grid-color:#5d1c95;
-      --bg-vignette-color-1:rgba(18, 4, 88, 0);
-      --bg-vignette-color-2:rgba(18, 4, 88, 1); 
-    }
+/* Theme Color Variables */
+:root {
+  --background-color: #120458;
+  --text-color: #faf0e6;
+  --primary-color: #41c5ff;
+  --secondary-color: #ff00a0;
+  --tertiary-color: #7a04eb;
+  --bg-grid-color: #5d1c95;
+  --bg-vignette-color-1: rgba(18, 4, 88, 0);
+  --bg-vignette-color-2: rgba(18, 4, 88, 1);
+}
 
-
-html, body {
+/* Base Styles */
+html,
+body {
   padding: 0;
   margin: 0;
   height: 100%;
-  flex-direction: column;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
   color: #fff;
-  background-color:var(--background-color);
-  background-image:radial-gradient(var(--bg-vignette-color-1),var(--bg-vignette-color-2)),linear-gradient(rgba(93,28,149,.8) 1px,transparent 0),linear-gradient(var(--bg-grid-color) 1px,transparent 0),linear-gradient(90deg,var(--bg-grid-color) 1px,transparent 0),linear-gradient(90deg,var(--bg-grid-color) 1px,transparent 0),linear-gradient(transparent 3px,var(--background-color) 0,var(--background-color) 94px,transparent 0),linear-gradient(90deg,var(--bg-grid-color) 3px,transparent 0,transparent 94px,var(--bg-grid-color) 0);
-  background-size: 100vw, 100vh, 24px 24px,96px 96px,24px 24px,96px 96px,96px 96px,96px 96px;
-  }
-  .primary-mixin{padding:4vh;margin:0 0 2vh;--aug-tr:25px;--aug-b-extend1:50%;--aug-border-all:3px;--aug-border-bg:radial-gradient(var(--text-color), var(--primary-color)) 100% 100%/100% 100%;--aug-inlay-all:4px;--aug-inlay-bg:radial-gradient(ellipse at top, var(--primary-color), transparent) 50% 50%/100% 100%;--aug-inlay-opacity:0.5}.secondary-mixin{padding:4vh;margin:0 0 2vh;--aug-tr:25px;--aug-b-extend1:50%;--aug-border-all:3px;--aug-border-bg:radial-gradient(var(--primary-color), var(--secondary-color)) 100% 100%/100% 100%;--aug-inlay-all:4px;--aug-inlay-bg:radial-gradient(ellipse at top, var(--secondary-color), transparent) 50% 50%/100% 100%;--aug-inlay-opacity:0.5}.tertiary-mixin{padding:4vh;margin:0 0 2vh;--aug-tr:25px;--aug-b-extend1:50%;--aug-border-all:3px;--aug-border-bg:radial-gradient(var(--secondary-color), var(--tertiary-color)) 100% 100%/100% 100%;--aug-inlay-all:4px;--aug-inlay-bg:radial-gradient(ellipse at top, var(--tertiary-color), transparent) 50% 50%/100% 100%;--aug-inlay-opacity:0.5}
+  background-color: var(--background-color);
+  background-image: 
+    radial-gradient(var(--bg-vignette-color-1), var(--bg-vignette-color-2)),
+    linear-gradient(rgba(93, 28, 149, 0.8) 1px, transparent 0),
+    linear-gradient(var(--bg-grid-color) 1px, transparent 0),
+    linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
+    linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
+    linear-gradient(transparent 3px, var(--background-color) 0, var(--background-color) 94px, transparent 0),
+    linear-gradient(90deg, var(--bg-grid-color) 3px, transparent 0, transparent 94px, var(--bg-grid-color) 0);
+  background-size: 
+    100vw 100vh,
+    24px 24px,
+    96px 96px,
+    24px 24px,
+    96px 96px,
+    96px 96px,
+    96px 96px;
+}
 
+/* Augmented UI Mixins */
+.primary-mixin {
+  padding: 4vh;
+  margin: 0 0 2vh;
+  --aug-tr: 25px;
+  --aug-b-extend1: 50%;
+  --aug-border-all: 3px;
+  --aug-border-bg: radial-gradient(var(--text-color), var(--primary-color)) 100% 100% / 100% 100%;
+  --aug-inlay-all: 4px;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--primary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-opacity: 0.5;
+}
+
+.secondary-mixin {
+  padding: 4vh;
+  margin: 0 0 2vh;
+  --aug-tr: 25px;
+  --aug-b-extend1: 50%;
+  --aug-border-all: 3px;
+  --aug-border-bg: radial-gradient(var(--primary-color), var(--secondary-color)) 100% 100% / 100% 100%;
+  --aug-inlay-all: 4px;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--secondary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-opacity: 0.5;
+}
+
+.tertiary-mixin {
+  padding: 4vh;
+  margin: 0 0 2vh;
+  --aug-tr: 25px;
+  --aug-b-extend1: 50%;
+  --aug-border-all: 3px;
+  --aug-border-bg: radial-gradient(var(--secondary-color), var(--tertiary-color)) 100% 100% / 100% 100%;
+  --aug-inlay-all: 4px;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--tertiary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-opacity: 0.5;
+}
+
+/* Utility Classes */
 .theme-padding {
   padding-top: 1vh;
 }

@@ -29,3 +29,21 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+[data-slide-container] h1 {
+  font-size: 3rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+[data-slide-container] h2 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+[data-slide-container] h3 {
+  font-size: 2rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
