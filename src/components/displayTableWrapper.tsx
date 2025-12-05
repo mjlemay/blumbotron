@@ -138,7 +138,7 @@ export default function DisplayTableWrapper(props: DisplayTableWrapperProps) {
         <DisplayTable game={game} isFullScreen={true} displayIndex={displayIndex} fetchIntervalSeconds={fetchIntervalSeconds} />
       )}
       {displayType === 'slide' && (
-        <DisplaySlide game={game} displayIndex={displayIndex} />
+        <DisplaySlide game={game} isFullScreen={true} displayIndex={displayIndex} />
       )}
     </>
   );

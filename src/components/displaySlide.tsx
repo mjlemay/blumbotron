@@ -195,7 +195,7 @@ function DisplaySlide(props: ComponentProps): JSX.Element {
       >
         <div 
             data-augmented-ui={isFullScreen ? "tl-rect br-rect tr-clip bl-clip both" : ""}
-            className='primary-mixin'
+            className="primary-mixin"
         >
         <div
           data-slide-container 
