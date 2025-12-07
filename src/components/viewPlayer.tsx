@@ -8,6 +8,7 @@ import { PersonIcon } from '@radix-ui/react-icons';
 import { useEffect, useState, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import { PlayerDataItem } from '../lib/types';
 
 function ViewPlayer() {
   const { selected, setExpView, setExpSelected } = useExperienceStore(
@@ -25,18 +26,18 @@ function ViewPlayer() {
   const [playerImageSrc, setPlayerImageSrc] = useState<string>('');
   
   // Get the fresh player data from the players store instead of just the selected state
-  const selectedPlayerFromStore = selected?.player || null;
-  const selectedPlayer = useMemo(() => {
+  const selectedPlayerFromStore = (selected?.player as PlayerDataItem) || null;
+  const selectedPlayer = useMemo((): PlayerDataItem | null => {
     if (!selectedPlayerFromStore) return null;
     // Find the updated player data from the players store
-    return players.find(p => p.snowflake === selectedPlayerFromStore.snowflake) || selectedPlayerFromStore;
+    return (players.find(p => p.snowflake === selectedPlayerFromStore.snowflake) as PlayerDataItem) || selectedPlayerFromStore;
   }, [players, selectedPlayerFromStore]);
   
   const { name = '', id = '', snowflake, created_at, updated_at } = selectedPlayer || {};
 
   // Load player image
   const loadPlayerImage = async (imageFileName?: string) => {
-    const fileName = imageFileName || (selectedPlayer?.data as any)?.avatarImage;
+    const fileName = imageFileName || (selectedPlayer?.data?.avatarImage as string | undefined);
     if (fileName) {
       try {
         // If it's already a data URL, use it directly
@@ -180,6 +181,29 @@ function ViewPlayer() {
     return false;
   });
 
+  const alternateIds = () => {
+    const alternateIds = selectedPlayer?.data?.alternateIds || {};
+    if (Object.keys(alternateIds).length >= 1) {
+      const keyValuePairs = Object.entries(alternateIds).map(([key, value], index) => {
+        return (
+            <>
+              {index !== 0 && ( 
+                <Separator className="w-[1px] h-4 bg-slate-500" orientation="vertical" decorative />
+              )}
+              <span>
+                <label className="text-slate-500">{key}</label> {value}
+              </span>
+            </>);
+      });
+      return (
+        <div className="w-full text-slate-400 flex flex row items-center gap-2 text-lg justify-start">
+          {keyValuePairs}
+        </div>
+      ); 
+    }
+    return false;
+  }
+
   return (
     <div key={`${id}-${name}`} className="h-[calc(100vh-8rem)] overflow-hidden">
       <div
@@ -220,8 +244,10 @@ function ViewPlayer() {
                 {name}
                 {snowflake && <span className="text-2xl text-slate-400">#{snowflake}</span>}
               </h2>
+              {alternateIds()}
             </div>
           </div>
+                <Separator className="h-[1px] w-full mb-1 h-4 bg-slate-600/50" orientation="horizontal" />
           <div className="w-full text-slate-400 flex flex row items-center gap-2 justify-start">
             {created_at && (
               <span>
