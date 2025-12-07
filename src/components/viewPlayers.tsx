@@ -23,23 +23,16 @@ function ViewPlayers(): JSX.Element {
   const displayPlayers = (players: DataItem[]): DataItem[] => {
     const filteredPlayers = players.filter(player => {
       const searchLower = searchValue.toLowerCase();
-      
-      // Check name
       if (player.name.toLowerCase().includes(searchLower)) {
         return true;
       }
-      
-      // Check id
+
       if (player.id?.toString().includes(searchValue)) {
         return true;
       }
-      
-      // Check snowflake
       if (player.snowflake?.toLowerCase().includes(searchLower)) {
         return true;
       }
-      
-      // Check alternate IDs
       if (player.data && typeof player.data === 'object') {
         const alternateIds = player.data.alternateIds;
         if (alternateIds && typeof alternateIds === 'object') {
