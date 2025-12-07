@@ -5,13 +5,15 @@ type ListContainerProps = {
   children?: React.ReactNode;
   form?: React.ReactNode;
   items?: DataItem[];
+  fullWidth?: boolean;
+  menuBar?: 'top' | 'bottom';
   listItem?: React.ComponentType<{ item: DataItem; key: string }>;
   title?: string;
   dialog?: React.ReactNode;
 };
 
 function ListContainer(props: ListContainerProps): JSX.Element {
-  const { dialog = null, items = [], listItem, title, children } = props;
+  const { dialog = null, items = [], listItem, title, menuBar, fullWidth, children } = props;
 
   const mapListData = (
     items: DataItem[],
@@ -37,11 +39,16 @@ function ListContainer(props: ListContainerProps): JSX.Element {
   };
 
   return (
-    <div className="flex flex-col items-center h-[calc(100vh-100px)] bg-slate-900/40 rounded-lg shadow-lg">
+    <div className={`flex flex-col items-center h-[calc(100vh-100px)] bg-slate-900/40 rounded-lg shadow-lg`}>
+      {menuBar === 'top' && children && (
+        <div className="flex flex-row h-[80px] shrink-0 h-min-[80px] w-full items-center justify-center">
+          {children}
+        </div>
+      )}
       <div
         className={`min-w-[46vw] bg-slate-600 shrink
-                ${children ? 'rounded-tr-lg rounded-tl-lg' : 'rounded-lg'} 
-                shadow-md p-4 flex flex-col h-full`}
+          ${children ? ( menuBar !== 'top' ? 'rounded-tr-lg rounded-tl-lg' : 'rounded-br-lg rounded-bl-lg') : 'rounded-lg'}
+          shadow-md p-4 flex flex-col h-full`}
       >
         {title && <h2 className="text-3xl font-thin pl-2 pb-2">{title}</h2>}
         {dialog && <div className="flex flex-col items-center justify-center h-full">{dialog}</div>}
@@ -50,7 +57,7 @@ function ListContainer(props: ListContainerProps): JSX.Element {
             <p className="text-center text-slate-400">No items to display</p>
           </div>
         ) : (
-          <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden">
+          <ScrollArea.Root className={`w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden ${fullWidth ? 'min-w-[calc(100vw-130px)]' : 'min-w-[46vw]'}`}>
             <ScrollArea.Viewport className="h-full w-full rounded">
               <div className={`px-5 py-[15px] ${children && 'max-h-[calc(100vh-300px)]'}`}>
                 {mapListData(items, listItem)}
@@ -72,7 +79,7 @@ function ListContainer(props: ListContainerProps): JSX.Element {
           </ScrollArea.Root>
         )}
       </div>
-      {children && (
+      {menuBar !== 'top' && children && (
         <div className="flex flex-row h-[80px] shrink-0 h-min-[80px] w-full items-center justify-center">
           {children}
         </div>

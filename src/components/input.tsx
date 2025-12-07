@@ -13,6 +13,7 @@ interface InputProps {
   injectable?: boolean;
   align?: 'left' | 'right';
   type?: 'text' | 'number';
+  inline?: boolean;
 }
 
 export default function Input(props: InputProps): JSX.Element {
@@ -46,14 +47,15 @@ export default function Input(props: InputProps): JSX.Element {
     name,
     placeholder,
     preview,
+    inline = false,
     injectable = false,
     type = 'text',
     value = '',
   } = props;
 
   return (
-    <div className={`my-2 ${hidden && 'hidden'}`}>
-      <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">{label}</label>
+    <div className={`${inline ? '' : 'my-2'} ${hidden && 'hidden'}`}>
+      {label && <label className="block text-slate-200 font-semibold text-lg mb-1 mt-1">{label}</label>}
       <div className="flex flex-row items-center justify-between">
       {preview && <div className="mr-2">{preview}</div>}
       <div className="relative w-full overflow-hidden rounded-lg">
@@ -65,8 +67,9 @@ export default function Input(props: InputProps): JSX.Element {
         <input
           className={`peer outline-none ${injectable ? 'bg-green-900/25 border border-1 border-green-900' : ' bg-gradient-to-b from-slate-900 to-slate-900/75 relative'}
             ${align === 'right' ? 'text-right' : 'text-left'}
-            border-none rounded-lg block w-full p-2.5 text-xl outline outline-0 
-            focus:outline-0 transition-y px-3 py-2.5 ring-1 ring-neutral-700 focus:ring-2 
+            ${inline ? 'h-[42px]' : ''}
+            relative border-none rounded-lg block w-full text-xl outline outline-0 
+            focus:outline-0 transition-y px-3 ${inline ? 'py-2' : 'py-2.5'} ring-1 ring-neutral-700 focus:ring-2 
             focus:ring-slate-600
             `}
           style={injectable ? { zIndex: 1, position: 'relative' } : undefined}
