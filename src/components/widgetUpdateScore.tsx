@@ -93,6 +93,8 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     return false;
   });
 
+  const [unitValues, setUnitValues] = useState<Record<number, string>>({});
+
   const resetForm = () => {
     setForm({
       unit_id: firstUnitId,
@@ -100,61 +102,77 @@ function UpdateScore(props: ComponentProps): JSX.Element {
       player: '',
       game: snowflake,
     });
+    setUnitValues({});
   };
-  const createNewScore = async (formData: typeof form) => {
-  const formSchema = z.object({
-    unit_id: z.number(),
-    unit_type: z.string().min(1, 'Unit type is required'),
-    datum: z.union([z.number(), z.string().min(1, 'Amount is required')]),
-    player: z.string().min(1, 'Player is required').optional(),
-    game: z.string().min(1, 'Game ID is required').optional(),
-  });    
+  
+  const createNewScore = async () => {
+    const formSchema = z.object({
+      unit_id: z.number(),
+      unit_type: z.string().min(1, 'Unit type is required'),
+      datum: z.union([z.number(), z.string().min(1, 'Amount is required')]),
+      player: z.string().min(1, 'Player is required').optional(),
+      game: z.string().min(1, 'Game ID is required').optional(),
+    });    
+    
     try {
-      // Find the selected unit to get its ID
-      const selectedUnit = gameData?.data?.mechanics?.units?.find(
-        (u: UnitItem) => u.id === formData.unit_id
-      );
-
-      if (!selectedUnit) {
-        throw new Error('Selected unit not found');
+      // Get all units that have values
+      const unitsToSubmit = Object.entries(unitValues).filter(([_, value]) => value !== '');
+      
+      if (unitsToSubmit.length === 0) {
+        throw new Error('Please enter a value for at least one unit');
+      }
+      
+      if (!form.player) {
+        throw new Error('Please select a player');
       }
 
-      // Transform the form data to match the new schema
-      const scoreData: FormData = {
-        unit_id: selectedUnit.id,
-        unit_type: selectedUnit.type,
-        datum: typeof formData.amount === 'string' ? Number(formData.amount) : Number(formData.amount),
-        player: formData.player,
-        game: formData.game,
-      };
+      // Submit each unit's score
+      const results = await Promise.all(
+        unitsToSubmit.map(async ([unitId, amount]) => {
+          const selectedUnit = gameData?.data?.mechanics?.units?.find(
+            (u: UnitItem) => u.id === Number(unitId)
+          );
 
-      formSchema.parse(scoreData);
-      const createdScore = await createScore(scoreData as unknown as ScoreDataItem);
-      // If we get here and there's no error in the store, creation was successful
-      if (!error && createdScore) {
+          if (!selectedUnit) {
+            throw new Error(`Unit with id ${unitId} not found`);
+          }
+
+          // Convert amount based on unit type
+          let datumValue: number | string;
+          if (selectedUnit.type === 'time') {
+            datumValue = amount; // Keep time as string
+          } else {
+            datumValue = Number(amount); // Convert score and flag to number
+          }
+
+          const scoreData: FormData = {
+            unit_id: selectedUnit.id,
+            unit_type: selectedUnit.type,
+            datum: datumValue,
+            player: form.player,
+            game: form.game,
+          };
+
+          formSchema.parse(scoreData);
+          return await createScore(scoreData as unknown as ScoreDataItem);
+        })
+      );
+
+      // Check if all scores were created successfully
+      if (!error && results.every(score => score)) {
         resetForm();
         return true;
       }
-      throw new Error(error || 'Failed to create score');
+      throw new Error(error || 'Failed to create one or more scores');
     } catch (err) {
       console.error('Error in createNewScore:', err);
       if (err instanceof z.ZodError) {
         setFormErrors(err.errors[0].message);
       } else {
-        // Handle other errors (like creation/editing failure)
-        setFormErrors(err instanceof Error ? err.message : 'Failed to process score');
+        setFormErrors(err instanceof Error ? err.message : 'Failed to process scores');
       }
       return false;
     }
-  };
-
-  const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
-    const eventTarget = Event?.target;
-    const clonedForm = JSON.parse(JSON.stringify(form));
-    const formKey = eventTarget?.name;
-    const formValue = eventTarget?.value;
-    clonedForm[`${formKey}`] = formValue;
-    setForm(clonedForm);
   };
 
   const handleSelectFormChange = (value: string, fieldName: string = 'player') => {
@@ -164,13 +182,6 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     } else {
       clonedForm[fieldName] = value;
     }
-    setForm(clonedForm);
-  };
-  const handleFormFocus = (Event: React.FocusEvent<HTMLInputElement>) => {
-    const eventTarget = Event?.target;
-    const clonedForm = JSON.parse(JSON.stringify(form));
-    const formKey = eventTarget?.name;
-    clonedForm[`${formKey}`] = '';
     setForm(clonedForm);
   };
 
@@ -243,11 +254,13 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   };
 
   return (
-    <div className=" bg-slate-700 rounded-lg p-2 shadow-sm">
-      <div className="flex flex-col items-center justify-start p-2 pt-0">
+    <div className="bg-slate-700 rounded-lg p-2 shadow-sm">
+      <div className="flex min-w-full flex-col items-center justify-start p-2 pt-0">
         <h3 className="text-lg font-medium pb-1 w-full text-center">
           {`Update Player ${units.length > 0 ? toTitleCase(units[0].name) : 'Score'}`}
         </h3>
+        <div className="flex flex-row gap-4 w-full">
+          <div className="flex-1 w-1/2">
         {!form.player ? (
           <>
             <div className="flex gap-2 items-center justify-center w-full">
@@ -375,31 +388,74 @@ function UpdateScore(props: ComponentProps): JSX.Element {
             )}
           </button>
         )}
-        <SelectChip
-          moreClasses="min-w-full rounded-md min-h-[44px]"
-          selections={
-            units
-              ? units.map((item: UnitItem) => ({
-                  label: item.name,
-                  key: item.id,
-                  value: String(item.id),
-                  data: { snowflake: item.id },
-                }))
-              : []
-          }
-          noAvatar={true}
-          defaultValue={String(form.unit_id)}
-          selectPlaceholder="Select Unit"
-          handleSelect={(value) => handleSelectFormChange(value, 'unit_id')}
-        />
-        <Input
-          name="amount"
-          value={form.amount}
-          align="right"
-          placeholder="0"
-          changeHandler={handleFormChange}
-          focusHandler={handleFormFocus}
-        />
+        </div>
+        <div className="flex-1 min-w-0 w-1/2 flex flex-col gap-2">
+          {units.map((unit: UnitItem) => {
+            if (unit.type === 'flag') {
+              return (
+                <div key={unit.id} className="flex items-center gap-3 bg-slate-800 rounded p-3 my-2">
+                  <input
+                    type="checkbox"
+                    id={`unit_${unit.id}`}
+                    checked={unitValues[unit.id] === '1'}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setUnitValues({
+                        ...unitValues,
+                        [unit.id]: e.target.checked ? '1' : '0'
+                      });
+                    }}
+                    className="
+                      w-6 h-6 rounded cursor-pointer
+                      appearance-none bg-slate-700 border-2 border-slate-600
+                      checked:bg-sky-700 checked:border-sky-600
+                      hover:border-slate-500 checked:hover:border-sky-500
+                      transition-colors duration-200
+                      relative
+                      checked:after:content-['✓']
+                      checked:after:absolute
+                      checked:after:left-1/2
+                      checked:after:top-1/2
+                      checked:after:-translate-x-1/2
+                      checked:after:-translate-y-1/2
+                      checked:after:text-white
+                      checked:after:text-sm
+                      checked:after:font-bold
+                    "
+                  />
+                  <label htmlFor={`unit_${unit.id}`} className="text-lg cursor-pointer text-slate-200 hover:text-white transition-colors">
+                    {toTitleCase(unit.name)}
+                  </label>
+                </div>
+              );
+            }
+            
+            const placeholder = unit.type === 'time' ? '00:00:00' : '0';
+            
+            return (
+              <Input
+                key={unit.id}
+                name={`unit_${unit.id}`}
+                value={unitValues[unit.id] || ''}
+                align="right"
+                label={toTitleCase(unit.name)}
+                placeholder={placeholder}
+                changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setUnitValues({
+                    ...unitValues,
+                    [unit.id]: e.target.value
+                  });
+                }}
+                focusHandler={() => {
+                  setUnitValues({
+                    ...unitValues,
+                    [unit.id]: ''
+                  });
+                }}
+              />
+            );
+          })}
+        </div>
+        </div>
         <button
           className="
                         flex select-none
@@ -422,7 +478,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
                         duration-200
                         mt-2
                     "
-          onClick={() => createNewScore(form)}
+          onClick={() => createNewScore()}
         >
           <PlusCircledIcon width="20" height="20" /> Add Score
         </button>
