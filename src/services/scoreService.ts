@@ -14,7 +14,7 @@ const addScore = async (score: ScoreDataItem) => {
     player: player || 'BAD_PLAYER',
     unit_id: unit_id || -1,
     unit_type: unit_type || 'score',
-    datum: Number(datum) || 0,
+    datum: unit_type === 'time' ? (datum || '0') : (Number(datum) || 0),
   };
   try {
     await db.insert(scores).values(values);
@@ -99,7 +99,7 @@ const updateScore = async (score: ScoreDataItem) => {
     player: player || 'BAD_PLAYER',
     unit_id: unit_id || -1,
     unit_type: unit_type || 'score',
-    datum: Number(datum) || 0,
+    datum: unit_type === 'time' ? (datum || '0') : (Number(datum) || 0),
   };
   try {
     await db.update(scores).set(values).where(eq(scores.id, id));

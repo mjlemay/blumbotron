@@ -140,7 +140,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
           // Convert amount based on unit type
           let datumValue: number | string;
           if (selectedUnit.type === 'time') {
-            datumValue = amount; // Keep time as string
+            datumValue = String(amount); // Ensure time stays as string
           } else {
             datumValue = Number(amount); // Convert score and flag to number
           }
