@@ -3,7 +3,6 @@ import Input from "./input";
 import { CircleBackslashIcon } from "@radix-ui/react-icons";
 import IconRfid from "./iconRfid";
 import IconQr from "./iconQr";
-import { useRFIDNumber } from '../lib/useRFIDNumber';
 
 type ComponentProps = {
   searchValue?: string;
@@ -13,7 +12,6 @@ type ComponentProps = {
 function SearchBar(props: ComponentProps): JSX.Element {
   const { searchValue = '', updateSearchValue } = props;
   const [injected, setInjected] = useState<string>('');
-  const rifdNumber = useRFIDNumber(injected !== '');
 
   const handleRfidClick = (field: string) => {
     if (injected === field) {

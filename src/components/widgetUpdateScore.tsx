@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import Input from './input';
-import SelectChip from './selectChip';
 import { toTitleCase } from '../lib/formatting';
 import { DataItem, GameDataItem, RosterDataItem, ScoreDataItem, UnitItem } from '../lib/types';
 import { PlusCircledIcon } from '@radix-ui/react-icons';
@@ -16,6 +15,27 @@ import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { invoke } from '@tauri-apps/api/core';
 
+// Helper function to convert time string (HH:MM:SS or MM:SS or SS) to Unix timestamp
+const timeStringToUnixTimestamp = (timeString: string): number => {
+  const parts = timeString.split(':').map(p => parseInt(p, 10) || 0);
+  let totalSeconds = 0;
+  
+  if (parts.length === 3) {
+    // HH:MM:SS
+    totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+  } else if (parts.length === 2) {
+    // MM:SS
+    totalSeconds = parts[0] * 60 + parts[1];
+  } else if (parts.length === 1) {
+    // SS
+    totalSeconds = parts[0];
+  }
+  
+  // Return as Unix timestamp (seconds since epoch)
+  // Using a base date for relative times
+  return totalSeconds;
+};
+
 type ComponentProps = {
   gameData: GameDataItem | null;
 };
@@ -23,7 +43,7 @@ type ComponentProps = {
 type FormData = {
   unit_id: number;
   unit_type: string;
-  datum: number | string;
+  datum: number;
   player: string | undefined;
   game: string | undefined;
 };
@@ -109,7 +129,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     const formSchema = z.object({
       unit_id: z.number(),
       unit_type: z.string().min(1, 'Unit type is required'),
-      datum: z.union([z.number(), z.string().min(1, 'Amount is required')]),
+      datum: z.number(),
       player: z.string().min(1, 'Player is required').optional(),
       game: z.string().min(1, 'Game ID is required').optional(),
     });    
@@ -138,9 +158,9 @@ function UpdateScore(props: ComponentProps): JSX.Element {
           }
 
           // Convert amount based on unit type
-          let datumValue: number | string;
+          let datumValue: number;
           if (selectedUnit.type === 'time') {
-            datumValue = String(amount); // Ensure time stays as string
+            datumValue = timeStringToUnixTimestamp(amount); // Convert time to Unix timestamp
           } else {
             datumValue = Number(amount); // Convert score and flag to number
           }
