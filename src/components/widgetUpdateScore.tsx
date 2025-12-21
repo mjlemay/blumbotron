@@ -10,7 +10,7 @@ import { z } from 'zod';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import IconRfid from './iconRfid';
 import IconQr from './iconQr';
-import { useRFIDNumber } from '../lib/useRFIDNumber';
+import { useRFIDNumber, useScannerContext } from '../lib/useRFIDNumber';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { invoke } from '@tauri-apps/api/core';
@@ -62,6 +62,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   const [searchValue, setSearchValue] = useState<string>('');
   const [injected, setInjected] = useState<string>('');
   const { rfidCode, resetCode } = useRFIDNumber(injected !== '', injected);
+  const { openQrScanner, isQrScannerOpen } = useScannerContext();
   const [avatarCache, setAvatarCache] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     unit_id: firstUnitId,
@@ -265,6 +266,9 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   }, [filteredPlayers]);
 
   const handleRfidClick = () => {
+    // Don't allow RFID activation if QR scanner is open
+    if (isQrScannerOpen) return;
+
     if (injected === 'playerSearch') {
       setInjected('');
       setSearchValue('');
@@ -272,6 +276,15 @@ function UpdateScore(props: ComponentProps): JSX.Element {
     } else {
       setInjected('playerSearch');
     }
+  };
+
+  const handleQrClick = () => {
+    // Don't allow QR if RFID is active
+    if (injected !== '') return;
+
+    // Set injectable first so the scanner knows where to inject
+    setInjected('playerSearch');
+    openQrScanner(true); // Skip check since we just set injectable
   };
 
   const selectedPlayer = useMemo(() => {
@@ -303,42 +316,38 @@ function UpdateScore(props: ComponentProps): JSX.Element {
                 changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => setSearchValue(e.target.value)}
               />
               <button
-                className="
+                className={`
                   flex select-none
                   items-center
                   justify-center
-                  cursor-pointer
                   rounded
                   shadow-sm
                   h-[42px]
                   w-[42px]
-                  bg-slate-800
-                  hover:bg-slate-700
-                  active:bg-slate-700/90
                   transition-colors
                   duration-200
-                "
+                  ${isQrScannerOpen ? 'bg-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-700/90 cursor-pointer'}
+                `}
                 onClick={handleRfidClick}
+                disabled={isQrScannerOpen}
               >
                 {injected === 'playerSearch' ? <CircleBackslashIcon /> : <IconRfid />}
               </button>
               <button
-                className="
+                className={`
                   flex select-none
                   items-center
                   justify-center
-                  cursor-pointer
                   rounded
                   shadow-sm
                   h-[42px]
                   w-[42px]
-                  bg-slate-800
-                  hover:bg-slate-700
-                  active:bg-slate-700/90
                   transition-colors
                   duration-200
-                "
-                onClick={handleRfidClick}
+                  ${injected !== '' ? 'bg-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-700/90 cursor-pointer'}
+                `}
+                onClick={handleQrClick}
+                disabled={injected !== ''}
               >
                 <IconQr />
               </button>

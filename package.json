@@ -28,6 +28,7 @@
     "@tauri-apps/plugin-shell": "^2.2.1",
     "@tauri-apps/plugin-sql": "^2.2.0",
     "@types/react-color": "^3.0.13",
+    "@yudiel/react-qr-scanner": "^2.5.0",
     "drizzle-orm": "^0.43.1",
     "markdown-it": "^14.1.0",
     "md-editor-v3": "^6.2.0",

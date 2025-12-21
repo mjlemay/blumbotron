@@ -10,7 +10,7 @@ import * as Menubar from '@radix-ui/react-menubar';
 import { defaultPlayer } from '../lib/defaults';
 import IconRfid from './iconRfid';
 import IconQr from './iconQr';
-import { useRFIDNumber } from '../lib/useRFIDNumber';
+import { useRFIDNumber, useScannerContext } from '../lib/useRFIDNumber';
 
 type FormAlternateIdsProps = {
   onSuccess?: () => void;
@@ -26,8 +26,12 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
   const [newIdValue, setNewIdValue] = useState({value: '', key: ''});
   const [injected, setInjected] = useState<string>('');
   const { rfidCode, resetCode } = useRFIDNumber(injected !== '', injected);
+  const { openQrScanner, isQrScannerOpen } = useScannerContext();
 
   const handleRfidClick = (field: string) => {
+    // Don't allow RFID activation if QR scanner is open
+    if (isQrScannerOpen) return;
+
     if (injected === field) {
       setInjected('');
       // Clear field on cancel
@@ -38,6 +42,15 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
     } else {
       setInjected(field);
     }
+  }
+
+  const handleQrClick = (field: string) => {
+    // Don't allow QR if RFID is active
+    if (injected !== '') return;
+
+    // Set injectable first so the scanner knows where to inject
+    setInjected(field);
+    openQrScanner(true); // Skip check since we just set injectable
   }
 
   const handleFormChange = (Event: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,13 +229,19 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
                 />
                 <button
                   onClick={() => handleRfidClick("alternateId_value_new")}
-                  className="flex items-center justify-center px-2 py-2 min-w-10 mb-2 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
+                  disabled={isQrScannerOpen}
+                  className={`flex items-center justify-center px-2 py-2 min-w-10 mb-2 rounded text-white h-[42px] cursor-pointer ${
+                    isQrScannerOpen ? 'bg-slate-600 cursor-not-allowed' : 'bg-sky-700 hover:bg-sky-600'
+                  }`}
                 >
                   {injected !== '' ? <CircleBackslashIcon /> : <IconRfid />}
                 </button>
                 <button
-                  onClick={() => {}}
-                  className="px-3 py-2 mb-2 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
+                  onClick={() => handleQrClick("alternateId_value_new")}
+                  disabled={injected !== ''}
+                  className={`px-3 py-2 mb-2 rounded text-white h-[42px] cursor-pointer ${
+                    injected !== '' ? 'bg-slate-600 cursor-not-allowed' : 'bg-sky-700 hover:bg-sky-600'
+                  }`}
                 >
                   <IconQr />
                 </button>

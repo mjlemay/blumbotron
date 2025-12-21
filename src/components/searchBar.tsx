@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Input from "./input";
 import { CircleBackslashIcon } from "@radix-ui/react-icons";
 import IconRfid from "./iconRfid";
 import IconQr from "./iconQr";
+import { useRFIDNumber, useScannerContext } from "../lib/useRFIDNumber";
 
 type ComponentProps = {
   searchValue?: string;
@@ -12,15 +13,43 @@ type ComponentProps = {
 function SearchBar(props: ComponentProps): JSX.Element {
   const { searchValue = '', updateSearchValue } = props;
   const [injected, setInjected] = useState<string>('');
+  const { rfidCode, resetCode } = useRFIDNumber(injected !== '', injected);
+  const { openQrScanner, isQrScannerOpen } = useScannerContext();
 
   const handleRfidClick = (field: string) => {
+    // Don't allow RFID activation if QR scanner is open
+    if (isQrScannerOpen) return;
+
     if (injected === field) {
       setInjected('');
+      if (updateSearchValue) {
+        updateSearchValue('');
+      }
       return;
     } else {
       setInjected(field);
     }
   }
+
+  const handleQrClick = (field: string) => {
+    // Don't allow QR if RFID is active
+    if (injected !== '') return;
+
+    // Set injectable first so the scanner knows where to inject
+    setInjected(field);
+    openQrScanner(true);
+  }
+
+  // Handle RFID code changes
+  useEffect(() => {
+    if (rfidCode && injected === 'searchValue_new') {
+      if (updateSearchValue) {
+        updateSearchValue(rfidCode);
+      }
+      setInjected('');
+      resetCode();
+    }
+  }, [rfidCode, injected, updateSearchValue, resetCode]);
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const eventTarget = event?.target;
@@ -50,13 +79,19 @@ function SearchBar(props: ComponentProps): JSX.Element {
                 />
                 <button
                   onClick={() => handleRfidClick("searchValue_new")}
-                  className="flex items-center justify-center px-2 py-2 min-w-10 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
+                  disabled={isQrScannerOpen}
+                  className={`flex items-center justify-center px-2 py-2 min-w-10 rounded text-white h-[42px] ${
+                    isQrScannerOpen ? 'bg-slate-600 cursor-not-allowed' : 'bg-sky-700 hover:bg-sky-600 cursor-pointer'
+                  }`}
                 >
                   {injected !== '' ? <CircleBackslashIcon /> : <IconRfid />}
                 </button>
                 <button
-                  onClick={() => {}}
-                  className="px-3 py-2 bg-sky-700 hover:bg-sky-600 rounded text-white h-[42px] cursor-pointer"
+                  onClick={() => handleQrClick("searchValue_new")}
+                  disabled={injected !== ''}
+                  className={`px-3 py-2 rounded text-white h-[42px] ${
+                    injected !== '' ? 'bg-slate-600 cursor-not-allowed' : 'bg-sky-700 hover:bg-sky-600 cursor-pointer'
+                  }`}
                 >
                   <IconQr />
                 </button>

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
+import QrCodeReaderModal from "../components/qrCodeReaderModal";
 
 const DEBOUNCE_MS = 150;
 const RAPID_THRESHOLD_MS = 50;
@@ -6,15 +7,33 @@ const ID_LENGTH = 10;
 const HEX_REGEX = /^[a-fA-F0-9]+$/;
 const TOAST_DURATION = 3000;
 
-type RFIDContextType = {
+type ScanMethod = 'none' | 'rfid' | 'qr';
+
+type ScannerContextType = {
     lastScannedCode: string;
     toastMessage: string | null;
+    activeMethod: ScanMethod;
+    openQrScanner: (skipCheck?: boolean) => void;
+    closeQrScanner: () => void;
+    isQrScannerOpen: boolean;
 };
 
-const RFIDContext = createContext<RFIDContextType>({ lastScannedCode: '', toastMessage: null });
+const ScannerContext = createContext<ScannerContextType>({
+    lastScannedCode: '',
+    toastMessage: null,
+    activeMethod: 'none',
+    openQrScanner: () => {},
+    closeQrScanner: () => {},
+    isQrScannerOpen: false,
+});
 
+export function useScannerContext() {
+    return useContext(ScannerContext);
+}
+
+// Legacy export for backward compatibility
 export function useRFIDContext() {
-    return useContext(RFIDContext);
+    return useScannerContext();
 }
 
 type RFIDProviderProps = {
@@ -24,6 +43,8 @@ type RFIDProviderProps = {
 export function RFIDProvider({ children }: RFIDProviderProps) {
     const [lastScannedCode, setLastScannedCode] = useState('');
     const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [isQrScannerOpen, setIsQrScannerOpen] = useState(false);
+    const [activeMethod, setActiveMethod] = useState<ScanMethod>('none');
     const bufferRef = useRef('');
     const timeoutRef = useRef<number | null>(null);
     const lastKeystrokeRef = useRef<number>(0);
@@ -40,8 +61,50 @@ export function RFIDProvider({ children }: RFIDProviderProps) {
         }, TOAST_DURATION);
     }, []);
 
+    const openQrScanner = useCallback((skipCheck: boolean = false) => {
+        // Check if there's an injectable input (skip if called from component that just set it)
+        if (!skipCheck) {
+            const injectableInput = document.querySelector('input[data-injectable="true"]');
+            if (!injectableInput) {
+                showToast("Scanning is disabled until method is selected");
+                return;
+            }
+        }
+        setActiveMethod('qr');
+        setIsQrScannerOpen(true);
+    }, [showToast]);
+
+    const closeQrScanner = useCallback(() => {
+        setIsQrScannerOpen(false);
+        setActiveMethod('none');
+    }, []);
+
+    const handleQrSuccess = useCallback((value: string) => {
+        console.log('[QR] Success:', value);
+        const injectableInput = document.querySelector('input[data-injectable="true"]') as HTMLInputElement;
+
+        if (injectableInput) {
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                'value'
+            )?.set;
+
+            if (nativeInputValueSetter) {
+                nativeInputValueSetter.call(injectableInput, value);
+                injectableInput.dispatchEvent(new Event('input', { bubbles: true }));
+                injectableInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            setLastScannedCode(value);
+        }
+        setActiveMethod('none');
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
+            // Don't process RFID if QR scanner is open
+            if (isQrScannerOpen) return;
+
             const { key } = event;
 
             // Only capture single characters
@@ -62,6 +125,7 @@ export function RFIDProvider({ children }: RFIDProviderProps) {
             // Detect rapid input pattern (RFID scanner)
             if (timeSinceLastKey < RAPID_THRESHOLD_MS && bufferRef.current.length > 0) {
                 isRapidInputRef.current = true;
+                setActiveMethod('rfid');
             }
 
             // Add to buffer
@@ -121,6 +185,8 @@ export function RFIDProvider({ children }: RFIDProviderProps) {
                 } else if (value.length > 0) {
                     console.log('[RFID] Not processing - wasRapid:', wasRapid, 'length:', value.length, 'expected:', ID_LENGTH);
                 }
+
+                setActiveMethod('none');
             }, DEBOUNCE_MS);
         };
 
@@ -132,10 +198,17 @@ export function RFIDProvider({ children }: RFIDProviderProps) {
             if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
             if (toastTimeoutRef.current) window.clearTimeout(toastTimeoutRef.current);
         };
-    }, [showToast]);
+    }, [showToast, isQrScannerOpen]);
 
     return (
-        <RFIDContext.Provider value={{ lastScannedCode, toastMessage }}>
+        <ScannerContext.Provider value={{
+            lastScannedCode,
+            toastMessage,
+            activeMethod,
+            openQrScanner,
+            closeQrScanner,
+            isQrScannerOpen,
+        }}>
             {children}
             {toastMessage && (
                 <div
@@ -157,13 +230,18 @@ export function RFIDProvider({ children }: RFIDProviderProps) {
                     {toastMessage}
                 </div>
             )}
-        </RFIDContext.Provider>
+            <QrCodeReaderModal
+                isOpen={isQrScannerOpen}
+                onClose={closeQrScanner}
+                onSuccess={handleQrSuccess}
+            />
+        </ScannerContext.Provider>
     );
 }
 
 // Legacy hook for backward compatibility - now just returns context values
 export function useRFIDNumber(enabled: boolean, _inputName?: string) {
-    const { lastScannedCode } = useRFIDContext();
+    const { lastScannedCode } = useScannerContext();
     const [rfidCode, setRfidCode] = useState('');
     const processedRef = useRef<string>('');
 
