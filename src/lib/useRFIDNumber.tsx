@@ -1,65 +1,52 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-const WAIT = 300;
-const CPS_MIN = 3;
-const CPS_MAX = 30;
+const DEBOUNCE_MS = 100; // Time to wait after last keystroke before processing
 const ID_LENGTH = 8;
+const HEX_REGEX = /^[a-fA-F0-9]+$/;
 
-export function useRFIDNumber(enabled:boolean) {
-    const [ codeString, setCodeString ] = useState('');
-    const [ rfidCode, setRfidCode ] = useState('');
-    const [ lastDate, setLastDate ] = useState(new Date());
-    const isEnabled = enabled || false;
-
-    const handleUserKeyPress = useCallback((event:KeyboardEvent) => {
-        const { key } = event;
-        const nextDate = new Date();
-        let cps = nextDate.getTime() - lastDate.getTime();
-        if (cps >= WAIT) {
-            setRfidCode('');
-            cps = CPS_MIN; //allows for first character to pass through
-        }
-
-        if (
-            isEnabled
-            && key !== 'enter'
-            && cps <= CPS_MAX
-            && cps >= CPS_MIN
-        ) {
-            const newCode = codeString + key;
-            setCodeString(newCode);
-            setRfidCode('');
-        }
-        if (
-            cps > CPS_MAX
-            || cps < CPS_MIN
-        ) {
-            setCodeString(''); // resets reader if cps is inconsistent
-        }
-        // clear values if rfid value or has reach id length
-        if (
-            (
-                isEnabled
-                && key !== 'enter'
-                && codeString.length === ID_LENGTH
-            )
-        ) {
-            const hexadecimalRegex = new RegExp('^(0x|0X)?[a-fA-F0-9]+$');     
-            if (hexadecimalRegex.test(codeString)) {
-                setRfidCode(codeString);
-            }
-            setCodeString('');
-        }
-
-        setLastDate(nextDate);
-    }, [codeString, isEnabled, lastDate]);
+export function useRFIDNumber(enabled: boolean) {
+    const [rfidCode, setRfidCode] = useState('');
+    const bufferRef = useRef('');
+    const timeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
-        window.addEventListener("keydown", handleUserKeyPress);
-        return () => {
-            window.removeEventListener("keydown", handleUserKeyPress);
+        if (!enabled) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const { key } = event;
+
+            // Ignore modifier keys and special keys
+            if (key.length !== 1) return;
+
+            // Add character to buffer
+            bufferRef.current += key;
+
+            // Clear existing timeout
+            if (timeoutRef.current !== null) {
+                window.clearTimeout(timeoutRef.current);
+            }
+
+            // Set new timeout to process buffer after input stops
+            timeoutRef.current = window.setTimeout(() => {
+                const buffer = bufferRef.current;
+                bufferRef.current = '';
+
+                // Validate: must be exactly ID_LENGTH hex characters
+                if (buffer.length === ID_LENGTH && HEX_REGEX.test(buffer)) {
+                    setRfidCode(buffer);
+                }
+            }, DEBOUNCE_MS);
         };
-    }, [handleUserKeyPress]);
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            if (timeoutRef.current !== null) {
+                window.clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [enabled]);
 
     return rfidCode;
 }
