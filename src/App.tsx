@@ -5,6 +5,7 @@ import { Window } from '@tauri-apps/api/window';
 import MainViewer from './components/mainViewer';
 import ViewDisplay from './components/viewDisplay';
 import ErrorBoundary from './components/ErrorBoundary';
+import { RFIDProvider } from './lib/useRFIDNumber';
 
 function App() {
   useEffect(() => {
@@ -36,16 +37,18 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Router>
-        <Routes>
-          <Route path="/display" element={<ViewDisplay />} />
-          <Route path="*" element={
-            <div className="h-screen w-screen overflow-hidden bg-black">
-              <MainViewer />
-            </div>
-          } />
-        </Routes>
-      </Router>
+      <RFIDProvider>
+        <Router>
+          <Routes>
+            <Route path="/display" element={<ViewDisplay />} />
+            <Route path="*" element={
+              <div className="h-screen w-screen overflow-hidden bg-black">
+                <MainViewer />
+              </div>
+            } />
+          </Routes>
+        </Router>
+      </RFIDProvider>
     </ErrorBoundary>
   );
 }

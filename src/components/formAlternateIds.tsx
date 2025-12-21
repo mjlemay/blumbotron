@@ -25,11 +25,15 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
   const [error, setError] = useState<string | null>(null);
   const [newIdValue, setNewIdValue] = useState({value: '', key: ''});
   const [injected, setInjected] = useState<string>('');
-  const rifdNumber = useRFIDNumber(injected !== '');
+  const { rfidCode, resetCode } = useRFIDNumber(injected !== '', injected);
 
   const handleRfidClick = (field: string) => {
     if (injected === field) {
       setInjected('');
+      // Clear field on cancel
+      if (field === 'alternateId_value_new') {
+        setNewIdValue(prev => ({ ...prev, value: '' }));
+      }
       return;
     } else {
       setInjected(field);
@@ -135,17 +139,18 @@ function FormAlternateIds(props: FormAlternateIdsProps) {
   };
 
   useEffect(() => {
-    if (rifdNumber !== '' && injected !== '') {
+    if (rfidCode !== '' && injected !== '') {
       if(injected === 'alternateId_value_new') {
-        setNewIdValue(prev => ({ ...prev, value: rifdNumber }));
+        setNewIdValue(prev => ({ ...prev, value: rfidCode }));
       } else {
         const clonedForm = JSON.parse(JSON.stringify(form));
-        clonedForm[`${injected}`] = rifdNumber;
+        clonedForm[`${injected}`] = rfidCode;
         setForm(clonedForm);
       }
       setInjected('');
+      resetCode();
     }
-  },[injected, rifdNumber]);
+  },[injected, rfidCode, resetCode]);
 
   return (
     <DialogContainer

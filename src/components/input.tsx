@@ -68,8 +68,8 @@ export default function Input(props: InputProps): JSX.Element {
           className={`peer outline-none ${injectable ? 'bg-green-900/25 border border-1 border-green-900' : ' bg-gradient-to-b from-slate-900 to-slate-900/75 relative'}
             ${align === 'right' ? 'text-right' : 'text-left'}
             ${inline ? 'h-[42px]' : ''}
-            relative border-none rounded-lg block w-full text-xl outline outline-0 
-            focus:outline-0 transition-y px-3 ${inline ? 'py-2' : 'py-2.5'} ring-1 ring-neutral-700 focus:ring-2 
+            relative border-none rounded-lg block w-full text-xl outline outline-0
+            focus:outline-0 transition-y px-3 ${inline ? 'py-2' : 'py-2.5'} ring-1 ring-neutral-700 focus:ring-2
             focus:ring-slate-600
             `}
           style={injectable ? { zIndex: 1, position: 'relative' } : undefined}
@@ -77,6 +77,7 @@ export default function Input(props: InputProps): JSX.Element {
           name={name}
           placeholder={placeholder}
           type={hidden ? 'hidden' : type}
+          data-injectable={injectable ? 'true' : undefined}
           onChange={(Event) => changeHandler(Event)}
           onFocus={(Event) => focusHandler(Event)}
           onBlur={(Event) => blurHandler(Event)}

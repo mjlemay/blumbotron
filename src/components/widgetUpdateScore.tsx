@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Input from './input';
 import { toTitleCase } from '../lib/formatting';
 import { DataItem, GameDataItem, RosterDataItem, ScoreDataItem, UnitItem } from '../lib/types';
-import { PlusCircledIcon } from '@radix-ui/react-icons';
+import { PlusCircledIcon, CircleBackslashIcon } from '@radix-ui/react-icons';
 import { usePlayerStore } from '../stores/playersStore';
 import { useRosterStore } from '../stores/rostersStore';
 import { useScoreStore } from '../stores/scoresStore';
@@ -61,7 +61,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   const [formErrors, setFormErrors] = useState<string>('');
   const [searchValue, setSearchValue] = useState<string>('');
   const [injected, setInjected] = useState<string>('');
-  const rfidNumber = useRFIDNumber(injected !== '');
+  const { rfidCode, resetCode } = useRFIDNumber(injected !== '', injected);
   const [avatarCache, setAvatarCache] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     unit_id: firstUnitId,
@@ -210,11 +210,21 @@ function UpdateScore(props: ComponentProps): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (rfidNumber && injected === 'playerSearch') {
-      setSearchValue(rfidNumber);
+    if (rfidCode && injected === 'playerSearch') {
+      setSearchValue(rfidCode);
       setInjected('');
+      resetCode();
     }
-  }, [rfidNumber, injected]);
+  }, [rfidCode, injected, resetCode]);
+
+  // Auto-select player when only one matches the filter
+  useEffect(() => {
+    if (searchValue && filteredPlayers.length === 1 && !form.player) {
+      const player = filteredPlayers[0];
+      handleSelectFormChange(player.snowflake || '', 'player');
+      setSearchValue('');
+    }
+  }, [filteredPlayers, searchValue, form.player]);
 
   // Load avatars for filtered players
   useEffect(() => {
@@ -310,7 +320,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
                 "
                 onClick={handleRfidClick}
               >
-                <IconRfid />
+                {injected === 'playerSearch' ? <CircleBackslashIcon /> : <IconRfid />}
               </button>
               <button
                 className="
