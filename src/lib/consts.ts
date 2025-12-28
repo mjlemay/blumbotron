@@ -28,14 +28,14 @@ export const customThemeSettings: Record<string, Record<string, string | Record<
     'path': 'cy-terminal.css',
     'label': 'CyTerminal',
     colors: {
-      background: '#0f111a',
-      text: '#cfd8dc',
-      primary: '#00ff9f',
-      secondary: '#ff6ac1',
-      tertiary: '#ffaa00',
-      tableHeader: '#1f2230',
-      tableRow: '#181a23',
-      tableAlt: '#20232c',
+      background: '#000000',
+      text: '#e0f7fa',
+      tableHeader: '#001a1f',
+      tableRow: '#001419',
+      tableAlt: '#00191e',
+      fontHeader: '#00ffff',
+      fontPlayer: '#00ffff',
+      fontScore: '#0088ff',
     },
     fonts: {
       header: 'Courier New, Courier, monospace',
@@ -46,5 +46,39 @@ export const customThemeSettings: Record<string, Record<string, string | Record<
   'neoNavigator': {
     'path': 'neo-navigator/neo-navigator.css',
     'label': 'Neo Navigator',
+    colors: {
+      background: '#120458',
+      text: '#faf0e6',
+      tableHeader: '#1a0660',
+      tableRow: '#120458',
+      tableAlt: '#1a0660',
+      fontHeader: '#41c5ff',
+      fontPlayer: '#faf0e6',
+      fontScore: '#ff00a0',
+    },
+    fonts: {
+      header: 'Arial, sans-serif',
+      player: 'Arial, sans-serif',
+      score: 'Arial, sans-serif',
+    }
+  },
+  'neuralNet': {
+    'path': 'neural-net.css',
+    'label': 'Neural Net',
+    colors: {
+      background: '#0d0d0d',
+      text: '#f0f0f0',
+      tableHeader: '#1a1a1a',
+      tableRow: '#111111',
+      tableAlt: '#161616',
+      fontHeader: '#39ff14',
+      fontPlayer: '#f0f0f0',
+      fontScore: '#ff00ff',
+    },
+    fonts: {
+      header: 'Arial, sans-serif',
+      player: 'Arial, sans-serif',
+      score: 'Arial, sans-serif',
+    }
   }
 }

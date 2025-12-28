@@ -9,6 +9,7 @@ type Selections = {
   data?: any;
   label: string;
   value?: string | number;
+  style?: React.CSSProperties;
 };
 
 type ComponentProps = {
@@ -41,7 +42,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
 
   const SelectItem = forwardRef(
     (
-      { children, value }: { children: React.ReactNode; value: string },
+      { children, value, style }: { children: React.ReactNode; value: string; style?: React.CSSProperties },
       forwardedRef: React.Ref<HTMLDivElement>
     ) => {
       return (
@@ -62,6 +63,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
           "
           ref={forwardedRef}
           value={value}
+          style={style}
         >
           <Select.ItemText>{children}</Select.ItemText>
           <Select.ItemIndicator className="absolute left-0 inline-flex w-[25px] items-center justify-center">
@@ -127,7 +129,10 @@ function SelectChip(props: ComponentProps): JSX.Element {
         aria-label="items"
       >
         <Select.Value placeholder={selectPlaceholder}>
-          <div className="indent-3 min-w-[100px]">
+          <div
+            className="indent-3 min-w-[100px]"
+            style={selections?.find(item => item?.value === selected)?.style}
+          >
             {selected && selections?.find(item => item?.value === selected)?.label || selectPlaceholder}
           </div>
         </Select.Value>
@@ -158,6 +163,7 @@ function SelectChip(props: ComponentProps): JSX.Element {
                     <SelectItem
                       key={`${selectPrefix || selectLabel || 'select'}-${item.label}-${index}`}
                       value={(item.value as string) || ''}
+                      style={item.style}
                     >
                       <div className="flex flex-row items-center gap-2 text-xl p-1 pl-8 rounded-full">
                         {!noAvatar && item.data?.snowflake && (

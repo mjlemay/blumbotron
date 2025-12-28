@@ -650,7 +650,10 @@ const subHeaders = () => {
   }
 
   return (
-    <div className={`
+    <div
+      data-display-frame={isFullScreen ? true : undefined}
+      data-fullscreen={isFullScreen ? true : undefined}
+      className={`
       ${isFullScreen ? 'w-screen h-screen' : 'rounded-md w-full h-full'}
        flex items-start justify-center
       `}

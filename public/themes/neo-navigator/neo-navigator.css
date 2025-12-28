@@ -1,12 +1,19 @@
 @import "./augmented-ui.min.css";
 
-/* Theme Color Variables */
+/* Theme Color Variables - These can be overridden by the app */
 :root {
-  --background-color: #120458;
-  --text-color: #faf0e6;
-  --primary-color: #41c5ff;
-  --secondary-color: #ff00a0;
-  --tertiary-color: #7a04eb;
+  --color-background: #120458;
+  --color-text: #faf0e6;
+  --color-primary: #41c5ff;
+  --color-secondary: #ff00a0;
+  --color-tertiary: #7a04eb;
+  --color-table-header: #1a0660;
+  --color-table-row: #120458;
+  --color-table-alt: #1a0660;
+  --color-font-header: #41c5ff;
+  --color-font-player: #faf0e6;
+  --color-font-score: #ff00a0;
+  /* Derived colors for effects */
   --bg-grid-color: #5d1c95;
   --bg-vignette-color-1: rgba(18, 4, 88, 0);
   --bg-vignette-color-2: rgba(18, 4, 88, 1);
@@ -21,17 +28,17 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #fff;
-  background-color: var(--background-color);
-  background-image: 
+  color: var(--color-text);
+  background-color: var(--color-background);
+  background-image:
     radial-gradient(var(--bg-vignette-color-1), var(--bg-vignette-color-2)),
     linear-gradient(rgba(93, 28, 149, 0.8) 1px, transparent 0),
     linear-gradient(var(--bg-grid-color) 1px, transparent 0),
     linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
     linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
-    linear-gradient(transparent 3px, var(--background-color) 0, var(--background-color) 94px, transparent 0),
+    linear-gradient(transparent 3px, var(--color-background) 0, var(--color-background) 94px, transparent 0),
     linear-gradient(90deg, var(--bg-grid-color) 3px, transparent 0, transparent 94px, var(--bg-grid-color) 0);
-  background-size: 
+  background-size:
     100vw 100vh,
     24px 24px,
     96px 96px,
@@ -48,9 +55,9 @@ body {
   --aug-tr: 25px;
   --aug-b-extend1: 50%;
   --aug-border-all: 3px;
-  --aug-border-bg: radial-gradient(var(--text-color), var(--primary-color)) 100% 100% / 100% 100%;
+  --aug-border-bg: radial-gradient(var(--color-text), var(--color-primary)) 100% 100% / 100% 100%;
   --aug-inlay-all: 4px;
-  --aug-inlay-bg: radial-gradient(ellipse at top, var(--primary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--color-primary), transparent) 50% 50% / 100% 100%;
   --aug-inlay-opacity: 0.5;
 }
 
@@ -60,9 +67,9 @@ body {
   --aug-tr: 25px;
   --aug-b-extend1: 50%;
   --aug-border-all: 3px;
-  --aug-border-bg: radial-gradient(var(--primary-color), var(--secondary-color)) 100% 100% / 100% 100%;
+  --aug-border-bg: radial-gradient(var(--color-primary), var(--color-secondary)) 100% 100% / 100% 100%;
   --aug-inlay-all: 4px;
-  --aug-inlay-bg: radial-gradient(ellipse at top, var(--secondary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--color-secondary), transparent) 50% 50% / 100% 100%;
   --aug-inlay-opacity: 0.5;
 }
 
@@ -72,9 +79,9 @@ body {
   --aug-tr: 25px;
   --aug-b-extend1: 50%;
   --aug-border-all: 3px;
-  --aug-border-bg: radial-gradient(var(--secondary-color), var(--tertiary-color)) 100% 100% / 100% 100%;
+  --aug-border-bg: radial-gradient(var(--color-secondary), var(--color-tertiary)) 100% 100% / 100% 100%;
   --aug-inlay-all: 4px;
-  --aug-inlay-bg: radial-gradient(ellipse at top, var(--tertiary-color), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--color-tertiary), transparent) 50% 50% / 100% 100%;
   --aug-inlay-opacity: 0.5;
 }
 

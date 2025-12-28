@@ -61,19 +61,19 @@ function FormGameStyles(props: FormGameStylesProps) {
 
   // Font options based on available fonts
   const fontOptions = [
-    { value: 'Arial, sans-serif', label: 'Default (Arial)' },
-    { value: '"Eightgon", monospace', label: 'Eightgon' },
-    { value: '"Excluded", sans-serif', label: 'Excluded' },
-    { value: '"Groutpix Flow Slab Serif", serif', label: 'Groutpix Flow Slab Serif' },
-    { value: '"Hacked", monospace', label: 'Hacked' },
-    { value: '"Martius", serif', label: 'Martius' },
-    { value: '"Monument Valley 12", sans-serif', label: 'Monument Valley 12' },
-    { value: '"Moonhouse", display', label: 'Moonhouse' },
-    { value: '"Orbitronio", sans-serif', label: 'Orbitronio' },
-    { value: '"Pasti", cursive', label: 'Pasti' },
-    { value: '"Stardate 81316", sci-fi', label: 'Stardate 81316' },
-    { value: '"Timeburner", display', label: 'Timeburner' },
-    { value: '"Warriot Circle", display', label: 'Warriot Circle' },
+    { value: 'Arial, sans-serif', label: 'Default (Arial)', style: { fontFamily: 'Arial, sans-serif' } },
+    { value: '"Eightgon", monospace', label: 'Eightgon', style: { fontFamily: '"Eightgon", monospace' } },
+    { value: '"Excluded", sans-serif', label: 'Excluded', style: { fontFamily: '"Excluded", sans-serif' } },
+    { value: '"Groutpix Flow Slab Serif", serif', label: 'Groutpix Flow Slab Serif', style: { fontFamily: '"Groutpix Flow Slab Serif", serif' } },
+    { value: '"Hacked", monospace', label: 'Hacked', style: { fontFamily: '"Hacked", monospace' } },
+    { value: '"Martius", serif', label: 'Martius', style: { fontFamily: '"Martius", serif' } },
+    { value: '"Monument Valley 12", sans-serif', label: 'Monument Valley 12', style: { fontFamily: '"Monument Valley 12", sans-serif' } },
+    { value: '"Moonhouse", display', label: 'Moonhouse', style: { fontFamily: '"Moonhouse", display' } },
+    { value: '"Orbitronio", sans-serif', label: 'Orbitronio', style: { fontFamily: '"Orbitronio", sans-serif' } },
+    { value: '"Pasti", cursive', label: 'Pasti', style: { fontFamily: '"Pasti", cursive' } },
+    { value: '"Stardate 81316", sci-fi', label: 'Stardate 81316', style: { fontFamily: '"Stardate 81316", sci-fi' } },
+    { value: '"Timeburner", display', label: 'Timeburner', style: { fontFamily: '"Timeburner", display' } },
+    { value: '"Warriot Circle", display', label: 'Warriot Circle', style: { fontFamily: '"Warriot Circle", display' } },
   ];
 
   const customThemeValues = customThemeSettings?.[form?.data?.theme as string] || {};
@@ -121,12 +121,12 @@ function FormGameStyles(props: FormGameStylesProps) {
         colors: z.object({
           background: z.string().optional(),
           text: z.string().optional(),
-          primary: z.string().optional(),
-          secondary: z.string().optional(),
-          tertiary: z.string().optional(),
           tableHeader: z.string().optional(),
           tableRow: z.string().optional(),
           tableAlt: z.string().optional(),
+          fontHeader: z.string().optional(),
+          fontPlayer: z.string().optional(),
+          fontScore: z.string().optional(),
         }).optional(),
         fonts: z.object({
           header: z.string().optional(),
@@ -272,6 +272,7 @@ function FormGameStyles(props: FormGameStylesProps) {
                             { value: 'none', label: 'None (Default)' },
                             { value: 'cyTerminal', label: 'CyTerminal' },
                             { value: 'neoNavigator', label: 'Neo Navigator' },
+                            { value: 'neuralNet', label: 'Neural Net' },
                           ]}
                           defaultValue={((form?.data?.theme as string) === '' || !(form?.data?.theme as string)) ? 'none' : (form?.data?.theme as string)}
                           handleSelect={handleFontSelect('data.theme')}
@@ -357,78 +358,6 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       }
                     />
-                    <Input
-                      name="data.colors.primary"
-                      label="Primary Color"
-                      value={form?.data?.colors?.primary 
-                        || (customThemeValues.colors as Record<string, string>)?.primary 
-                        || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.primary 
-                            || (customThemeValues.colors as Record<string, string>)?.primary
-                            || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.primary 
-                            || (customThemeValues.colors as Record<string, string>)?.primary 
-                            || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.primary', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.secondary"
-                      label="Secondary Color"
-                      value={form?.data?.colors?.secondary 
-                        || (customThemeValues.colors as Record<string, string>)?.secondary 
-                        || '#000000'}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.secondary 
-                            || (customThemeValues.colors as Record<string, string>)?.secondary 
-                            || '' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.secondary 
-                            || (customThemeValues.colors as Record<string, string>)?.secondary 
-                            || 'transparent'}
-                          setColor={(color: string) => handleColorChange('data.colors.secondary', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.tertiary"
-                      label="Tertiary Color"
-                      value={form?.data?.colors?.tertiary 
-                        || (customThemeValues.colors as Record<string, string>)?.tertiary 
-                        || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tertiary 
-                            || (customThemeValues.colors as Record<string, string>)?.tertiary 
-                            || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.tertiary 
-                            || (customThemeValues.colors as Record<string, string>)?.tertiary 
-                            || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.tertiary', color)}
-                        />
-                      }
-                    />
                     <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
                       Table Colors
                     </h3>
@@ -483,24 +412,99 @@ function FormGameStyles(props: FormGameStylesProps) {
                     <Input
                       name="data.colors.tableAlt"
                       label="Alternate Row Color"
-                      value={form?.data?.colors?.tableAlt 
-                        || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                      value={form?.data?.colors?.tableAlt
+                        || (customThemeValues.colors as Record<string, string>)?.tableAlt
                         || ''}
                       changeHandler={handleFormChange}
                       preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.tableAlt 
-                            || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                        <div
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40"
+                          style={{ backgroundColor: form?.data?.colors?.tableAlt
+                            || (customThemeValues.colors as Record<string, string>)?.tableAlt
                             || 'transparent' }}
                         />
                       }
                       actionButton={
                         <ButtonColorPicker
-                          color={form?.data?.colors?.tableAlt 
-                            || (customThemeValues.colors as Record<string, string>)?.tableAlt 
+                          color={form?.data?.colors?.tableAlt
+                            || (customThemeValues.colors as Record<string, string>)?.tableAlt
                             || ''}
                           setColor={(color: string) => handleColorChange('data.colors.tableAlt', color)}
+                        />
+                      }
+                    />
+                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
+                      Font Colors
+                    </h3>
+                    <Input
+                      name="data.colors.fontHeader"
+                      label="Header Text Color"
+                      value={form?.data?.colors?.fontHeader
+                        || (customThemeValues.colors as Record<string, string>)?.fontHeader
+                        || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40"
+                          style={{ backgroundColor: form?.data?.colors?.fontHeader
+                            || (customThemeValues.colors as Record<string, string>)?.fontHeader
+                            || '' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontHeader
+                            || (customThemeValues.colors as Record<string, string>)?.fontHeader
+                            || 'transparent'}
+                          setColor={(color: string) => handleColorChange('data.colors.fontHeader', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.fontPlayer"
+                      label="Player Name Color"
+                      value={form?.data?.colors?.fontPlayer
+                        || (customThemeValues.colors as Record<string, string>)?.fontPlayer
+                        || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40"
+                          style={{ backgroundColor: form?.data?.colors?.fontPlayer
+                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer
+                            || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontPlayer
+                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer
+                            || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.fontPlayer', color)}
+                        />
+                      }
+                    />
+                    <Input
+                      name="data.colors.fontScore"
+                      label="Score Color"
+                      value={form?.data?.colors?.fontScore
+                        || (customThemeValues.colors as Record<string, string>)?.fontScore
+                        || ''}
+                      changeHandler={handleFormChange}
+                      preview={
+                        <div
+                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40"
+                          style={{ backgroundColor: form?.data?.colors?.fontScore
+                            || (customThemeValues.colors as Record<string, string>)?.fontScore
+                            || 'transparent' }}
+                        />
+                      }
+                      actionButton={
+                        <ButtonColorPicker
+                          color={form?.data?.colors?.fontScore
+                            || (customThemeValues.colors as Record<string, string>)?.fontScore
+                            || ''}
+                          setColor={(color: string) => handleColorChange('data.colors.fontScore', color)}
                         />
                       }
                     />
@@ -555,82 +559,6 @@ function FormGameStyles(props: FormGameStylesProps) {
                         />
                       </div>
                     </div>
-                    
-                    <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full">
-                      Font Colors
-                    </h3>
-                    <Input
-                      name="data.colors.fontHeader"
-                      label="Header Text Color"
-                      value={form?.data?.colors?.fontHeader 
-                        || (customThemeValues.colors as Record<string, string>)?.fontHeader 
-                        || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontHeader 
-                            || (customThemeValues.colors as Record<string, string>)?.fontHeader 
-                            || '' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.fontHeader 
-                            || (customThemeValues.colors as Record<string, string>)?.fontHeader 
-                            || 'transparent'}
-                          setColor={(color: string) => handleColorChange('data.colors.fontHeader', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.fontPlayer"
-                      label="Player Name Color"
-                      value={form?.data?.colors?.fontPlayer 
-                        || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
-                        || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontPlayer 
-                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
-                            || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.fontPlayer 
-                            || (customThemeValues.colors as Record<string, string>)?.fontPlayer 
-                            || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.fontPlayer', color)}
-                        />
-                      }
-                    />
-                    <Input
-                      name="data.colors.fontScore"
-                      label="Score Color"
-                      value={form?.data?.colors?.fontScore 
-                        || (customThemeValues.colors as Record<string, string>)?.fontScore 
-                        || ''}
-                      changeHandler={handleFormChange}
-                      preview={
-                        <div 
-                          className="rounded-lg w-11 h-11 ring-1 ring-slate-500/40" 
-                          style={{ backgroundColor: form?.data?.colors?.fontScore 
-                            || (customThemeValues.colors as Record<string, string>)?.fontScore 
-                            || 'transparent' }}
-                        />
-                      }
-                      actionButton={
-                        <ButtonColorPicker
-                          color={form?.data?.colors?.fontScore 
-                            || (customThemeValues.colors as Record<string, string>)?.fontScore 
-                            || ''}
-                          setColor={(color: string) => handleColorChange('data.colors.fontScore', color)}
-                        />
-                      }
-                    />
                   </div>
                 </div>
               </div>

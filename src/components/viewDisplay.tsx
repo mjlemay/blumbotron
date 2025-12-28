@@ -1,5 +1,6 @@
 import { useExperienceStore } from '../stores/experienceStore';
 import DisplayTable from './displayTable';
+import ThemeInjector from './themeInjector';
 import { useEffect, useState } from 'react';
 
 function ViewDisplay() {
@@ -26,12 +27,7 @@ function ViewDisplay() {
 
   return (
     <div className="w-full h-full bg-black text-white">
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Display Window</h1>
-        <p>Game: {game || 'No game selected'}</p>
-        <p>Window loaded successfully!</p>
-        {gameFromUrl && <p>Game loaded from URL parameter: {gameFromUrl}</p>}
-      </div>
+      <ThemeInjector game={game} />
       <DisplayTable game={game} fetchIntervalSeconds={5} isFullScreen={true} />
     </div>
   );
