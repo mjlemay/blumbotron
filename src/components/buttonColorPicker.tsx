@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as Menubar from '@radix-ui/react-menubar';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { Pencil2Icon } from '@radix-ui/react-icons';
 import { SwatchesPicker, ColorResult } from 'react-color';
 
@@ -115,7 +116,7 @@ function ButtonColorPicker(props: ButtonColorPickerProps): JSX.Element {
           </Menubar.Trigger>
           <Menubar.Portal>
             <Menubar.Content
-              className="bg-slate-800 rounded-md p-3 mt-1 shadow-lg z-[9999] max-h-[80vh] overflow-auto"
+              className="bg-slate-800 rounded-md p-3 mt-1 z-[9999] shadow-[0_10px_40px_-5px_rgba(0,0,0,0.8)]"
               side="bottom"
               align="end"
               sideOffset={5}
@@ -123,25 +124,36 @@ function ButtonColorPicker(props: ButtonColorPickerProps): JSX.Element {
             >
               <Menubar.Item onSelect={(e) => e.preventDefault()}>
                 <div className="flex flex-col gap-3">
-                  <SwatchesPicker
-                    color={color}
-                    onChange={handleColorChange}
-                    colors={colorSwatches}
-                    width={280}
-                    height={220}
-                    styles={{
-                      default: {
-                        picker: {
-                          backgroundColor: '#1e293b',
-                          borderRadius: '8px',
-                          border: '1px solid #475569',
-                        },
-                        overflow: {
-                          backgroundColor: '#1e293b',
-                        }
-                      }
-                    }}
-                  />
+                  <ScrollArea.Root className="w-[280px] h-[220px] rounded bg-slate-700/50 overflow-hidden">
+                    <ScrollArea.Viewport className="w-full h-full">
+                      <SwatchesPicker
+                        color={color}
+                        onChange={handleColorChange}
+                        colors={colorSwatches}
+                        width={280}
+                        height={400}
+                        styles={{
+                          default: {
+                            picker: {
+                              backgroundColor: '#1e293b',
+                              borderRadius: '8px',
+                              border: '1px solid #475569',
+                            },
+                            overflow: {
+                              backgroundColor: '#1e293b',
+                            }
+                          }
+                        }}
+                      />
+                    </ScrollArea.Viewport>
+                    <ScrollArea.Scrollbar
+                      className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=vertical]:w-2.5"
+                      orientation="vertical"
+                    >
+                      <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+                    </ScrollArea.Scrollbar>
+                    <ScrollArea.Corner />
+                  </ScrollArea.Root>
 
                   {/* Opacity Slider */}
                   <div className="flex flex-col gap-2 px-2 pb-2">

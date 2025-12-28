@@ -153,14 +153,14 @@ function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
     >
       <div
         data-table-container
-        className="w-full h-full flex flex-col p-4 relative"
+        className="w-full h-full flex flex-col relative"
         style={hasCustomColors ? {
           backgroundColor: colors?.background || themeDefaults?.background || '#000',
           color: colors?.text || themeDefaults?.text || '#fff',
         } : undefined}
       >
         <h1
-          className="title text-center text-2xl font-bold mb-4 p-2"
+          className="title text-center text-lg font-bold flex items-center justify-center"
           style={hasCustomColors ? {
             color: colors?.fontHeader || themeDefaults?.fontHeader || colors?.text || themeDefaults?.text,
             backgroundColor: colors?.tableHeader || themeDefaults?.tableHeader,
@@ -168,11 +168,11 @@ function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
         >
           Sample Leaderboard
         </h1>
-        <div className="flex-1 flex flex-col gap-1">
+        <div className="flex-1 flex flex-col">
           {sampleScores.map((item, index) => (
             <div
               key={index}
-              className="flex-row flex items-center justify-between px-4 py-2"
+              className="flex-row flex items-center justify-between flex-1"
               style={hasCustomColors ? {
                 backgroundColor: index % 2 === 0
                   ? (colors?.tableRow || themeDefaults?.tableRow || 'transparent')
@@ -180,11 +180,13 @@ function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
               } : undefined}
             >
               <span
+                className="pl-4"
                 style={hasCustomColors ? { color: colors?.fontPlayer || themeDefaults?.fontPlayer || colors?.text || themeDefaults?.text } : undefined}
               >
                 {item.player}
               </span>
               <span
+                className="pr-4"
                 style={hasCustomColors ? { color: colors?.fontScore || themeDefaults?.fontScore || colors?.text || themeDefaults?.text } : undefined}
               >
                 {item.score}
