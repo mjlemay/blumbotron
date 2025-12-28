@@ -6,7 +6,6 @@ import { useScoreStore } from "../stores/scoresStore";
 import { useExperienceStore } from "../stores/experienceStore";
 import { DisplayData, ScoreDataItem, UnitItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
-import { customThemeSettings } from '../lib/consts';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 
@@ -158,12 +157,6 @@ function DisplayTable(props: ComponentProps): JSX.Element {
   );
 
   const themeName = gameData?.data?.theme;
-  const customTheme = (customThemeSettings?.themes && typeof customThemeSettings.themes[(themeName as unknown as string)] === 'object')
-    ? customThemeSettings.themes[(themeName as unknown as string)]
-    : {};
-  const themeColors = (typeof customTheme === 'object' && 'colors' in customTheme)
-    ? (customTheme as { colors?: Record<string, string> }).colors || {}
-    : {};
   
   // Memoize allowed players processing
   const { playersData } = useMemo(() => {
@@ -258,9 +251,11 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     }).filter(item => item !== undefined);
   }, [gameScores, game, playersData, offset, direction, sortUnit, displayData, gameData]);
 
-  const colors = {
-    background: 'black',
-    text: 'white',
+  // Only use custom colors if colorOverride is enabled
+  const colorOverrideEnabled = !!gameData?.data?.colorOverride;
+  const colors = colorOverrideEnabled ? {
+    background: null,
+    text: null,
     primary: null,
     secondary: null,
     tertiary: null,
@@ -271,6 +266,19 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     fontHeader: null,
     fontScore: null,
     ...(gameData?.data?.colors || {})
+  } : {
+    // When override is off, use null/undefined so CSS variables take effect
+    background: null,
+    text: null,
+    primary: null,
+    secondary: null,
+    tertiary: null,
+    tableHeader: null,
+    tableRow: null,
+    tableAlt: null,
+    fontPlayer: null,
+    fontHeader: null,
+    fontScore: null,
   };
   
   const fonts = {
@@ -435,7 +443,7 @@ const subHeaders = () => {
       return null;
     }
     return (
-      <div className="flex flex-row items-stretch justify-start w-full flex-1">
+      <div className="flex-row flex items-stretch justify-start w-full flex-1">
         {/* Avatar placeholder */}
         {displayData?.showAvatars && (
           <div className={`
@@ -443,10 +451,7 @@ const subHeaders = () => {
             ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
           `}
           style={{
-            backgroundColor: 
-              colors.tableHeader 
-              || themeColors.tableHeader 
-              || 'transparent',
+            ...(colorOverrideEnabled && colors.tableHeader && { backgroundColor: colors.tableHeader }),
             height: '100%',
             aspectRatio: '1',
           }}
@@ -466,17 +471,8 @@ const subHeaders = () => {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: 
-            colors.fontHeader 
-            || themeColors.fontHeader
-            || colors.primary 
-            || themeColors.primary
-            || colors.text
-            || themeColors.text,
-          backgroundColor: 
-            colors.tableHeader 
-            || themeColors.tableHeader 
-            || 'transparent',
+          ...(colorOverrideEnabled && colors.fontHeader && { color: colors.fontHeader }),
+          ...(colorOverrideEnabled && colors.tableHeader && { backgroundColor: colors.tableHeader }),
           fontFamily: fonts.header,
         }}
         >
@@ -486,7 +482,7 @@ const subHeaders = () => {
         {displayData?.filteredUnits.map((unitId) => {
           const unit = gameData?.data?.mechanics?.units?.find(u => String(u.id) === String(unitId));
           return (
-            <div 
+            <div
               key={unitId}
               className={`
                 flex-1
@@ -499,17 +495,8 @@ const subHeaders = () => {
                 ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
               `}
               style={{
-                color: 
-                  colors.fontHeader 
-                  || themeColors.fontHeader
-                  || colors.primary 
-                  || themeColors.primary
-                  || colors.text
-                  || themeColors.text,
-                backgroundColor: 
-                  colors.tableHeader 
-                  || themeColors.tableHeader 
-                  || 'transparent',
+                ...(colorOverrideEnabled && colors.fontHeader && { color: colors.fontHeader }),
+                ...(colorOverrideEnabled && colors.tableHeader && { backgroundColor: colors.tableHeader }),
                 fontFamily: fonts.header,
               }}
             >
@@ -531,16 +518,18 @@ const subHeaders = () => {
     }
     limitedTableRows = limitedTableData.map((scoreItem, index) => (
       scoreItem?.player && (
-      <div 
-        key={`${scoreItem?.player || 'deleted'}-${index}`} 
-        className="flex flex-row items-center justify-between w-full flex-1"
+      <div
+        key={`${scoreItem?.player || 'deleted'}-${index}`}
+        className="flex-row flex items-center justify-between w-full flex-1"
         style={{
-          backgroundColor: index % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
+          ...(colorOverrideEnabled && (index % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
+            backgroundColor: index % 2 === 0 ? colors.tableAlt : colors.tableRow
+          }),
         }}
       >
         {displayData?.showAvatars && AvatarImage && (
-          <AvatarImage 
-            playerName={scoreItem?.player || ''} 
+          <AvatarImage
+            playerName={scoreItem?.player || ''}
             isFullScreen={isFullScreen}
           />
         )}
@@ -558,7 +547,7 @@ const subHeaders = () => {
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
-          color: colors.fontPlayer || themeColors.fontPlayer || colors.secondary || themeColors.secondary || colors.text || themeColors.text,
+          ...(colorOverrideEnabled && colors.fontPlayer && { color: colors.fontPlayer }),
           fontFamily: fonts.player,
         }}
         >
@@ -568,7 +557,7 @@ const subHeaders = () => {
         </div>
         {scoreItem?.additionalColumns && scoreItem.additionalColumns.length > 0 ? (
           scoreItem.additionalColumns.map((columnValue: any, colIndex: number) => (
-            <div 
+            <div
               key={`${scoreItem?.player}-col-${colIndex}`}
               className={`
                 flex-1
@@ -581,12 +570,7 @@ const subHeaders = () => {
                 ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
               `}
               style={{
-                color: colors.fontScore 
-                  || themeColors.fontScore
-                  || colors.secondary 
-                  || themeColors.secondary
-                  || colors.text
-                  || themeColors.text,
+                ...(colorOverrideEnabled && colors.fontScore && { color: colors.fontScore }),
                 fontFamily: fonts.score,
               }}
             >
@@ -605,12 +589,7 @@ const subHeaders = () => {
             ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
           `}
           style={{
-            color: colors.fontScore 
-              || themeColors.fontScore
-              || colors.secondary 
-              || themeColors.secondary
-              || colors.text
-              || themeColors.text,
+            ...(colorOverrideEnabled && colors.fontScore && { color: colors.fontScore }),
             fontFamily: fonts.score,
           }}
           >
@@ -622,11 +601,13 @@ const subHeaders = () => {
     if (limitedTableData.length < numberOfRows) {
       for (let i = limitedTableData.length; i < numberOfRows; i++) {
         limitedTableRows.push(
-          <div 
-            key={`empty-${i}`} 
-            className="flex flex-row items-center justify-between w-full flex-1"
+          <div
+            key={`empty-${i}`}
+            className="flex-row flex items-center justify-between w-full flex-1"
             style={{
-              backgroundColor: i % 2 === 0 ? colors.tableAlt || themeColors.tableAlt || 'transparent' : colors.tableRow || themeColors.tableRow || 'transparent',
+              ...(colorOverrideEnabled && (i % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
+                backgroundColor: i % 2 === 0 ? colors.tableAlt : colors.tableRow
+              }),
             }}
           >
             <div className={`
@@ -658,8 +639,8 @@ const subHeaders = () => {
        flex items-start justify-center
       `}
       style={{
-        backgroundColor: colors.background || themeColors.background,
-        color: colors.text || themeColors.text,
+        ...(colorOverrideEnabled && colors.background && { backgroundColor: colors.background }),
+        ...(colorOverrideEnabled && colors.text && { color: colors.text }),
         minWidth: isFullScreen ? '100vw' : '100%',
         minHeight: isFullScreen ? '100vh' : '100%',
         position: 'relative',
@@ -734,7 +715,8 @@ const subHeaders = () => {
               >
                 <div className="flex flex-row items-stretch justify-start w-full flex-1">
                   {titleImageSrc ? <img src={titleImageSrc} alt="Title" className="flex-1" /> : title && title.length > 0 && (
-                    <div className={`
+                    <h1 className={`
+                      title
                       flex-1
                       text-white
                       font-bold
@@ -745,22 +727,13 @@ const subHeaders = () => {
                       ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
                     `}
                     style={{
-                      color: 
-                        colors.fontHeader 
-                        || themeColors.fontHeader
-                        || colors.primary 
-                        || themeColors.primary
-                        || colors.text
-                        || themeColors.text,
-                      backgroundColor: 
-                        colors.tableHeader 
-                        || themeColors.tableHeader 
-                        || 'transparent',
+                      ...(colorOverrideEnabled && colors.fontHeader && { color: colors.fontHeader }),
+                      ...(colorOverrideEnabled && colors.tableHeader && { backgroundColor: colors.tableHeader }),
                       fontFamily: fonts.header,
                     }}
                     >
                       {title}
-                    </div>
+                    </h1>
                   )}
                 </div>
                 {subHeaders()}

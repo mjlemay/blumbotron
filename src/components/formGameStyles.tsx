@@ -1,5 +1,5 @@
 import { useImmer } from 'use-immer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Input from './input';
 import SelectChip from './selectChip';
 import { z } from 'zod';
@@ -35,6 +35,168 @@ const setNestedValue = (obj: any, keyString: string, value: any) => {
   return obj;
 }
 
+// Map form color keys to CSS variable names
+const colorToCssVar: Record<string, string> = {
+  background: '--color-background',
+  text: '--color-text',
+  tableHeader: '--color-table-header',
+  tableRow: '--color-table-row',
+  tableAlt: '--color-table-alt',
+  fontHeader: '--color-font-header',
+  fontPlayer: '--color-font-player',
+  fontScore: '--color-font-score',
+};
+
+type ThemePreviewProps = {
+  theme?: string;
+  colors?: Record<string, string>;
+  gameSnowflake?: string;
+};
+
+function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
+  const previewId = 'theme-preview-container';
+  const [themeKey, setThemeKey] = useState(0);
+
+  // Load theme CSS and inject color variables
+  useEffect(() => {
+    const customTheme = customThemeSettings?.[theme as string]?.path as string;
+    const linkId = 'theme-preview-link';
+    const styleId = 'theme-preview-vars';
+
+    // Remove existing preview styles
+    document.getElementById(linkId)?.remove();
+    document.getElementById(styleId)?.remove();
+
+    if (!theme || theme === 'none' || !customTheme) {
+      setThemeKey(prev => prev + 1);
+      return;
+    }
+
+    // Create new theme link for preview
+    const link = document.createElement('link');
+    link.id = linkId;
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = `/themes/${customTheme}`;
+    link.onload = () => setThemeKey(prev => prev + 1);
+    document.head.appendChild(link);
+
+    return () => {
+      document.getElementById(linkId)?.remove();
+      document.getElementById(styleId)?.remove();
+    };
+  }, [theme]);
+
+  // Inject CSS variables via style tag when colors change
+  useEffect(() => {
+    const styleId = 'theme-preview-vars';
+    document.getElementById(styleId)?.remove();
+
+    const themeDefaults = customThemeSettings?.[theme as string]?.colors as Record<string, string> | undefined;
+    if (!themeDefaults && !colors) return;
+
+    const colorVars: string[] = [];
+
+    // Add all theme default colors first
+    if (themeDefaults) {
+      Object.entries(themeDefaults).forEach(([key, val]) => {
+        // Map known keys to CSS var names, or use key directly
+        const cssVar = colorToCssVar[key] || `--color-${key}`;
+        colorVars.push(`${cssVar}: ${val};`);
+      });
+    }
+
+    // Override with user-selected colors if provided
+    if (colors) {
+      Object.entries(colorToCssVar).forEach(([colorKey, cssVar]) => {
+        const colorValue = colors[colorKey];
+        if (colorValue) {
+          colorVars.push(`${cssVar}: ${colorValue};`);
+        }
+      });
+    }
+
+    if (colorVars.length > 0) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `#${previewId}, #${previewId} * { ${colorVars.join(' ')} }`;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      document.getElementById(styleId)?.remove();
+    };
+  }, [theme, colors]);
+
+  // Get theme defaults for inline styles
+  const themeDefaults = customThemeSettings?.[theme as string]?.colors as Record<string, string> | undefined;
+
+  // Sample data for preview
+  const sampleScores = [
+    { player: 'Player One', score: 1500 },
+    { player: 'Player Two', score: 1200 },
+    { player: 'Player Three', score: 900 },
+    { player: 'Player Four', score: 600 },
+    { player: 'Player Five', score: 300 },
+  ];
+
+  // Only apply inline styles when custom colors are provided (override is ON)
+  // Otherwise, let the theme CSS handle all styling via CSS variables
+  const hasCustomColors = !!colors;
+
+  return (
+    <div
+      id={previewId}
+      key={themeKey}
+      className="w-full aspect-video bg-black rounded-lg overflow-hidden relative"
+      data-display-frame
+    >
+      <div
+        data-table-container
+        className="w-full h-full flex flex-col p-4 relative"
+        style={hasCustomColors ? {
+          backgroundColor: colors?.background || themeDefaults?.background || '#000',
+          color: colors?.text || themeDefaults?.text || '#fff',
+        } : undefined}
+      >
+        <h1
+          className="title text-center text-2xl font-bold mb-4 p-2"
+          style={hasCustomColors ? {
+            color: colors?.fontHeader || themeDefaults?.fontHeader || colors?.text || themeDefaults?.text,
+            backgroundColor: colors?.tableHeader || themeDefaults?.tableHeader,
+          } : undefined}
+        >
+          Sample Leaderboard
+        </h1>
+        <div className="flex-1 flex flex-col gap-1">
+          {sampleScores.map((item, index) => (
+            <div
+              key={index}
+              className="flex-row flex items-center justify-between px-4 py-2"
+              style={hasCustomColors ? {
+                backgroundColor: index % 2 === 0
+                  ? (colors?.tableRow || themeDefaults?.tableRow || 'transparent')
+                  : (colors?.tableAlt || themeDefaults?.tableAlt || 'transparent'),
+              } : undefined}
+            >
+              <span
+                style={hasCustomColors ? { color: colors?.fontPlayer || themeDefaults?.fontPlayer || colors?.text || themeDefaults?.text } : undefined}
+              >
+                {item.player}
+              </span>
+              <span
+                style={hasCustomColors ? { color: colors?.fontScore || themeDefaults?.fontScore || colors?.text || themeDefaults?.text } : undefined}
+              >
+                {item.score}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function FormGameStyles(props: FormGameStylesProps) {
   const { onSuccess } = props;
@@ -57,7 +219,6 @@ function FormGameStyles(props: FormGameStylesProps) {
   const fullForm = { ...game, data: gameData };
   const [form, setForm] = useImmer(fullForm || defaultGame);
   const [errors, setErrors] = useImmer({});
-  const [showColorOverrides, setShowColorOverrides] = useState(false);
 
   // Font options based on available fonts
   const fontOptions = [
@@ -118,6 +279,7 @@ function FormGameStyles(props: FormGameStylesProps) {
       description: z.string(),
       data: z.object({
         theme: z.string().optional(),
+        colorOverride: z.string().optional(),
         colors: z.object({
           background: z.string().optional(),
           text: z.string().optional(),
@@ -155,9 +317,11 @@ function FormGameStyles(props: FormGameStylesProps) {
       const newFonts = formData.data?.fonts || {};
       const newPlacement = formData.data?.placement || {};
       const newTheme = formData.data?.theme === 'none' ? '' : formData.data?.theme;
+      const colorOverride = formData.data?.colorOverride;
       const mergedData = {
         ...existingData,
         ...(newTheme !== undefined && { theme: newTheme }),
+        colorOverride: colorOverride || '',
         colors: {
           ...existingData.colors,
           ...newColors
@@ -224,13 +388,16 @@ function FormGameStyles(props: FormGameStylesProps) {
     <h2 className="text-3xl font-thin pb-2 flex flex-row items-center gap-2">
         {name} Layout & Styles
     </h2>
-    <div className="flex flex-col items-center bg-slate-900 rounded-lg shadow-lg">
-      <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
-        <ScrollArea.Viewport className="h-full w-full">
-          <div className="px-5 py-[15px] min-h-[calc(100vh-250px)] max-h-[calc(100vh-250px)]">
-            <div className="flex flex-row items-center justify-start">
-              <div className="flex flex-col items-center justify-start text-lg font-medium rounded-lg max-w-lg">
-                <div className="w-full pr-4 pl-4">
+    <div className="flex flex-col bg-slate-900 rounded-lg shadow-lg w-full">
+      <div className="flex flex-row gap-6 p-4">
+        {/* Left Column - Form */}
+        <div className="flex-1 max-w-lg">
+          <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-y-auto overflow-x-hidden">
+            <ScrollArea.Viewport className="h-full w-full">
+              <div className="px-5 py-[15px] min-h-[calc(100vh-300px)] max-h-[calc(100vh-300px)]">
+                <div className="flex flex-row items-center justify-start">
+                  <div className="flex flex-col items-center justify-start text-lg font-medium rounded-lg w-full">
+                    <div className="w-full pr-4 pl-4">
                   <Input name="id" value={form.id || -1} hidden changeHandler={() => {}} />
                   <Input
                     name="snowflake"
@@ -290,8 +457,8 @@ function FormGameStyles(props: FormGameStylesProps) {
                         <div className="relative">
                           <input
                             type="checkbox"
-                            checked={showColorOverrides}
-                            onChange={(e) => setShowColorOverrides(e.target.checked)}
+                            checked={!!form?.data?.colorOverride}
+                            onChange={(e) => updateFormInput('data.colorOverride', e.target.checked ? 'true' : '')}
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -299,11 +466,11 @@ function FormGameStyles(props: FormGameStylesProps) {
                       </label>
                     </div>
 
-                    <div 
+                    <div
                       className="overflow-hidden transition-all duration-300 ease-in-out"
-                      style={{ 
-                        maxHeight: showColorOverrides ? '2000px' : '0px',
-                        opacity: showColorOverrides ? 1 : 0
+                      style={{
+                        maxHeight: form?.data?.colorOverride ? '2000px' : '0px',
+                        opacity: form?.data?.colorOverride ? 1 : 0
                       }}
                     >
                       <div className="space-y-4">
@@ -576,9 +743,23 @@ function FormGameStyles(props: FormGameStylesProps) {
           orientation="horizontal"
         >
           <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-mauve10 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
-        </ScrollArea.Scrollbar>
-        <ScrollArea.Corner />
-      </ScrollArea.Root>
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner />
+        </ScrollArea.Root>
+        </div>
+
+        {/* Right Column - Theme Preview */}
+        <div className="flex flex-col items-start gap-4 flex-1">
+          <h3 className="text-xl font-bold text-white">Preview</h3>
+          <ThemePreview
+            theme={form?.data?.theme as string}
+            colors={form?.data?.colorOverride ? form?.data?.colors : undefined}
+            gameSnowflake={game?.snowflake}
+          />
+        </div>
+      </div>
+
+      {/* Edit Button */}
       <Menubar.Root className="flex rounded-md p-2">
         <Menubar.Menu>
           {loading && <div>Loading...</div>}

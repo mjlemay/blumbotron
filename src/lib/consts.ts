@@ -30,6 +30,9 @@ export const customThemeSettings: Record<string, Record<string, string | Record<
     colors: {
       background: '#000000',
       text: '#e0f7fa',
+      primary: '#00ffff',
+      secondary: '#0088ff',
+      tertiary: '#00ddff',
       tableHeader: '#001a1f',
       tableRow: '#001419',
       tableAlt: '#00191e',
@@ -49,6 +52,9 @@ export const customThemeSettings: Record<string, Record<string, string | Record<
     colors: {
       background: '#120458',
       text: '#faf0e6',
+      primary: '#41c5ff',
+      secondary: '#ff00a0',
+      tertiary: '#7a04eb',
       tableHeader: '#1a0660',
       tableRow: '#120458',
       tableAlt: '#1a0660',
@@ -68,6 +74,9 @@ export const customThemeSettings: Record<string, Record<string, string | Record<
     colors: {
       background: '#0d0d0d',
       text: '#f0f0f0',
+      primary: '#39ff14',
+      secondary: '#ff00ff',
+      tertiary: '#00ffff',
       tableHeader: '#1a1a1a',
       tableRow: '#111111',
       tableAlt: '#161616',

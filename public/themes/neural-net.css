@@ -114,7 +114,7 @@ html, body {
 [data-table-container] h1,
 [data-table-container] .title {
   color: var(--color-font-header);
-  background: var(--color-table-header) !important;
+  background: transparent !important;
   border: none;
   border-bottom: 3px solid var(--color-primary);
   padding: 24px !important;
@@ -155,7 +155,7 @@ html, body {
 
 /* Row styling */
 [data-table-container] .flex-row {
-  background: var(--color-table-row) !important;
+  background: transparent !important;
   border: none;
   border-left: 4px solid var(--color-secondary);
   margin-bottom: 2px;
@@ -163,7 +163,7 @@ html, body {
 }
 
 [data-table-container] .flex-row:nth-child(even) {
-  background: var(--color-table-alt) !important;
+  background: transparent !important;
   border-left-color: var(--color-tertiary);
 }
 
