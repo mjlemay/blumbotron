@@ -1,5 +1,4 @@
 import { useImmer } from 'use-immer';
-import { useState, useEffect } from 'react';
 import Input from './input';
 import SelectChip from './selectChip';
 import { z } from 'zod';
@@ -35,101 +34,26 @@ const setNestedValue = (obj: any, keyString: string, value: any) => {
   return obj;
 }
 
-// Map form color keys to CSS variable names
-const colorToCssVar: Record<string, string> = {
-  background: '--color-background',
-  text: '--color-text',
-  tableHeader: '--color-table-header',
-  tableRow: '--color-table-row',
-  tableAlt: '--color-table-alt',
-  fontHeader: '--color-font-header',
-  fontPlayer: '--color-font-player',
-  fontScore: '--color-font-score',
-};
-
 type ThemePreviewProps = {
   theme?: string;
   colors?: Record<string, string>;
-  gameSnowflake?: string;
 };
 
-function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
-  const previewId = 'theme-preview-container';
-  const [themeKey, setThemeKey] = useState(0);
-
-  // Load theme CSS and inject color variables
-  useEffect(() => {
-    const customTheme = customThemeSettings?.[theme as string]?.path as string;
-    const linkId = 'theme-preview-link';
-    const styleId = 'theme-preview-vars';
-
-    // Remove existing preview styles
-    document.getElementById(linkId)?.remove();
-    document.getElementById(styleId)?.remove();
-
-    if (!theme || theme === 'none' || !customTheme) {
-      setThemeKey(prev => prev + 1);
-      return;
-    }
-
-    // Create new theme link for preview
-    const link = document.createElement('link');
-    link.id = linkId;
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = `/themes/${customTheme}`;
-    link.onload = () => setThemeKey(prev => prev + 1);
-    document.head.appendChild(link);
-
-    return () => {
-      document.getElementById(linkId)?.remove();
-      document.getElementById(styleId)?.remove();
-    };
-  }, [theme]);
-
-  // Inject CSS variables via style tag when colors change
-  useEffect(() => {
-    const styleId = 'theme-preview-vars';
-    document.getElementById(styleId)?.remove();
-
-    const themeDefaults = customThemeSettings?.[theme as string]?.colors as Record<string, string> | undefined;
-    if (!themeDefaults && !colors) return;
-
-    const colorVars: string[] = [];
-
-    // Add all theme default colors first
-    if (themeDefaults) {
-      Object.entries(themeDefaults).forEach(([key, val]) => {
-        // Map known keys to CSS var names, or use key directly
-        const cssVar = colorToCssVar[key] || `--color-${key}`;
-        colorVars.push(`${cssVar}: ${val};`);
-      });
-    }
-
-    // Override with user-selected colors if provided
-    if (colors) {
-      Object.entries(colorToCssVar).forEach(([colorKey, cssVar]) => {
-        const colorValue = colors[colorKey];
-        if (colorValue) {
-          colorVars.push(`${cssVar}: ${colorValue};`);
-        }
-      });
-    }
-
-    if (colorVars.length > 0) {
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = `#${previewId}, #${previewId} * { ${colorVars.join(' ')} }`;
-      document.head.appendChild(style);
-    }
-
-    return () => {
-      document.getElementById(styleId)?.remove();
-    };
-  }, [theme, colors]);
-
-  // Get theme defaults for inline styles
+function ThemePreview({ theme, colors }: ThemePreviewProps) {
+  // Get theme defaults for inline styles - no global CSS loading to prevent style bleeding
   const themeDefaults = customThemeSettings?.[theme as string]?.colors as Record<string, string> | undefined;
+
+  // Merge theme defaults with any custom color overrides
+  const effectiveColors = {
+    background: colors?.background || themeDefaults?.background || '#000',
+    text: colors?.text || themeDefaults?.text || '#fff',
+    tableHeader: colors?.tableHeader || themeDefaults?.tableHeader || 'transparent',
+    tableRow: colors?.tableRow || themeDefaults?.tableRow || 'transparent',
+    tableAlt: colors?.tableAlt || themeDefaults?.tableAlt || 'transparent',
+    fontHeader: colors?.fontHeader || themeDefaults?.fontHeader || colors?.text || themeDefaults?.text || '#fff',
+    fontPlayer: colors?.fontPlayer || themeDefaults?.fontPlayer || colors?.text || themeDefaults?.text || '#fff',
+    fontScore: colors?.fontScore || themeDefaults?.fontScore || colors?.text || themeDefaults?.text || '#fff',
+  };
 
   // Sample data for preview
   const sampleScores = [
@@ -140,31 +64,25 @@ function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
     { player: 'Player Five', score: 300 },
   ];
 
-  // Only apply inline styles when custom colors are provided (override is ON)
-  // Otherwise, let the theme CSS handle all styling via CSS variables
-  const hasCustomColors = !!colors;
-
   return (
     <div
-      id={previewId}
-      key={themeKey}
       className="w-full aspect-video bg-black rounded-lg overflow-hidden relative"
       data-display-frame
     >
       <div
         data-table-container
         className="w-full h-full flex flex-col relative"
-        style={hasCustomColors ? {
-          backgroundColor: colors?.background || themeDefaults?.background || '#000',
-          color: colors?.text || themeDefaults?.text || '#fff',
-        } : undefined}
+        style={{
+          backgroundColor: effectiveColors.background,
+          color: effectiveColors.text,
+        }}
       >
         <h1
           className="title text-center text-lg font-bold flex items-center justify-center"
-          style={hasCustomColors ? {
-            color: colors?.fontHeader || themeDefaults?.fontHeader || colors?.text || themeDefaults?.text,
-            backgroundColor: colors?.tableHeader || themeDefaults?.tableHeader,
-          } : undefined}
+          style={{
+            color: effectiveColors.fontHeader,
+            backgroundColor: effectiveColors.tableHeader,
+          }}
         >
           Sample Leaderboard
         </h1>
@@ -173,21 +91,21 @@ function ThemePreview({ theme, colors, gameSnowflake }: ThemePreviewProps) {
             <div
               key={index}
               className="flex-row flex items-center justify-between flex-1"
-              style={hasCustomColors ? {
+              style={{
                 backgroundColor: index % 2 === 0
-                  ? (colors?.tableRow || themeDefaults?.tableRow || 'transparent')
-                  : (colors?.tableAlt || themeDefaults?.tableAlt || 'transparent'),
-              } : undefined}
+                  ? effectiveColors.tableRow
+                  : effectiveColors.tableAlt,
+              }}
             >
               <span
                 className="pl-4"
-                style={hasCustomColors ? { color: colors?.fontPlayer || themeDefaults?.fontPlayer || colors?.text || themeDefaults?.text } : undefined}
+                style={{ color: effectiveColors.fontPlayer }}
               >
                 {item.player}
               </span>
               <span
                 className="pr-4"
-                style={hasCustomColors ? { color: colors?.fontScore || themeDefaults?.fontScore || colors?.text || themeDefaults?.text } : undefined}
+                style={{ color: effectiveColors.fontScore }}
               >
                 {item.score}
               </span>
@@ -756,7 +674,6 @@ function FormGameStyles(props: FormGameStylesProps) {
           <ThemePreview
             theme={form?.data?.theme as string}
             colors={form?.data?.colorOverride ? form?.data?.colors : undefined}
-            gameSnowflake={game?.snowflake}
           />
         </div>
       </div>

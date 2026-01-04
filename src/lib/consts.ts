@@ -23,7 +23,34 @@ export const bgColors: Record<string, string> = {
   sky: 'bg-sky-500/50',
 };
 
-export const customThemeSettings: Record<string, Record<string, string | Record<string, string>>> = {
+export interface ThemeColors {
+  background?: string;
+  text?: string;
+  primary?: string;
+  secondary?: string;
+  tertiary?: string;
+  tableHeader?: string;
+  tableRow?: string;
+  tableAlt?: string;
+  fontHeader?: string;
+  fontPlayer?: string;
+  fontScore?: string;
+}
+
+export interface ThemeFonts {
+  header?: string;
+  player?: string;
+  score?: string;
+}
+
+export interface ThemeSettings {
+  path: string;
+  label: string;
+  colors: ThemeColors;
+  fonts: ThemeFonts;
+}
+
+export const customThemeSettings: Record<string, ThemeSettings> = {
   'cyTerminal': {
     'path': 'cy-terminal.css',
     'label': 'CyTerminal',

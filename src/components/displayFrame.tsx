@@ -1,4 +1,4 @@
-import { 
+import {
   EnterFullScreenIcon,
   OpenInNewWindowIcon,
   AllSidesIcon,
@@ -11,9 +11,10 @@ import { useExperienceStore } from '../stores/experienceStore';
 import { useGameStore } from '../stores/gamesStore';
 import { Window } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
-import ThemeInjector from './themeInjector';
 import DisplayTable from './displayTable';
 import DisplaySlide from './displaySlide';
+import ShadowContainer from './shadowContainer';
+import { customThemeSettings } from '../lib/consts';
 
 type ComponentProps = {
   height?: number;
@@ -29,6 +30,94 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
   // Get the display type from the game data
   const currentGameData = getGameBySnowflake(game || '');
   const type = currentGameData?.data?.displays?.[displayIndex]?.category || 'table';
+
+  // Generate isolated styles for the shadow DOM
+  const themeName = currentGameData?.data?.theme;
+  const themeSettings = customThemeSettings?.[themeName as string];
+  const themeColors = themeSettings?.colors;
+  const colorOverrideEnabled = !!currentGameData?.data?.colorOverride;
+  const gameColors = currentGameData?.data?.colors;
+
+  // Build CSS variables for the shadow root
+  const getColor = (key: string) => {
+    if (colorOverrideEnabled && gameColors?.[key as keyof typeof gameColors]) {
+      return gameColors[key as keyof typeof gameColors];
+    }
+    return themeColors?.[key as keyof typeof themeColors] || undefined;
+  };
+
+  const shadowStyles = `
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    .shadow-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: ${getColor('background') || '#000'};
+      color: ${getColor('text') || '#fff'};
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    /* Base flexbox utilities */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .flex-1 { flex: 1 1 0%; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-start { justify-content: flex-start; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.5rem; }
+    /* Base sizing utilities */
+    .w-full { width: 100%; }
+    .h-full { height: 100%; }
+    .min-h-full { min-height: 100%; }
+    /* Base spacing utilities */
+    .p-1 { padding: 0.25rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-4 { padding: 1rem; }
+    .pl-4 { padding-left: 1rem; }
+    .pr-4 { padding-right: 1rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pb-2 { padding-bottom: 0.5rem; }
+    /* Base text utilities */
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .font-bold { font-weight: 700; }
+    .font-medium { font-weight: 500; }
+    /* Base positioning */
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    /* Overflow */
+    .overflow-hidden { overflow: hidden; }
+    .overflow-auto { overflow: auto; }
+    /* Display table specific */
+    [data-table-container] {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .title {
+      text-align: center;
+      font-weight: bold;
+    }
+  `;
 
 
   const handleAllSidesClick = () => {
@@ -138,18 +227,16 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
                 relative
             "
     >
-      <div className={`
-        display-table-${game}
-        absolute
-        inset-0
-        flex
-        items-center
-        justify-center
-      `}>
-        <ThemeInjector game={game} />
-        {type == 'table' && <DisplayTable game={game} displayIndex={displayIndex} fetchIntervalSeconds={60} />}
-        {type == 'slide' && <DisplaySlide game={game} displayIndex={displayIndex} />}
-      </div>
+      <ShadowContainer
+        styles={shadowStyles}
+        className="absolute inset-0"
+        style={{ width: '100%', height: '100%' }}
+      >
+        <div className="shadow-content">
+          {type == 'table' && <DisplayTable game={game} displayIndex={displayIndex} fetchIntervalSeconds={60} />}
+          {type == 'slide' && <DisplaySlide game={game} displayIndex={displayIndex} />}
+        </div>
+      </ShadowContainer>
       <div
         className="
             absolute

@@ -62,7 +62,8 @@ function ThemeInjector(props: ComponentProps): JSX.Element {
     // Inject color overrides from game data
     const colorOverrideEnabled = !!gameData?.data?.colorOverride;
     const gameColors = gameData?.data?.colors;
-    const themeDefaults = customThemeSettings?.[theme as string]?.colors as Record<string, string> | undefined;
+    const themeColors = customThemeSettings?.[theme as string]?.colors;
+    const themeDefaults = themeColors as Record<string, string> | undefined;
 
     if (themeDefaults) {
       const colorVars: string[] = [];
@@ -70,9 +71,11 @@ function ThemeInjector(props: ComponentProps): JSX.Element {
       // Build CSS variables - only use game colors if colorOverride is enabled
       Object.entries(colorToCssVar).forEach(([colorKey, cssVar]) => {
         // Use game colors only when override is enabled, otherwise use theme defaults
+        const gameColorValue = gameColors?.[colorKey as keyof typeof gameColors];
+        const themeColorValue = themeDefaults[colorKey];
         const colorValue = colorOverrideEnabled
-          ? (gameColors?.[colorKey] || themeDefaults?.[colorKey])
-          : themeDefaults?.[colorKey];
+          ? (gameColorValue || themeColorValue)
+          : themeColorValue;
         if (colorValue) {
           colorVars.push(`${cssVar}: ${colorValue};`);
         }

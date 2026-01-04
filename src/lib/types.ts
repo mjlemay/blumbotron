@@ -36,6 +36,7 @@ export type GameDataItem = DataItem & {
   roster?: string | null | undefined;
   data?: {
     theme?: string;
+    colorOverride?: string;
     colors?: {
       background?: string;
       text?: string;
@@ -45,6 +46,9 @@ export type GameDataItem = DataItem & {
       tableHeader?: string;
       tableRow?: string;
       tableAlt?: string;
+      fontHeader?: string;
+      fontPlayer?: string;
+      fontScore?: string;
     };
     fonts?: {
       header?: string;
