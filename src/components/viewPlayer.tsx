@@ -8,6 +8,7 @@ import { PersonIcon } from '@radix-ui/react-icons';
 import { useEffect, useState, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
+import * as Tabs from '@radix-ui/react-tabs';
 import { PlayerDataItem } from '../lib/types';
 
 function ViewPlayer() {
@@ -264,10 +265,26 @@ function ViewPlayer() {
             )}
           </div>
         </div>
-        <ScrollArea.Root className="w-full flex-1 min-h-0 rounded bg-slate-700/50 overflow-hidden mb-2">
-          <ScrollArea.Viewport className="h-full w-full rounded p-4">
-            <div className="w-full">
-              <h3 className="text-2xl font-thin pl-2 pb-2">Included in Games</h3>
+        <Tabs.Root defaultValue="permissions" className="w-full flex-1 min-h-0 flex flex-col mb-2">
+          <Tabs.List className="flex gap-1 bg-slate-700/50 rounded-t p-1">
+            <Tabs.Trigger
+              value="permissions"
+              className="px-4 py-2 rounded text-sm font-medium transition-colors duration-200 data-[state=active]:bg-sky-700 data-[state=active]:text-white data-[state=inactive]:bg-slate-600 data-[state=inactive]:text-slate-300 data-[state=inactive]:hover:bg-slate-500"
+            >
+              Permissions
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="activity"
+              className="px-4 py-2 rounded text-sm font-medium transition-colors duration-200 data-[state=active]:bg-sky-700 data-[state=active]:text-white data-[state=inactive]:bg-slate-600 data-[state=inactive]:text-slate-300 data-[state=inactive]:hover:bg-slate-500"
+            >
+              Activity
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="permissions" className="flex-1 min-h-0">
+            <ScrollArea.Root className="w-full h-full rounded-b bg-slate-700/50 overflow-hidden">
+              <ScrollArea.Viewport className="h-full w-full rounded p-4">
+                <div className="w-full">
+                  <h3 className="text-2xl font-thin pl-2 pb-2">Included in Games</h3>
               <div className="flex flex-wrap gap-2 p-1 mb-4">
                 {availableGames.length > 0 ? (
                   availableGames.map(game => (
@@ -361,23 +378,32 @@ function ViewPlayer() {
                 ) : (
                   <p className="text-slate-400 p-1 text-lg">No rosters found.</p>
                 )}
+                </div>
+                </div>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar
+                className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+                orientation="vertical"
+              >
+                <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+              </ScrollArea.Scrollbar>
+              <ScrollArea.Scrollbar
+                className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-600/75 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+                orientation="horizontal"
+              >
+                <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-slate-500 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
+              </ScrollArea.Scrollbar>
+              <ScrollArea.Corner className="bg-slate-700/50" />
+            </ScrollArea.Root>
+          </Tabs.Content>
+          <Tabs.Content value="activity" className="flex-1 min-h-0">
+            <div className="w-full h-full rounded-b bg-slate-700/50 p-4 flex items-center justify-center">
+              <div className="bg-slate-600 rounded-lg p-8 text-center">
+                <p className="text-slate-400 text-lg">No data available</p>
               </div>
             </div>
-          </ScrollArea.Viewport>
-          <ScrollArea.Scrollbar
-            className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
-            orientation="vertical"
-          >
-            <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
-          </ScrollArea.Scrollbar>
-          <ScrollArea.Scrollbar
-            className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out hover:bg-slate-600/75 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
-            orientation="horizontal"
-          >
-            <ScrollArea.Thumb className="relative flex-1 rounded-[10px] bg-slate-500 before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-[44px] before:min-w-[44px] before:-translate-x-1/2 before:-translate-y-1/2" />
-          </ScrollArea.Scrollbar>
-          <ScrollArea.Corner className="bg-slate-700/50" />
-        </ScrollArea.Root>
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
     </div>
   );
