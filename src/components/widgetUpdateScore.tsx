@@ -306,7 +306,7 @@ function UpdateScore(props: ComponentProps): JSX.Element {
           <div className="flex-1 w-1/2">
         {!form.player ? (
           <>
-            <div className="flex gap-2 items-center justify-center w-full">
+            <div className="flex gap-2 items-center justify-center w-full pb-1">
               <Input
                 name="playerSearch"
                 value={searchValue}
@@ -352,8 +352,8 @@ function UpdateScore(props: ComponentProps): JSX.Element {
                 <IconQr />
               </button>
             </div>
-            <ScrollArea.Root className="w-full max-h-48 rounded bg-slate-800/50 overflow-hidden mb-3">
-          <ScrollArea.Viewport className="w-full h-full rounded">
+            <ScrollArea.Root type="always" className="w-full rounded bg-slate-800/50 mb-3 overflow-hidden" style={{ height: filteredPlayers.length > 2 ? '12rem' : 'auto' }}>
+          <ScrollArea.Viewport className="w-full h-full rounded pr-3">
             <div className="flex flex-col gap-1 p-1">
               {filteredPlayers.map((player: DataItem) => {
                 const playerSnowflake = player.snowflake || 'default';
@@ -395,10 +395,10 @@ function UpdateScore(props: ComponentProps): JSX.Element {
             </div>
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar
-            className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=vertical]:w-2.5"
+            className="flex touch-none select-none bg-slate-700/75 p-0.5 transition-colors duration-[160ms] ease-out w-2.5"
             orientation="vertical"
           >
-            <ScrollArea.Thumb className="relative flex-1 bg-slate-500 rounded-[10px]" />
+            <ScrollArea.Thumb className="flex-1 bg-slate-500 rounded-[10px]" />
           </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </>
