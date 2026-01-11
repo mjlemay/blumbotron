@@ -426,6 +426,36 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       right: paddingValue,
     },
   };
+
+  // Layout settings for display elements with defaults
+  const defaultRowsPadding = { top: 0, right: 5, bottom: 0, left: 5 };
+  const layout = displayData?.layout || {};
+  const rowsPadding = layout.rows?.padding || defaultRowsPadding;
+  const getAlignmentClass = (alignment?: string, defaultAlignment: string = 'left') => {
+    const align = alignment || defaultAlignment;
+    switch (align) {
+      case 'left': return 'justify-start';
+      case 'center': return 'justify-center';
+      case 'right': return 'justify-end';
+      default: return 'justify-start';
+    }
+  };
+  const getPaddingStyle = (padding?: { top?: number | string; right?: number | string; bottom?: number | string; left?: number | string }) => {
+    if (!padding) return {};
+    const toViewport = (val?: number | string, unit: 'vh' | 'vw' = 'vw') => {
+      if (val === undefined || val === null || val === '') return undefined;
+      const numVal = typeof val === 'string' ? parseFloat(val) : val;
+      if (isNaN(numVal)) return undefined;
+      return `${numVal}${unit}`;
+    };
+    return {
+      paddingTop: toViewport(padding.top, 'vh'),
+      paddingRight: toViewport(padding.right, 'vw'),
+      paddingBottom: toViewport(padding.bottom, 'vh'),
+      paddingLeft: toViewport(padding.left, 'vw'),
+    };
+  };
+
   const title = displayData?.title || 'High Scores';
   const numberOfRows = displayData?.rows || numberOfScores;
 
@@ -451,6 +481,7 @@ const subHeaders = () => {
     if (!displayData?.showSubHeaders) {
       return null;
     }
+    const hasOneSubheader = displayData?.filteredUnits?.length === 1;
     return (
       <div className="flex-row flex items-stretch justify-start w-full flex-1">
         {/* Avatar placeholder */}
@@ -497,16 +528,16 @@ const subHeaders = () => {
                 flex-1
                 text-white
                 font-bold
-                text-center
                 flex
                 items-center
-                justify-center
+                ${hasOneSubheader ? getAlignmentClass(layout.subheader?.alignment, 'center') : 'justify-center'}
                 ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
               `}
               style={{
                 ...(shouldApplyColors && colors.fontHeader && { color: colors.fontHeader }),
                 ...(shouldApplyColors && colors.tableHeader && { backgroundColor: colors.tableHeader }),
                 fontFamily: fonts.header,
+                ...(hasOneSubheader && getPaddingStyle(layout.subheader?.padding)),
               }}
             >
               {unit?.name || unitId}
@@ -529,18 +560,24 @@ const subHeaders = () => {
       scoreItem?.player && (
       <div
         key={`${scoreItem?.player || 'deleted'}-${index}`}
-        className="flex-row flex items-center justify-between w-full flex-1"
+        className={`flex-row flex items-center ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
         style={{
           ...(shouldApplyColors && (index % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
             backgroundColor: index % 2 === 0 ? colors.tableAlt : colors.tableRow
           }),
+          ...getPaddingStyle(rowsPadding),
         }}
       >
         {displayData?.showAvatars && AvatarImage && (
-          <AvatarImage
-            playerName={scoreItem?.player || ''}
-            isFullScreen={isFullScreen}
-          />
+          <div
+            className={`flex-shrink-0 ${getAlignmentClass(layout.avatars?.alignment, 'left')}`}
+            style={getPaddingStyle(layout.avatars?.padding)}
+          >
+            <AvatarImage
+              playerName={scoreItem?.player || ''}
+              isFullScreen={isFullScreen}
+            />
+          </div>
         )}
         <div className={`
           flex-1
@@ -548,16 +585,16 @@ const subHeaders = () => {
           font-bold
           flex
           items-center
-          justify-start
+          ${getAlignmentClass(layout.names?.alignment, 'left')}
           gap-2
           py-2
-          pl-4
           min-w-0
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
           ...(shouldApplyColors && colors.fontPlayer && { color: colors.fontPlayer }),
           fontFamily: fonts.player,
+          ...getPaddingStyle(layout.names?.padding),
         }}
         >
           <span className="truncate">
@@ -572,15 +609,15 @@ const subHeaders = () => {
                 flex-1
                 text-white
                 font-bold
-                text-center
                 flex
                 items-center
-                justify-center
+                ${getAlignmentClass(layout.columns?.alignment, 'right')}
                 ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
               `}
               style={{
                 ...(shouldApplyColors && colors.fontScore && { color: colors.fontScore }),
                 fontFamily: fonts.score,
+                ...getPaddingStyle(layout.columns?.padding),
               }}
             >
               {columnValue !== null && columnValue !== undefined ? columnValue : '-'}
@@ -591,15 +628,15 @@ const subHeaders = () => {
             flex-1
             text-white
             font-bold
-            text-center
             flex
             items-center
-            justify-center
+            ${getAlignmentClass(layout.columns?.alignment, 'right')}
             ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
           `}
           style={{
             ...(shouldApplyColors && colors.fontScore && { color: colors.fontScore }),
             fontFamily: fonts.score,
+            ...getPaddingStyle(layout.columns?.padding),
           }}
           >
             No scores
@@ -612,11 +649,12 @@ const subHeaders = () => {
         limitedTableRows.push(
           <div
             key={`empty-${i}`}
-            className="flex-row flex items-center justify-between w-full flex-1"
+            className={`flex-row flex items-center ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
             style={{
               ...(shouldApplyColors && (i % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
                 backgroundColor: i % 2 === 0 ? colors.tableAlt : colors.tableRow
               }),
+              ...getPaddingStyle(rowsPadding),
             }}
           >
             <div className={`
@@ -729,16 +767,16 @@ const subHeaders = () => {
                       flex-1
                       text-white
                       font-bold
-                      text-center
                       flex
                       items-center
-                      justify-center
+                      ${getAlignmentClass(layout.header?.alignment, 'center')}
                       ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
                     `}
                     style={{
                       ...(shouldApplyColors && colors.fontHeader && { color: colors.fontHeader }),
                       ...(shouldApplyColors && colors.tableHeader && { backgroundColor: colors.tableHeader }),
                       fontFamily: fonts.header,
+                      ...getPaddingStyle(layout.header?.padding),
                     }}
                     >
                       {title}

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { lazy, Suspense } from 'react';
 
 // Lazy load the DisplayTableWrapper to avoid loading stores until needed
-const DisplayTableWrapper = lazy(() => import('./components/displayTableWrapper'));
+const DisplayTableWrapper = lazy(() => import('./components/displayWrapper'));
 
 function ViewerApp() {
   try {

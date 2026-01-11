@@ -16,6 +16,29 @@ export type UnitItem = {
   data?: Record<string, unknown>;
 }
 
+export type LayoutPadding = {
+    top?: number;
+    right?: number;
+    bottom?: number;
+    left?: number;
+}
+
+export type LayoutAlignment = 'left' | 'center' | 'right';
+
+export type LayoutElement = {
+    padding?: LayoutPadding;
+    alignment?: LayoutAlignment;
+}
+
+export type DisplayLayout = {
+    header?: LayoutElement;
+    subheader?: LayoutElement;
+    avatars?: LayoutElement;
+    names?: LayoutElement;
+    columns?: LayoutElement;
+    rows?: LayoutElement;
+}
+
 export type DisplayData = {
     title?: string;
     markdown?: string;
@@ -29,7 +52,8 @@ export type DisplayData = {
     showAvatars?: boolean;
     showSubHeaders?: boolean;
     category: DisplayCategory,
-    filteredUnits: string[]
+    filteredUnits: string[],
+    layout?: DisplayLayout;
 }
 
 export type GameDataItem = DataItem & {
