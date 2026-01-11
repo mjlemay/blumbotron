@@ -219,9 +219,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     }
     const allUnits = gameData?.data?.mechanics?.units || [];
     const filteredUnitIds = displayData?.filteredUnits || [];
-    
+
+    // Preserve the order of filteredUnitIds when mapping to units
     const displayUnits = filteredUnitIds.length > 0
-      ? allUnits.filter(unit => filteredUnitIds.includes(String(unit.id)))
+      ? filteredUnitIds.map(id => allUnits.find(unit => String(unit.id) === String(id))).filter(Boolean)
       : allUnits;
 
     return offsetPlayers?.map((scoreItem: ScoreDataItem) => {
@@ -234,8 +235,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
       
       if (displayUnits.length > 0) {
         for (const unit of displayUnits) {
-          const columnValue = setColumnDatum(scoreItem.player, unit);
-          additionalColumns.push(columnValue);
+          if (unit) {
+            const columnValue = setColumnDatum(scoreItem.player, unit);
+            additionalColumns.push(columnValue);
+          }
         }
       }
 
@@ -740,7 +743,7 @@ const subHeaders = () => {
       )}
       {gameData && gameScores[game || ''] && (
         <>
-        <div data-table-container 
+        <div data-content-container 
           className={`
             flex flex-col
             items-center

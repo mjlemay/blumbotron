@@ -70,7 +70,7 @@ function ThemePreview({ theme, colors }: ThemePreviewProps) {
       data-display-frame
     >
       <div
-        data-table-container
+        data-content-container
         className="w-full h-full flex flex-col relative"
         style={{
           backgroundColor: effectiveColors.background,

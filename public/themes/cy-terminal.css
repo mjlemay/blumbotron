@@ -40,7 +40,7 @@ html, body {
 }
 
 /* Make table container background darker with subtle tint */
-[data-table-container] {
+[data-content-container] {
   background: color-mix(in srgb, var(--color-background) 95%, var(--color-primary) 5%) !important;
 }
 
@@ -50,7 +50,7 @@ html, body {
 }
 
 /* Cyberpunk table styling */
-[data-table-container] .flex-row {
+[data-content-container] .flex-row {
   background: linear-gradient(90deg,
     var(--color-table-row),
     color-mix(in srgb, var(--color-table-row) 90%, var(--color-primary) 10%),
@@ -67,7 +67,7 @@ html, body {
   backdrop-filter: blur(1px);
 }
 
-[data-table-container] .flex-row:nth-child(even) {
+[data-content-container] .flex-row:nth-child(even) {
   background: linear-gradient(90deg,
     var(--color-table-alt),
     color-mix(in srgb, var(--color-table-alt) 90%, var(--color-tertiary) 10%),
@@ -81,11 +81,11 @@ html, body {
 }
 
 /* Cleaner data stream effect */
-[data-table-container] .flex-row::before {
+[data-content-container] .flex-row::before {
   display: none;
 }
 
-[data-table-container] .flex-row:nth-child(even)::before {
+[data-content-container] .flex-row:nth-child(even)::before {
   display: none;
 }
 
@@ -101,8 +101,8 @@ html, body {
 }
 
 /* Header styling - Terminal style */
-[data-table-container] h1,
-[data-table-container] .title {
+[data-content-container] h1,
+[data-content-container] .title {
   color: var(--color-font-header);
   text-shadow:
     0 0 4px var(--color-font-header),
@@ -118,8 +118,8 @@ html, body {
 }
 
 /* Terminal cursor effect */
-[data-table-container] h1::after,
-[data-table-container] .title::after {
+[data-content-container] h1::after,
+[data-content-container] .title::after {
   content: '█';
   animation: terminalCursor 1s infinite;
   margin-left: 8px;
@@ -131,7 +131,7 @@ html, body {
 }
 
 /* Player names - Clean neon */
-[data-table-container] .flex-row > div:first-child {
+[data-content-container] .flex-row > div:first-child {
   color: var(--color-font-player);
   text-shadow:
     0 0 3px var(--color-font-player),
@@ -142,7 +142,7 @@ html, body {
 }
 
 /* Scores - Clean neon */
-[data-table-container] .flex-row > div:last-child {
+[data-content-container] .flex-row > div:last-child {
   color: var(--color-font-score);
   text-shadow:
     0 0 3px var(--color-font-score),
@@ -153,7 +153,7 @@ html, body {
 }
 
 /* Matrix-style digital rain overlay */
-[data-table-container]::before {
+[data-content-container]::before {
   content: '';
   position: absolute;
   top: 0;
@@ -179,7 +179,7 @@ html, body {
 }
 
 /* Matrix-style moderate glow borders */
-[data-table-container]::after {
+[data-content-container]::after {
   content: '';
   position: absolute;
   top: -2px;

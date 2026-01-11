@@ -252,6 +252,7 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
       names: layoutElementSchema,
       columns: layoutElementSchema,
       rows: layoutElementSchema,
+      cell: layoutElementSchema,
     }).optional();
 
     let formSchema = z.object({
@@ -414,13 +415,116 @@ function FormGameDisplayConfig(props: FormGameDisplayConfigProps) {
                     { form?.data?.displays?.[displayIndex]?.category === 'slide' && <>
                       <div className="w-full mb-4">
                         <label className="block text-lg font-bold text-white mb-1">Slide Content</label>
-                           <MdEditor 
+                           <MdEditor
                             style={{ height: '300px', width: '100%' }}
                             value={form?.data?.displays?.[displayIndex]?.markdown || ''}
-                            renderHTML={text => mdParser.render(text)} 
-                            onChange={({ text }) => updateFormInput(`data.displays[${displayIndex}].markdown`, text)} 
+                            renderHTML={text => mdParser.render(text)}
+                            onChange={({ text }) => updateFormInput(`data.displays[${displayIndex}].markdown`, text)}
                             canView={{ menu: true, md: true, html: false, both: false, fullScreen: false, hideMenu: true }}
                             />
+                      </div>
+
+                      {/* Slide Layout Section */}
+                      <div className="w-full mt-6">
+                        <h3 className="text-xl font-bold border-b border-slate-600 p-2 pr-1 pl-1 w-full mb-4">
+                          Slide Layout
+                        </h3>
+
+                        {/* Header Layout */}
+                        <div className="mb-6 p-4 border border-slate-600 rounded-lg">
+                          <label className="block text-lg font-bold text-white mb-3">Header</label>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.header.padding.top`}
+                              label="Top"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.header?.padding?.top ?? 0}
+                              changeHandler={handleFormChange}
+                              placeholder="0"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.header.padding.right`}
+                              label="Right"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.header?.padding?.right ?? 0}
+                              changeHandler={handleFormChange}
+                              placeholder="0"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.header.padding.bottom`}
+                              label="Bottom"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.header?.padding?.bottom ?? 0}
+                              changeHandler={handleFormChange}
+                              placeholder="0"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.header.padding.left`}
+                              label="Left"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.header?.padding?.left ?? 0}
+                              changeHandler={handleFormChange}
+                              placeholder="0"
+                            />
+                          </div>
+                          <label className="block text-slate-200 font-semibold text-lg mb-1">Alignment</label>
+                          <SelectChip
+                            selectLabel="Alignment"
+                            selectPlaceholder="Choose Alignment"
+                            selections={[
+                              { value: 'left', label: 'Left' },
+                              { value: 'center', label: 'Center' },
+                              { value: 'right', label: 'Right' },
+                            ]}
+                            defaultValue={form?.data?.displays?.[displayIndex]?.layout?.header?.alignment || 'center'}
+                            handleSelect={handleSelect(`data.displays[${displayIndex}].layout.header.alignment`)}
+                            moreClasses="justify-start"
+                          />
+                        </div>
+
+                        {/* Cell Layout */}
+                        <div className="mb-6 p-4 border border-slate-600 rounded-lg">
+                          <label className="block text-lg font-bold text-white mb-3">Cell</label>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.cell.padding.top`}
+                              label="Top"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.cell?.padding?.top ?? 2}
+                              changeHandler={handleFormChange}
+                              placeholder="2"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.cell.padding.right`}
+                              label="Right"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.cell?.padding?.right ?? 3}
+                              changeHandler={handleFormChange}
+                              placeholder="3"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.cell.padding.bottom`}
+                              label="Bottom"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.cell?.padding?.bottom ?? 4}
+                              changeHandler={handleFormChange}
+                              placeholder="4"
+                            />
+                            <Input
+                              name={`data.displays[${displayIndex}].layout.cell.padding.left`}
+                              label="Left"
+                              value={form?.data?.displays?.[displayIndex]?.layout?.cell?.padding?.left ?? 3}
+                              changeHandler={handleFormChange}
+                              placeholder="3"
+                            />
+                          </div>
+                          <label className="block text-slate-200 font-semibold text-lg mb-1">Alignment</label>
+                          <SelectChip
+                            selectLabel="Alignment"
+                            selectPlaceholder="Choose Alignment"
+                            selections={[
+                              { value: 'left', label: 'Left' },
+                              { value: 'center', label: 'Center' },
+                              { value: 'right', label: 'Right' },
+                            ]}
+                            defaultValue={form?.data?.displays?.[displayIndex]?.layout?.cell?.alignment || 'left'}
+                            handleSelect={handleSelect(`data.displays[${displayIndex}].layout.cell.alignment`)}
+                            moreClasses="justify-start"
+                          />
+                        </div>
                       </div>
                     </>}
                     { form?.data?.displays?.[displayIndex]?.category === 'table' && <>

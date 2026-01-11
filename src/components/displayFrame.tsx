@@ -107,7 +107,7 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     .overflow-hidden { overflow: hidden; }
     .overflow-auto { overflow: auto; }
     /* Display table specific */
-    [data-table-container] {
+    [data-content-container] {
       width: 100%;
       height: 100%;
       display: flex;
