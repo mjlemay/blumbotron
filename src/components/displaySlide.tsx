@@ -61,7 +61,7 @@ function DisplaySlide(props: ComponentProps): JSX.Element {
 
   const fonts = {
     header: themeFonts?.header || 'Arial, sans-serif',
-    body: themeFonts?.player || 'Arial, sans-serif',
+    player: themeFonts?.player || 'Arial, sans-serif',
     ...(gameData?.data?.fonts || {})
   };
 
@@ -307,13 +307,24 @@ function DisplaySlide(props: ComponentProps): JSX.Element {
               </h1>
             </div>
           )}
+          <style>
+            {`
+              [data-slide-container] * {
+                font-family: ${fonts.player} !important;
+              }
+            `}
+          </style>
           <div
             data-slide-container
-            className="flex-row prose prose-invert max-w-none w-full overflow-hidden"
+            className={`
+              flex-row prose prose-invert max-w-none w-full overflow-hidden
+              ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
+            `}
             style={{
               ...(shouldApplyColors && colors.fontPlayer && { color: colors.fontPlayer }),
-              fontFamily: fonts.body,
+              fontFamily: fonts.player,
               textAlign: layout.cell?.alignment || 'left',
+              lineHeight: 1.6,
               ...getPaddingStyle(cellPadding),
             }}
             dangerouslySetInnerHTML={{ __html: htmlContent }}

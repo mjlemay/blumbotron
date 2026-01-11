@@ -37,6 +37,7 @@ export type DisplayLayout = {
     names?: LayoutElement;
     columns?: LayoutElement;
     rows?: LayoutElement;
+    cell?: LayoutElement;
 }
 
 export type DisplayData = {
