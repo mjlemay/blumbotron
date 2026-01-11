@@ -560,7 +560,7 @@ const subHeaders = () => {
       scoreItem?.player && (
       <div
         key={`${scoreItem?.player || 'deleted'}-${index}`}
-        className={`flex-row flex items-center ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
+        className={`flex-row flex items-stretch ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
         style={{
           ...(shouldApplyColors && (index % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
             backgroundColor: index % 2 === 0 ? colors.tableAlt : colors.tableRow
@@ -570,8 +570,12 @@ const subHeaders = () => {
       >
         {displayData?.showAvatars && AvatarImage && (
           <div
-            className={`flex-shrink-0 ${getAlignmentClass(layout.avatars?.alignment, 'left')}`}
-            style={getPaddingStyle(layout.avatars?.padding)}
+            className={`flex-shrink-0 self-stretch ${getAlignmentClass(layout.avatars?.alignment, 'left')}`}
+            style={{
+              ...getPaddingStyle(layout.avatars?.padding),
+              height: '100%',
+              aspectRatio: '1',
+            }}
           >
             <AvatarImage
               playerName={scoreItem?.player || ''}
@@ -587,17 +591,18 @@ const subHeaders = () => {
           items-center
           ${getAlignmentClass(layout.names?.alignment, 'left')}
           gap-2
-          py-2
           min-w-0
+          leading-normal
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{
           ...(shouldApplyColors && colors.fontPlayer && { color: colors.fontPlayer }),
           fontFamily: fonts.player,
           ...getPaddingStyle(layout.names?.padding),
+          overflow: 'visible',
         }}
         >
-          <span className="truncate">
+          <span className="truncate leading-normal">
             {scoreItem?.player || ' [ REMOVED ]'}
           </span>
         </div>
@@ -649,7 +654,7 @@ const subHeaders = () => {
         limitedTableRows.push(
           <div
             key={`empty-${i}`}
-            className={`flex-row flex items-center ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
+            className={`flex-row flex items-stretch ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
             style={{
               ...(shouldApplyColors && (i % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
                 backgroundColor: i % 2 === 0 ? colors.tableAlt : colors.tableRow

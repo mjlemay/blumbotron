@@ -2,17 +2,17 @@
 
 /* Theme Color Variables - These can be overridden by the app */
 :root {
-  --color-background: #000000;
-  --color-text: #e0f7fa;
-  --color-primary: #00ffff;
-  --color-secondary: #0088ff;
-  --color-tertiary: #00ddff;
-  --color-table-header: #001a1f;
-  --color-table-row: #001419;
-  --color-table-alt: #00191e;
-  --color-font-header: #00ffff;
-  --color-font-player: #00ffff;
-  --color-font-score: #0088ff;
+  --color-background: #0a0a08;
+  --color-text: #b8c4b8;
+  --color-primary: #00aa88;
+  --color-secondary: #006655;
+  --color-tertiary: #008866;
+  --color-table-header: #0d0f0a;
+  --color-table-row: #080a06;
+  --color-table-alt: #0b0d08;
+  --color-font-header: #00ccaa;
+  --color-font-player: #88aa88;
+  --color-font-score: #00aa88;
 }
 
 [data-display-frame] {
@@ -39,9 +39,9 @@ html, body {
   color: var(--color-text);
 }
 
-/* Make table container background darker with cyan tint */
+/* Make table container background darker with subtle tint */
 [data-table-container] {
-  background: color-mix(in srgb, var(--color-background) 80%, var(--color-primary) 20%) !important;
+  background: color-mix(in srgb, var(--color-background) 95%, var(--color-primary) 5%) !important;
 }
 
 @keyframes cyberpunkFlicker {
@@ -105,14 +105,10 @@ html, body {
 [data-table-container] .title {
   color: var(--color-font-header);
   text-shadow:
-    0 0 5px var(--color-primary),
-    0 0 10px var(--color-primary),
-    0 0 15px var(--color-primary);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 10%, transparent), color-mix(in srgb, var(--color-secondary) 10%, transparent)) !important;
-  border: 2px solid var(--color-primary);
-  border-top: 4px solid var(--color-secondary);
-  border-bottom: 4px solid var(--color-secondary);
+    0 0 4px var(--color-font-header),
+    0 0 8px color-mix(in srgb, var(--color-font-header) 60%, transparent);
+  background: transparent !important;
+  border: none !important;
   padding: 16px !important;
   margin-bottom: 8px;
   letter-spacing: 3px;
@@ -134,23 +130,23 @@ html, body {
   51%, 100% { opacity: 0; }
 }
 
-/* Player names - Clean neon cyan */
+/* Player names - Clean neon */
 [data-table-container] .flex-row > div:first-child {
   color: var(--color-font-player);
   text-shadow:
-    0 0 2px var(--color-primary),
-    0 0 4px color-mix(in srgb, var(--color-primary) 40%, transparent);
+    0 0 3px var(--color-font-player),
+    0 0 6px color-mix(in srgb, var(--color-font-player) 70%, transparent);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 500;
 }
 
-/* Scores - Clean neon blue */
+/* Scores - Clean neon */
 [data-table-container] .flex-row > div:last-child {
   color: var(--color-font-score);
   text-shadow:
-    0 0 2px var(--color-secondary),
-    0 0 4px color-mix(in srgb, var(--color-secondary) 40%, transparent);
+    0 0 3px var(--color-font-score),
+    0 0 6px color-mix(in srgb, var(--color-font-score) 70%, transparent);
   font-weight: 600;
   text-transform: uppercase;
   text-align: right;
