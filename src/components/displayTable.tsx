@@ -432,8 +432,10 @@ function DisplayTable(props: ComponentProps): JSX.Element {
 
   // Layout settings for display elements with defaults
   const defaultRowsPadding = { top: 0, right: 5, bottom: 0, left: 5 };
+  const defaultSubheaderPadding = { top: 0, right: 5, bottom: 0, left: 0 };
   const layout = displayData?.layout || {};
   const rowsPadding = layout.rows?.padding || defaultRowsPadding;
+  const subheaderPadding = layout.subheader?.padding || defaultSubheaderPadding;
   const getAlignmentClass = (alignment?: string, defaultAlignment: string = 'left') => {
     const align = alignment || defaultAlignment;
     switch (align) {
@@ -484,9 +486,16 @@ const subHeaders = () => {
     if (!displayData?.showSubHeaders) {
       return null;
     }
-    const hasOneSubheader = displayData?.filteredUnits?.length === 1;
+    // Use same fallback logic as table data - show all units if none filtered
+    const allUnits = gameData?.data?.mechanics?.units || [];
+    const filteredUnitIds = displayData?.filteredUnits || [];
+    const subHeaderUnits = filteredUnitIds.length > 0
+      ? filteredUnitIds.map(id => allUnits.find(unit => String(unit.id) === String(id))).filter(Boolean)
+      : allUnits;
+    const hasOneSubheader = subHeaderUnits.length === 1;
+
     return (
-      <div className="flex-row flex items-stretch justify-start w-full flex-1">
+      <div data-subheader-row className="flex-row flex items-stretch justify-start w-full flex-1">
         {/* Avatar placeholder */}
         {displayData?.showAvatars && (
           <div className={`
@@ -494,7 +503,6 @@ const subHeaders = () => {
             ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
           `}
           style={{
-            ...(shouldApplyColors && colors.tableHeader && { backgroundColor: colors.tableHeader }),
             height: '100%',
             aspectRatio: '1',
           }}
@@ -515,35 +523,32 @@ const subHeaders = () => {
         `}
         style={{
           ...(shouldApplyColors && colors.fontHeader && { color: colors.fontHeader }),
-          ...(shouldApplyColors && colors.tableHeader && { backgroundColor: colors.tableHeader }),
           fontFamily: fonts.header,
         }}
         >
           &nbsp;
         </div>
         {/* Unit headers */}
-        {displayData?.filteredUnits.map((unitId) => {
-          const unit = gameData?.data?.mechanics?.units?.find(u => String(u.id) === String(unitId));
+        {subHeaderUnits.map((unit) => {
           return (
             <div
-              key={unitId}
+              key={unit?.id || 'unknown'}
               className={`
                 flex-1
                 text-white
                 font-bold
                 flex
                 items-center
-                ${hasOneSubheader ? getAlignmentClass(layout.subheader?.alignment, 'center') : 'justify-center'}
+                ${hasOneSubheader ? getAlignmentClass(layout.subheader?.alignment, 'right') : 'justify-end'}
                 ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
               `}
               style={{
                 ...(shouldApplyColors && colors.fontHeader && { color: colors.fontHeader }),
-                ...(shouldApplyColors && colors.tableHeader && { backgroundColor: colors.tableHeader }),
                 fontFamily: fonts.header,
-                ...(hasOneSubheader && getPaddingStyle(layout.subheader?.padding)),
+                ...getPaddingStyle(subheaderPadding),
               }}
             >
-              {unit?.name || unitId}
+              {unit?.name || 'Unknown'}
             </div>
           );
         })}
