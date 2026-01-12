@@ -12,11 +12,9 @@
   --color-table-alt: #1a0660;
   --color-font-header: #41c5ff;
   --color-font-player: #faf0e6;
-  --color-font-score: #ff00a0;
-  /* Derived colors for effects */
-  --bg-grid-color: #5d1c95;
-  --bg-vignette-color-1: rgba(18, 4, 88, 0);
-  --bg-vignette-color-2: rgba(18, 4, 88, 1);
+  --color-font-score: #d4609a;
+  /* Grid color - purple accent for background grid lines */
+  --bg-grid-color: #4a2a80;
 }
 
 /* Base Styles */
@@ -31,13 +29,13 @@ body {
   color: var(--color-text);
   background-color: var(--color-background);
   background-image:
-    radial-gradient(var(--bg-vignette-color-1), var(--bg-vignette-color-2)),
-    linear-gradient(rgba(93, 28, 149, 0.8) 1px, transparent 0),
-    linear-gradient(var(--bg-grid-color) 1px, transparent 0),
-    linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
-    linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 0),
+    radial-gradient(transparent, var(--color-background)),
+    linear-gradient(color-mix(in srgb, var(--bg-grid-color) 60%, transparent) 1px, transparent 0),
+    linear-gradient(color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
     linear-gradient(transparent 3px, var(--color-background) 0, var(--color-background) 94px, transparent 0),
-    linear-gradient(90deg, var(--bg-grid-color) 3px, transparent 0, transparent 94px, var(--bg-grid-color) 0);
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 3px, transparent 0, transparent 94px, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 0);
   background-size:
     100vw 100vh,
     24px 24px,
@@ -88,4 +86,184 @@ body {
 /* Utility Classes */
 .theme-padding {
   padding-top: 1vh;
+}
+
+/* Display Frame - apply grid background */
+[data-display-frame] {
+  background-color: var(--color-background) !important;
+  background-image:
+    radial-gradient(transparent, var(--color-background)),
+    linear-gradient(color-mix(in srgb, var(--bg-grid-color) 60%, transparent) 1px, transparent 0),
+    linear-gradient(color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 1px, transparent 0),
+    linear-gradient(transparent 3px, var(--color-background) 0, var(--color-background) 94px, transparent 0),
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 3px, transparent 0, transparent 94px, color-mix(in srgb, var(--bg-grid-color) 50%, transparent) 0) !important;
+  background-size:
+    100% 100%,
+    24px 24px,
+    96px 96px,
+    24px 24px,
+    96px 96px,
+    96px 96px,
+    96px 96px !important;
+}
+
+/* Content Container Styles */
+[data-content-container] {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Remove backdrop blur from all elements in display */
+[data-display-frame] .backdrop-blur-xl,
+[data-display-frame] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Primary mixin - keep border effects but transparent bg */
+[data-content-container] .primary-mixin {
+  background: transparent !important;
+  background-color: transparent !important;
+  --aug-border-bg: radial-gradient(var(--color-font-player), var(--color-font-header)) 100% 100% / 100% 100%;
+  --aug-inlay-bg: radial-gradient(ellipse at top, var(--color-font-header), transparent) 50% 50% / 100% 100%;
+  --aug-inlay-opacity: 0.2;
+}
+
+/* Header styling with frosted glass effect */
+[data-content-container] h1,
+[data-content-container] .title {
+  position: relative;
+  color: var(--color-font-header);
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  padding: 16px !important;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px var(--color-font-header);
+  border: 1px solid color-mix(in srgb, var(--color-font-player) 20%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Frosted glass overlay for header */
+[data-content-container] h1::before,
+[data-content-container] .title::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    color-mix(in srgb, var(--color-font-player) 8%, transparent) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure header content is above the glass overlay */
+[data-content-container] h1 > *,
+[data-content-container] .title > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reset layout flex-rows - these are wrappers, not score rows */
+[data-content-container] .theme-padding,
+[data-content-container] .theme-padding .flex-row,
+[data-content-container] .primary-mixin > .flex-row {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Row styling with frosted glass effect - only for score rows */
+[data-score-row] {
+  position: relative;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  margin-bottom: 2px;
+  border: 1px solid color-mix(in srgb, var(--color-font-player) 20%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Frosted glass overlay for rows */
+[data-score-row]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    color-mix(in srgb, var(--color-font-player) 8%, transparent) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure row content is above the glass overlay */
+[data-score-row] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-score-row]:nth-child(odd) {
+  border: 1px solid color-mix(in srgb, var(--color-font-score) 20%, transparent);
+}
+
+[data-score-row]:nth-child(odd)::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    color-mix(in srgb, var(--color-font-score) 8%, transparent) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+/* Player names */
+[data-content-container] [data-score-row] > div:first-child {
+  color: var(--color-font-player);
+}
+
+/* Scores */
+[data-content-container] [data-score-row] > div:last-child {
+  color: var(--color-font-score);
+  text-align: right;
+}
+
+/* Slide content styling with frosted glass effect */
+[data-slide-container] {
+  position: relative;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--color-font-player) 20%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Frosted glass overlay for slide content */
+[data-slide-container]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    color-mix(in srgb, var(--color-font-player) 8%, transparent) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure slide content is above the glass overlay */
+[data-slide-container] > * {
+  position: relative;
+  z-index: 1;
 }

@@ -563,6 +563,7 @@ const subHeaders = () => {
       scoreItem?.player && (
       <div
         key={`${scoreItem?.player || 'deleted'}-${index}`}
+        data-score-row
         className={`flex-row flex items-stretch ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
         style={{
           ...(shouldApplyColors && (index % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
@@ -657,6 +658,7 @@ const subHeaders = () => {
         limitedTableRows.push(
           <div
             key={`empty-${i}`}
+            data-score-row
             className={`flex-row flex items-stretch ${getAlignmentClass(layout.rows?.alignment, 'left')} w-full flex-1`}
             style={{
               ...(shouldApplyColors && (i % 2 === 0 ? colors.tableAlt : colors.tableRow) && {
