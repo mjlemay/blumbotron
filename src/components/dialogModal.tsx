@@ -12,6 +12,7 @@ import FormPlayer from './formPlayer';
 import FormPhoto from './formPhoto';
 import FormAlternateIds from './formAlternateIds'
 import DisplayTable from './displayTable';
+import ThemeInjector from './themeInjector';
 import { refreshData } from '../lib/fetchCalls';
 import { useExperienceStore } from '../stores/experienceStore';
 import { useGameStore } from '../stores/gamesStore';
@@ -31,8 +32,9 @@ function DialogModal({
   selectedModal,
   isOpen = false,
 }: DialogModalProps): JSX.Element {
-  const { setExpModal, setExpSubSelected, experience: { selected } } = useExperienceStore();
+  const { setExpModal, setExpSubSelected, experience: { selected, subSelected } } = useExperienceStore();
   const gameSelected = selected && selected.game;
+  const displayIndex = typeof subSelected === 'number' ? subSelected : 0;
   const { fetchGames } = useGameStore(useShallow((state) => ({ fetchGames: state.fetchGames })));
   const { fetchPlayers } = usePlayerStore(
     useShallow((state) => ({ fetchPlayers: state.fetchPlayers }))
@@ -130,11 +132,15 @@ function DialogModal({
         />
       ),
       displayTable: (
-        <DisplayTable
-          game={gameSelected?.snowflake}
-          isFullScreen={true}
-          fetchIntervalSeconds={60}
-        />
+        <>
+          <ThemeInjector game={gameSelected?.snowflake} />
+          <DisplayTable
+            game={gameSelected?.snowflake}
+            displayIndex={displayIndex}
+            isFullScreen={true}
+            fetchIntervalSeconds={60}
+          />
+        </>
       ),
     };
     return content[selectedModal as keyof typeof content] || null;

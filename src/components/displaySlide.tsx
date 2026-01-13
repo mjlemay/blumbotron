@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useGameStore } from '../stores/gamesStore';
 import MarkdownIt from 'markdown-it';
+import DOMPurify from 'dompurify';
 import { invoke } from '@tauri-apps/api/core';
 import { customThemeSettings } from '../lib/consts';
 
@@ -25,7 +26,7 @@ function DisplaySlide(props: ComponentProps): JSX.Element {
 
   const displayData = gameData?.data?.displays?.[displayIndex];
   const markdownContent = displayData?.markdown || '';
-  const htmlContent = mdParser.render(markdownContent);
+  const htmlContent = DOMPurify.sanitize(mdParser.render(markdownContent));
 
   // Get theme defaults if a theme is selected
   const themeName = gameData?.data?.theme;

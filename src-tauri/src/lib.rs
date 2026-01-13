@@ -6,6 +6,32 @@ use base64::{Engine as _, engine::general_purpose};
 const MIGRATION_SQL: &str = include_str!("../../drizzle/0000_neat_wong.sql");
 const DB_PATH: &str = "sqlite:blumbo.db";
 
+/// Validates a filename to prevent path traversal attacks.
+/// Returns an error if the filename contains path separators or parent directory references.
+fn validate_filename(file_name: &str) -> Result<(), String> {
+    // Reject empty filenames
+    if file_name.is_empty() {
+        return Err("Filename cannot be empty".to_string());
+    }
+
+    // Reject path traversal attempts
+    if file_name.contains("..") {
+        return Err("Invalid filename: path traversal not allowed".to_string());
+    }
+
+    // Reject path separators
+    if file_name.contains('/') || file_name.contains('\\') {
+        return Err("Invalid filename: path separators not allowed".to_string());
+    }
+
+    // Reject null bytes
+    if file_name.contains('\0') {
+        return Err("Invalid filename: null bytes not allowed".to_string());
+    }
+
+    Ok(())
+}
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! Welcome to Blumbotron!", name)
@@ -65,8 +91,11 @@ async fn save_background_image(
     file_name: String,
     image_data: String,
 ) -> Result<String, String> {
+    // Validate filename to prevent path traversal
+    validate_filename(&file_name)?;
+
     println!("Saving background image: {}", file_name);
-    
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()
@@ -101,8 +130,11 @@ async fn delete_background_image(
     app_handle: tauri::AppHandle,
     file_name: String,
 ) -> Result<(), String> {
+    // Validate filename to prevent path traversal
+    validate_filename(&file_name)?;
+
     println!("Deleting background image: {}", file_name);
-    
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()
@@ -127,6 +159,9 @@ async fn get_background_image_path(
     app_handle: tauri::AppHandle,
     file_name: String,
 ) -> Result<String, String> {
+    // Validate filename to prevent path traversal
+    validate_filename(&file_name)?;
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()
@@ -145,8 +180,11 @@ async fn get_background_image_data(
     app_handle: tauri::AppHandle,
     file_name: String,
 ) -> Result<String, String> {
+    // Validate filename to prevent path traversal
+    validate_filename(&file_name)?;
+
     println!("Getting background image data for: {}", file_name);
-    
+
     // Get app data directory
     let app_data_dir = app_handle
         .path()

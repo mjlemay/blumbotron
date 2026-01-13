@@ -21,24 +21,31 @@ const initializeDatabase = async () => {
   if (dbInitialized) return sqlite;
   
   try {
-    console.log('Attempting to load database:', dbName);
+    if (import.meta.env.DEV) {
+      console.log('Attempting to load database:', dbName);
+    }
     sqlite = await Database.load(dbName);
     dbInitialized = true
     return sqlite;
   } catch (error) {
     const sqlError = error as SQLiteError;
-    console.error('Error loading SQLite database:', {
-      code: sqlError.code,
-      message: sqlError.message,
-      fullError: error,
-    });
+    if (import.meta.env.DEV) {
+      console.error('Error loading SQLite database:', {
+        code: sqlError.code,
+        message: sqlError.message,
+      });
+    } else {
+      console.error('Failed to load database');
+    }
     throw error;
   }
 };
 
 // Initialize on module load
 initializeDatabase().catch(err => {
-  console.error('Failed to initialize database on module load:', err);
+  if (import.meta.env.DEV) {
+    console.error('Failed to initialize database on module load:', err);
+  }
 });
 
 const db = drizzle<typeof schema>(
@@ -65,13 +72,17 @@ const db = drizzle<typeof schema>(
       }
     } catch (error) {
       const sqlError = error as SQLiteError;
-      console.error('SQL Error:', {
-        code: sqlError.code,
-        message: sqlError.message,
-        query: sql,
-        params: params,
-        fullError: error,
-      });
+      // Only log detailed SQL info in development to prevent exposing database structure
+      if (import.meta.env.DEV) {
+        console.error('SQL Error:', {
+          code: sqlError.code,
+          message: sqlError.message,
+          query: sql,
+          params: params,
+        });
+      } else {
+        console.error('Database error:', sqlError.message);
+      }
       throw error;
     }
 
@@ -81,7 +92,6 @@ const db = drizzle<typeof schema>(
 
     // If the method is "all", return all rows
     results = method === 'all' ? rows : rows[0];
-    console.log('Final results:', results);
 
     return { rows: results };
   },
