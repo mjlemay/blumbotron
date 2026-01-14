@@ -602,6 +602,7 @@ const subHeaders = () => {
           gap-2
           min-w-0
           leading-normal
+          ml-2
           ${isFullScreen ? 'text-[min(4cqw,4cqh)]' : 'text-[min(2cqw,2cqh)]'}
         `}
         style={{

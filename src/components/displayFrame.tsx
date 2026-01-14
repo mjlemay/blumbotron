@@ -72,16 +72,22 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     .flex-col { flex-direction: column; }
     .flex-row { flex-direction: row; }
     .flex-1 { flex: 1 1 0%; }
+    .flex-shrink-0 { flex-shrink: 0; }
     .items-center { align-items: center; }
+    .items-stretch { align-items: stretch; }
+    .self-stretch { align-self: stretch; }
     .justify-center { justify-content: center; }
     .justify-between { justify-content: space-between; }
     .justify-start { justify-content: flex-start; }
+    .justify-end { justify-content: flex-end; }
     .gap-1 { gap: 0.25rem; }
     .gap-2 { gap: 0.5rem; }
     /* Base sizing utilities */
     .w-full { width: 100%; }
     .h-full { height: 100%; }
     .min-h-full { min-height: 100%; }
+    .min-w-0 { min-width: 0; }
+    .max-w-none { max-width: none; }
     /* Base spacing utilities */
     .p-1 { padding: 0.25rem; }
     .p-2 { padding: 0.5rem; }
@@ -90,6 +96,8 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     .pr-4 { padding-right: 1rem; }
     .pt-2 { padding-top: 0.5rem; }
     .pb-2 { padding-bottom: 0.5rem; }
+    .ml-2 { margin-left: 0.5rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
     /* Base text utilities */
     .text-center { text-align: center; }
     .text-left { text-align: left; }
@@ -99,13 +107,21 @@ function DisplayFrame(props: ComponentProps): JSX.Element {
     .text-2xl { font-size: 1.5rem; line-height: 2rem; }
     .font-bold { font-weight: 700; }
     .font-medium { font-weight: 500; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .leading-normal { line-height: 1.5; }
+    .text-white { color: white; }
     /* Base positioning */
     .relative { position: relative; }
     .absolute { position: absolute; }
     .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .z-10 { z-index: 10; }
     /* Overflow */
     .overflow-hidden { overflow: hidden; }
     .overflow-auto { overflow: auto; }
+    .overflow-visible { overflow: visible; }
+    /* Border/rounded */
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
     /* Display table specific */
     [data-content-container] {
       width: 100%;
