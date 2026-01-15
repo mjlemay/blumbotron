@@ -1,18 +1,19 @@
-/* Neural Net - Techno Acid Theme for Blumbotron */
+/* Neural Net - Acid Design Theme for Blumbotron */
+/* Inspired by 90s rave/acid graphics - laser lines, warped patterns, horror vacui */
 
-/* Theme Color Variables - These can be overridden by the app */
 :root {
-  --color-background: #0d0d0d;
-  --color-text: #f0f0f0;
+  --color-background: #000000;
+  --color-text: #ffffff;
   --color-primary: #39ff14;
   --color-secondary: #ff00ff;
   --color-tertiary: #00ffff;
-  --color-table-header: #1a1a1a;
-  --color-table-row: #111111;
-  --color-table-alt: #161616;
+  --color-table-header: #000000;
+  --color-table-row: #000000;
+  --color-table-alt: #0a0a0a;
   --color-font-header: #39ff14;
-  --color-font-player: #f0f0f0;
+  --color-font-player: #ffffff;
   --color-font-score: #ff00ff;
+  --laser-width: 1px;
 }
 
 [data-display-frame] {
@@ -26,7 +27,6 @@
   min-width: 100vw;
 }
 
-/* Hide all scrollbars globally */
 * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -46,7 +46,45 @@ html, body {
   background: var(--color-background);
 }
 
-/* Acid grid background */
+/* Make wrapper containers transparent so mesh shows through */
+.bg-black {
+  background-color: transparent !important;
+}
+
+/* Dialog content wrapper */
+.dialog-content {
+  background: transparent !important;
+}
+
+/* Display frame with polygon mesh background */
+[data-display-frame] {
+  background-color: var(--color-background) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3Cstyle%3E.n1%7Bfill:%2339ff14;opacity:0.7%7D.n2%7Bfill:%23ff00ff;opacity:0.6%7D.n3%7Bfill:%2300ffff;opacity:0.5%7D.l1%7Bstroke:%2339ff14;stroke-width:0.8;opacity:0.25%7D.l2%7Bstroke:%23ff00ff;stroke-width:0.8;opacity:0.2%7D.l3%7Bstroke:%2300ffff;stroke-width:0.8;opacity:0.18%7D.tri%7Bfill:none;stroke:%2339ff14;stroke-width:0.8;opacity:0.3%7D.tri2%7Bfill:none;stroke:%23ff00ff;stroke-width:0.8;opacity:0.25%7D.hex%7Bfill:none;stroke:%2300ffff;stroke-width:0.8;opacity:0.2%7D%3C/style%3E%3C/defs%3E%3Cline class='l1' x1='20' y1='40' x2='100' y2='60'/%3E%3Cline class='l1' x1='100' y1='60' x2='180' y2='35'/%3E%3Cline class='l1' x1='180' y1='35' x2='260' y2='70'/%3E%3Cline class='l1' x1='260' y1='70' x2='340' y2='45'/%3E%3Cline class='l1' x1='340' y1='45' x2='420' y2='80'/%3E%3Cline class='l1' x1='420' y1='80' x2='500' y2='50'/%3E%3Cline class='l1' x1='500' y1='50' x2='580' y2='75'/%3E%3Cline class='l1' x1='580' y1='75' x2='660' y2='40'/%3E%3Cline class='l1' x1='660' y1='40' x2='740' y2='65'/%3E%3Cline class='l1' x1='740' y1='65' x2='790' y2='55'/%3E%3Cline class='l2' x1='30' y1='120' x2='110' y2='100'/%3E%3Cline class='l2' x1='110' y1='100' x2='190' y2='130'/%3E%3Cline class='l2' x1='190' y1='130' x2='270' y2='95'/%3E%3Cline class='l2' x1='270' y1='95' x2='350' y2='125'/%3E%3Cline class='l2' x1='350' y1='125' x2='430' y2='90'/%3E%3Cline class='l2' x1='430' y1='90' x2='510' y2='120'/%3E%3Cline class='l2' x1='510' y1='120' x2='590' y2='85'/%3E%3Cline class='l2' x1='590' y1='85' x2='670' y2='115'/%3E%3Cline class='l2' x1='670' y1='115' x2='750' y2='95'/%3E%3Cline class='l3' x1='40' y1='180' x2='120' y2='160'/%3E%3Cline class='l3' x1='120' y1='160' x2='200' y2='190'/%3E%3Cline class='l3' x1='200' y1='190' x2='280' y2='155'/%3E%3Cline class='l3' x1='280' y1='155' x2='360' y2='185'/%3E%3Cline class='l3' x1='360' y1='185' x2='440' y2='150'/%3E%3Cline class='l3' x1='440' y1='150' x2='520' y2='180'/%3E%3Cline class='l3' x1='520' y1='180' x2='600' y2='145'/%3E%3Cline class='l3' x1='600' y1='145' x2='680' y2='175'/%3E%3Cline class='l3' x1='680' y1='175' x2='760' y2='155'/%3E%3Cline class='l1' x1='25' y1='240' x2='105' y2='220'/%3E%3Cline class='l1' x1='105' y1='220' x2='185' y2='250'/%3E%3Cline class='l1' x1='185' y1='250' x2='265' y2='215'/%3E%3Cline class='l1' x1='265' y1='215' x2='345' y2='245'/%3E%3Cline class='l1' x1='345' y1='245' x2='425' y2='210'/%3E%3Cline class='l1' x1='425' y1='210' x2='505' y2='240'/%3E%3Cline class='l1' x1='505' y1='240' x2='585' y2='205'/%3E%3Cline class='l1' x1='585' y1='205' x2='665' y2='235'/%3E%3Cline class='l1' x1='665' y1='235' x2='745' y2='215'/%3E%3Cline class='l2' x1='35' y1='300' x2='115' y2='280'/%3E%3Cline class='l2' x1='115' y1='280' x2='195' y2='310'/%3E%3Cline class='l2' x1='195' y1='310' x2='275' y2='275'/%3E%3Cline class='l2' x1='275' y1='275' x2='355' y2='305'/%3E%3Cline class='l2' x1='355' y1='305' x2='435' y2='270'/%3E%3Cline class='l2' x1='435' y1='270' x2='515' y2='300'/%3E%3Cline class='l2' x1='515' y1='300' x2='595' y2='265'/%3E%3Cline class='l2' x1='595' y1='265' x2='675' y2='295'/%3E%3Cline class='l2' x1='675' y1='295' x2='755' y2='275'/%3E%3Cline class='l3' x1='45' y1='360' x2='125' y2='340'/%3E%3Cline class='l3' x1='125' y1='340' x2='205' y2='370'/%3E%3Cline class='l3' x1='205' y1='370' x2='285' y2='335'/%3E%3Cline class='l3' x1='285' y1='335' x2='365' y2='365'/%3E%3Cline class='l3' x1='365' y1='365' x2='445' y2='330'/%3E%3Cline class='l3' x1='445' y1='330' x2='525' y2='360'/%3E%3Cline class='l3' x1='525' y1='360' x2='605' y2='325'/%3E%3Cline class='l3' x1='605' y1='325' x2='685' y2='355'/%3E%3Cline class='l3' x1='685' y1='355' x2='765' y2='335'/%3E%3Cline class='l1' x1='30' y1='420' x2='110' y2='400'/%3E%3Cline class='l1' x1='110' y1='400' x2='190' y2='430'/%3E%3Cline class='l1' x1='190' y1='430' x2='270' y2='395'/%3E%3Cline class='l1' x1='270' y1='395' x2='350' y2='425'/%3E%3Cline class='l1' x1='350' y1='425' x2='430' y2='390'/%3E%3Cline class='l1' x1='430' y1='390' x2='510' y2='420'/%3E%3Cline class='l1' x1='510' y1='420' x2='590' y2='385'/%3E%3Cline class='l1' x1='590' y1='385' x2='670' y2='415'/%3E%3Cline class='l1' x1='670' y1='415' x2='750' y2='395'/%3E%3Cline class='l2' x1='40' y1='480' x2='120' y2='460'/%3E%3Cline class='l2' x1='120' y1='460' x2='200' y2='490'/%3E%3Cline class='l2' x1='200' y1='490' x2='280' y2='455'/%3E%3Cline class='l2' x1='280' y1='455' x2='360' y2='485'/%3E%3Cline class='l2' x1='360' y1='485' x2='440' y2='450'/%3E%3Cline class='l2' x1='440' y1='450' x2='520' y2='480'/%3E%3Cline class='l2' x1='520' y1='480' x2='600' y2='445'/%3E%3Cline class='l2' x1='600' y1='445' x2='680' y2='475'/%3E%3Cline class='l2' x1='680' y1='475' x2='760' y2='455'/%3E%3Cline class='l3' x1='25' y1='540' x2='105' y2='520'/%3E%3Cline class='l3' x1='105' y1='520' x2='185' y2='550'/%3E%3Cline class='l3' x1='185' y1='550' x2='265' y2='515'/%3E%3Cline class='l3' x1='265' y1='515' x2='345' y2='545'/%3E%3Cline class='l3' x1='345' y1='545' x2='425' y2='510'/%3E%3Cline class='l3' x1='425' y1='510' x2='505' y2='540'/%3E%3Cline class='l3' x1='505' y1='540' x2='585' y2='505'/%3E%3Cline class='l3' x1='585' y1='505' x2='665' y2='535'/%3E%3Cline class='l3' x1='665' y1='535' x2='745' y2='515'/%3E%3Cline class='l1' x1='100' y1='60' x2='110' y2='100'/%3E%3Cline class='l2' x1='110' y1='100' x2='120' y2='160'/%3E%3Cline class='l3' x1='120' y1='160' x2='105' y2='220'/%3E%3Cline class='l1' x1='105' y1='220' x2='115' y2='280'/%3E%3Cline class='l2' x1='115' y1='280' x2='125' y2='340'/%3E%3Cline class='l3' x1='125' y1='340' x2='110' y2='400'/%3E%3Cline class='l1' x1='110' y1='400' x2='120' y2='460'/%3E%3Cline class='l2' x1='120' y1='460' x2='105' y2='520'/%3E%3Cline class='l1' x1='260' y1='70' x2='270' y2='95'/%3E%3Cline class='l2' x1='270' y1='95' x2='280' y2='155'/%3E%3Cline class='l3' x1='280' y1='155' x2='265' y2='215'/%3E%3Cline class='l1' x1='265' y1='215' x2='275' y2='275'/%3E%3Cline class='l2' x1='275' y1='275' x2='285' y2='335'/%3E%3Cline class='l3' x1='285' y1='335' x2='270' y2='395'/%3E%3Cline class='l1' x1='270' y1='395' x2='280' y2='455'/%3E%3Cline class='l2' x1='280' y1='455' x2='265' y2='515'/%3E%3Cline class='l1' x1='420' y1='80' x2='430' y2='90'/%3E%3Cline class='l2' x1='430' y1='90' x2='440' y2='150'/%3E%3Cline class='l3' x1='440' y1='150' x2='425' y2='210'/%3E%3Cline class='l1' x1='425' y1='210' x2='435' y2='270'/%3E%3Cline class='l2' x1='435' y1='270' x2='445' y2='330'/%3E%3Cline class='l3' x1='445' y1='330' x2='430' y2='390'/%3E%3Cline class='l1' x1='430' y1='390' x2='440' y2='450'/%3E%3Cline class='l2' x1='440' y1='450' x2='425' y2='510'/%3E%3Cline class='l1' x1='580' y1='75' x2='590' y2='85'/%3E%3Cline class='l2' x1='590' y1='85' x2='600' y2='145'/%3E%3Cline class='l3' x1='600' y1='145' x2='585' y2='205'/%3E%3Cline class='l1' x1='585' y1='205' x2='595' y2='265'/%3E%3Cline class='l2' x1='595' y1='265' x2='605' y2='325'/%3E%3Cline class='l3' x1='605' y1='325' x2='590' y2='385'/%3E%3Cline class='l1' x1='590' y1='385' x2='600' y2='445'/%3E%3Cline class='l2' x1='600' y1='445' x2='585' y2='505'/%3E%3Cline class='l1' x1='740' y1='65' x2='750' y2='95'/%3E%3Cline class='l2' x1='750' y1='95' x2='760' y2='155'/%3E%3Cline class='l3' x1='760' y1='155' x2='745' y2='215'/%3E%3Cline class='l1' x1='745' y1='215' x2='755' y2='275'/%3E%3Cline class='l2' x1='755' y1='275' x2='765' y2='335'/%3E%3Cline class='l3' x1='765' y1='335' x2='750' y2='395'/%3E%3Cline class='l1' x1='750' y1='395' x2='760' y2='455'/%3E%3Cline class='l2' x1='760' y1='455' x2='745' y2='515'/%3E%3Cline class='l1' x1='100' y1='60' x2='190' y2='130'/%3E%3Cline class='l2' x1='270' y1='95' x2='360' y2='185'/%3E%3Cline class='l3' x1='440' y1='150' x2='505' y2='240'/%3E%3Cline class='l1' x1='600' y1='145' x2='675' y2='295'/%3E%3Cline class='l2' x1='115' y1='280' x2='205' y2='370'/%3E%3Cline class='l3' x1='275' y1='275' x2='365' y2='365'/%3E%3Cline class='l1' x1='435' y1='270' x2='525' y2='360'/%3E%3Cline class='l2' x1='595' y1='265' x2='685' y2='355'/%3E%3Cline class='l3' x1='110' y1='400' x2='200' y2='490'/%3E%3Cline class='l1' x1='270' y1='395' x2='360' y2='485'/%3E%3Cline class='l2' x1='430' y1='390' x2='520' y2='480'/%3E%3Cline class='l3' x1='590' y1='385' x2='680' y2='475'/%3E%3Cpolygon class='tri' points='60,90 90,50 30,50'/%3E%3Cpolygon class='tri2' points='700,130 730,90 670,90'/%3E%3Cpolygon class='tri' points='380,200 410,160 350,160'/%3E%3Cpolygon class='tri2' points='150,350 180,310 120,310'/%3E%3Cpolygon class='tri' points='550,380 580,340 520,340'/%3E%3Cpolygon class='tri2' points='250,480 280,440 220,440'/%3E%3Cpolygon class='tri' points='650,500 680,460 620,460'/%3E%3Cpolygon class='hex' points='500,80 520,65 540,80 540,100 520,115 500,100'/%3E%3Cpolygon class='hex' points='170,250 190,235 210,250 210,270 190,285 170,270'/%3E%3Cpolygon class='hex' points='720,320 740,305 760,320 760,340 740,355 720,340'/%3E%3Cpolygon class='hex' points='400,450 420,435 440,450 440,470 420,485 400,470'/%3E%3Ccircle class='n1' cx='100' cy='60' r='3'/%3E%3Ccircle class='n2' cx='260' cy='70' r='3'/%3E%3Ccircle class='n1' cx='420' cy='80' r='3'/%3E%3Ccircle class='n3' cx='580' cy='75' r='3'/%3E%3Ccircle class='n2' cx='740' cy='65' r='3'/%3E%3Ccircle class='n3' cx='110' cy='100' r='2'/%3E%3Ccircle class='n1' cx='270' cy='95' r='2'/%3E%3Ccircle class='n2' cx='430' cy='90' r='2'/%3E%3Ccircle class='n3' cx='590' cy='85' r='2'/%3E%3Ccircle class='n1' cx='750' cy='95' r='2'/%3E%3Ccircle class='n2' cx='120' cy='160' r='3'/%3E%3Ccircle class='n3' cx='280' cy='155' r='3'/%3E%3Ccircle class='n1' cx='440' cy='150' r='3'/%3E%3Ccircle class='n2' cx='600' cy='145' r='3'/%3E%3Ccircle class='n3' cx='760' cy='155' r='3'/%3E%3Ccircle class='n1' cx='105' cy='220' r='2'/%3E%3Ccircle class='n2' cx='265' cy='215' r='2'/%3E%3Ccircle class='n3' cx='425' cy='210' r='2'/%3E%3Ccircle class='n1' cx='585' cy='205' r='2'/%3E%3Ccircle class='n2' cx='745' cy='215' r='2'/%3E%3Ccircle class='n3' cx='115' cy='280' r='3'/%3E%3Ccircle class='n1' cx='275' cy='275' r='3'/%3E%3Ccircle class='n2' cx='435' cy='270' r='3'/%3E%3Ccircle class='n3' cx='595' cy='265' r='3'/%3E%3Ccircle class='n1' cx='755' cy='275' r='3'/%3E%3Ccircle class='n2' cx='125' cy='340' r='2'/%3E%3Ccircle class='n3' cx='285' cy='335' r='2'/%3E%3Ccircle class='n1' cx='445' cy='330' r='2'/%3E%3Ccircle class='n2' cx='605' cy='325' r='2'/%3E%3Ccircle class='n3' cx='765' cy='335' r='2'/%3E%3Ccircle class='n1' cx='110' cy='400' r='3'/%3E%3Ccircle class='n2' cx='270' cy='395' r='3'/%3E%3Ccircle class='n3' cx='430' cy='390' r='3'/%3E%3Ccircle class='n1' cx='590' cy='385' r='3'/%3E%3Ccircle class='n2' cx='750' cy='395' r='3'/%3E%3Ccircle class='n3' cx='120' cy='460' r='2'/%3E%3Ccircle class='n1' cx='280' cy='455' r='2'/%3E%3Ccircle class='n2' cx='440' cy='450' r='2'/%3E%3Ccircle class='n3' cx='600' cy='445' r='2'/%3E%3Ccircle class='n1' cx='760' cy='455' r='2'/%3E%3Ccircle class='n2' cx='105' cy='520' r='3'/%3E%3Ccircle class='n3' cx='265' cy='515' r='3'/%3E%3Ccircle class='n1' cx='425' cy='510' r='3'/%3E%3Ccircle class='n2' cx='585' cy='505' r='3'/%3E%3Ccircle class='n3' cx='745' cy='515' r='3'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+}
+
+/* Second polygon layer with floating shapes - offset and animated */
+[data-display-frame] .primary-mixin {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3Cstyle%3E.l1%7Bstroke:%23ff00ff;stroke-width:0.8;opacity:0.18%7D.l2%7Bstroke:%2300ffff;stroke-width:0.8;opacity:0.15%7D.n1%7Bfill:%23ff00ff;opacity:0.4%7D.n2%7Bfill:%2300ffff;opacity:0.35%7D.tri%7Bfill:none;stroke:%23ff00ff;stroke-width:0.8;opacity:0.25%7D.tri2%7Bfill:none;stroke:%2300ffff;stroke-width:0.8;opacity:0.2%7D.dia%7Bfill:none;stroke:%2339ff14;stroke-width:0.8;opacity:0.22%7D%3C/style%3E%3C/defs%3E%3Cline class='l1' x1='60' y1='80' x2='160' y2='50'/%3E%3Cline class='l1' x1='160' y1='50' x2='260' y2='90'/%3E%3Cline class='l1' x1='260' y1='90' x2='360' y2='60'/%3E%3Cline class='l1' x1='360' y1='60' x2='460' y2='100'/%3E%3Cline class='l1' x1='460' y1='100' x2='560' y2='70'/%3E%3Cline class='l1' x1='560' y1='70' x2='660' y2='110'/%3E%3Cline class='l1' x1='660' y1='110' x2='760' y2='80'/%3E%3Cline class='l2' x1='80' y1='180' x2='180' y2='150'/%3E%3Cline class='l2' x1='180' y1='150' x2='280' y2='190'/%3E%3Cline class='l2' x1='280' y1='190' x2='380' y2='160'/%3E%3Cline class='l2' x1='380' y1='160' x2='480' y2='200'/%3E%3Cline class='l2' x1='480' y1='200' x2='580' y2='170'/%3E%3Cline class='l2' x1='580' y1='170' x2='680' y2='210'/%3E%3Cline class='l2' x1='680' y1='210' x2='780' y2='180'/%3E%3Cline class='l1' x1='70' y1='280' x2='170' y2='250'/%3E%3Cline class='l1' x1='170' y1='250' x2='270' y2='290'/%3E%3Cline class='l1' x1='270' y1='290' x2='370' y2='260'/%3E%3Cline class='l1' x1='370' y1='260' x2='470' y2='300'/%3E%3Cline class='l1' x1='470' y1='300' x2='570' y2='270'/%3E%3Cline class='l1' x1='570' y1='270' x2='670' y2='310'/%3E%3Cline class='l1' x1='670' y1='310' x2='770' y2='280'/%3E%3Cline class='l2' x1='90' y1='380' x2='190' y2='350'/%3E%3Cline class='l2' x1='190' y1='350' x2='290' y2='390'/%3E%3Cline class='l2' x1='290' y1='390' x2='390' y2='360'/%3E%3Cline class='l2' x1='390' y1='360' x2='490' y2='400'/%3E%3Cline class='l2' x1='490' y1='400' x2='590' y2='370'/%3E%3Cline class='l2' x1='590' y1='370' x2='690' y2='410'/%3E%3Cline class='l2' x1='690' y1='410' x2='790' y2='380'/%3E%3Cline class='l1' x1='65' y1='480' x2='165' y2='450'/%3E%3Cline class='l1' x1='165' y1='450' x2='265' y2='490'/%3E%3Cline class='l1' x1='265' y1='490' x2='365' y2='460'/%3E%3Cline class='l1' x1='365' y1='460' x2='465' y2='500'/%3E%3Cline class='l1' x1='465' y1='500' x2='565' y2='470'/%3E%3Cline class='l1' x1='565' y1='470' x2='665' y2='510'/%3E%3Cline class='l1' x1='665' y1='510' x2='765' y2='480'/%3E%3Cline class='l2' x1='85' y1='560' x2='185' y2='530'/%3E%3Cline class='l2' x1='185' y1='530' x2='285' y2='570'/%3E%3Cline class='l2' x1='285' y1='570' x2='385' y2='540'/%3E%3Cline class='l2' x1='385' y1='540' x2='485' y2='580'/%3E%3Cline class='l2' x1='485' y1='580' x2='585' y2='550'/%3E%3Cline class='l2' x1='585' y1='550' x2='685' y2='590'/%3E%3C!-- Vertical connections --%3E%3Cline class='l1' x1='160' y1='50' x2='180' y2='150'/%3E%3Cline class='l2' x1='180' y1='150' x2='170' y2='250'/%3E%3Cline class='l1' x1='170' y1='250' x2='190' y2='350'/%3E%3Cline class='l2' x1='190' y1='350' x2='165' y2='450'/%3E%3Cline class='l1' x1='165' y1='450' x2='185' y2='530'/%3E%3Cline class='l1' x1='360' y1='60' x2='380' y2='160'/%3E%3Cline class='l2' x1='380' y1='160' x2='370' y2='260'/%3E%3Cline class='l1' x1='370' y1='260' x2='390' y2='360'/%3E%3Cline class='l2' x1='390' y1='360' x2='365' y2='460'/%3E%3Cline class='l1' x1='365' y1='460' x2='385' y2='540'/%3E%3Cline class='l1' x1='560' y1='70' x2='580' y2='170'/%3E%3Cline class='l2' x1='580' y1='170' x2='570' y2='270'/%3E%3Cline class='l1' x1='570' y1='270' x2='590' y2='370'/%3E%3Cline class='l2' x1='590' y1='370' x2='565' y2='470'/%3E%3Cline class='l1' x1='565' y1='470' x2='585' y2='550'/%3E%3C!-- Floating triangles --%3E%3Cpolygon class='tri' points='100,120 130,70 70,70'/%3E%3Cpolygon class='tri2' points='300,140 330,90 270,90'/%3E%3Cpolygon class='tri' points='500,130 530,80 470,80'/%3E%3Cpolygon class='tri2' points='700,150 730,100 670,100'/%3E%3Cpolygon class='tri' points='200,320 230,270 170,270'/%3E%3Cpolygon class='tri2' points='400,310 430,260 370,260'/%3E%3Cpolygon class='tri' points='600,330 630,280 570,280'/%3E%3Cpolygon class='tri2' points='150,500 180,450 120,450'/%3E%3Cpolygon class='tri' points='350,490 380,440 320,440'/%3E%3Cpolygon class='tri2' points='550,510 580,460 520,460'/%3E%3Cpolygon class='tri' points='750,520 780,470 720,470'/%3E%3C!-- Floating diamonds --%3E%3Cpolygon class='dia' points='240,200 260,180 280,200 260,220'/%3E%3Cpolygon class='dia' points='440,220 460,200 480,220 460,240'/%3E%3Cpolygon class='dia' points='640,190 660,170 680,190 660,210'/%3E%3Cpolygon class='dia' points='340,400 360,380 380,400 360,420'/%3E%3Cpolygon class='dia' points='540,420 560,400 580,420 560,440'/%3E%3Cpolygon class='dia' points='740,390 760,370 780,390 760,410'/%3E%3C!-- Nodes --%3E%3Ccircle class='n1' cx='160' cy='50' r='3'/%3E%3Ccircle class='n2' cx='360' cy='60' r='3'/%3E%3Ccircle class='n1' cx='560' cy='70' r='3'/%3E%3Ccircle class='n2' cx='760' cy='80' r='3'/%3E%3Ccircle class='n1' cx='180' cy='150' r='2'/%3E%3Ccircle class='n2' cx='380' cy='160' r='2'/%3E%3Ccircle class='n1' cx='580' cy='170' r='2'/%3E%3Ccircle class='n2' cx='780' cy='180' r='2'/%3E%3Ccircle class='n1' cx='170' cy='250' r='3'/%3E%3Ccircle class='n2' cx='370' cy='260' r='3'/%3E%3Ccircle class='n1' cx='570' cy='270' r='3'/%3E%3Ccircle class='n2' cx='770' cy='280' r='3'/%3E%3Ccircle class='n1' cx='190' cy='350' r='2'/%3E%3Ccircle class='n2' cx='390' cy='360' r='2'/%3E%3Ccircle class='n1' cx='590' cy='370' r='2'/%3E%3Ccircle class='n2' cx='790' cy='380' r='2'/%3E%3Ccircle class='n1' cx='165' cy='450' r='3'/%3E%3Ccircle class='n2' cx='365' cy='460' r='3'/%3E%3Ccircle class='n1' cx='565' cy='470' r='3'/%3E%3Ccircle class='n2' cx='765' cy='480' r='3'/%3E%3C/svg%3E");
+  background-size: 120% 120%;
+  background-position: -10% -10%;
+  animation: meshFloat 30s ease-in-out infinite alternate;
+}
+
+@keyframes meshFloat {
+  0% { background-position: -10% -10%; }
+  50% { background-position: 0% 5%; }
+  100% { background-position: 10% -5%; }
+}
+
+/* Pulsing glow animation for the mesh */
+@keyframes meshPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
+/* Laser grid - thin horizontal lines */
 [data-display-frame]::before {
   content: '';
   position: absolute;
@@ -54,190 +92,94 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--color-primary) 8%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 8%, transparent) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background:
+    /* Horizontal laser lines */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 30px,
+      var(--color-primary) 30px,
+      var(--color-primary) 31px
+    ),
+    /* Vertical laser lines */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 60px,
+      color-mix(in srgb, var(--color-tertiary) 30%, transparent) 60px,
+      color-mix(in srgb, var(--color-tertiary) 30%, transparent) 61px
+    );
   pointer-events: none;
   z-index: 0;
-  animation: gridPulse 4s ease-in-out infinite;
+  opacity: 0.15;
 }
 
-@keyframes gridPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-/* Scanning line effect */
+/* Diagonal laser beams */
 [data-display-frame]::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-primary),
-    var(--color-secondary),
-    var(--color-tertiary),
-    var(--color-secondary),
-    var(--color-primary),
-    transparent
-  );
-  z-index: 1000;
-  animation: scanDown 3s linear infinite;
-  box-shadow:
-    0 0 20px var(--color-primary),
-    0 0 40px var(--color-secondary);
+  bottom: 0;
+  background:
+    /* Diagonal lasers - left to right */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 80px,
+      var(--color-secondary) 80px,
+      var(--color-secondary) 81px,
+      transparent 81px,
+      transparent 160px
+    ),
+    /* Diagonal lasers - right to left */
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 120px,
+      var(--color-tertiary) 120px,
+      var(--color-tertiary) 121px,
+      transparent 121px,
+      transparent 240px
+    );
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  animation: laserShift 20s linear infinite;
 }
 
-@keyframes scanDown {
-  0% { top: -4px; }
-  100% { top: 100%; }
+@keyframes laserShift {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(80px) translateY(80px); }
 }
 
-/* Table container */
+/* Content container - transparent to show mesh background */
 [data-content-container] {
-  background: var(--color-background) !important;
-  border: 2px solid var(--color-primary);
-  border-radius: 0;
-  box-shadow:
-    0 0 20px color-mix(in srgb, var(--color-primary) 40%, transparent),
-    inset 0 0 60px color-mix(in srgb, var(--color-primary) 10%, transparent);
   position: relative;
   z-index: 1;
-}
-
-/* Header styling - Acid display */
-[data-content-container] h1,
-[data-content-container] .title {
-  color: var(--color-font-header);
   background: transparent !important;
-  border: none;
-  border-bottom: 3px solid var(--color-primary);
-  padding: 24px !important;
-  margin: 0;
-  margin-bottom: 4px;
-  letter-spacing: 8px;
-  text-transform: uppercase;
-  font-weight: 700;
-  text-shadow:
-    0 0 10px var(--color-primary),
-    0 0 20px var(--color-primary),
-    0 0 40px var(--color-primary),
-    0 0 80px color-mix(in srgb, var(--color-primary) 60%, transparent);
-  animation: textGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes textGlow {
-  0% {
-    text-shadow:
-      0 0 10px var(--color-primary),
-      0 0 20px var(--color-primary),
-      0 0 40px var(--color-primary);
-  }
-  100% {
-    text-shadow:
-      0 0 15px var(--color-primary),
-      0 0 30px var(--color-primary),
-      0 0 60px var(--color-primary),
-      0 0 100px var(--color-primary);
-  }
-}
-
-/* Remove cursor effect from header */
-[data-content-container] h1::after,
-[data-content-container] .title::after {
-  display: none;
-}
-
-/* Row styling */
-[data-content-container] .flex-row {
-  background: transparent !important;
-  border: none;
-  border-left: 4px solid var(--color-secondary);
-  margin-bottom: 2px;
-  position: relative;
-}
-
-[data-content-container] .flex-row:nth-child(even) {
-  background: transparent !important;
-  border-left-color: var(--color-tertiary);
-}
-
-/* Animated border glow on rows */
-[data-content-container] .flex-row::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--color-secondary);
+  border: var(--laser-width) solid var(--color-primary);
   box-shadow:
-    0 0 10px var(--color-secondary),
-    0 0 20px var(--color-secondary);
-  animation: borderPulse 1.5s ease-in-out infinite;
-  animation-delay: calc(var(--row-index, 0) * 0.15s);
+    0 0 1px var(--color-primary),
+    0 0 2px var(--color-primary),
+    inset 0 0 30px color-mix(in srgb, var(--color-primary) 5%, transparent);
 }
 
-[data-content-container] .flex-row:nth-child(even)::before {
-  background: var(--color-tertiary);
-  box-shadow:
-    0 0 10px var(--color-tertiary),
-    0 0 20px var(--color-tertiary);
-}
-
-[data-content-container] .flex-row:nth-child(1)::before { --row-index: 1; }
-[data-content-container] .flex-row:nth-child(2)::before { --row-index: 2; }
-[data-content-container] .flex-row:nth-child(3)::before { --row-index: 3; }
-[data-content-container] .flex-row:nth-child(4)::before { --row-index: 4; }
-[data-content-container] .flex-row:nth-child(5)::before { --row-index: 5; }
-[data-content-container] .flex-row:nth-child(6)::before { --row-index: 6; }
-[data-content-container] .flex-row:nth-child(7)::before { --row-index: 7; }
-[data-content-container] .flex-row:nth-child(8)::before { --row-index: 8; }
-[data-content-container] .flex-row:nth-child(9)::before { --row-index: 9; }
-[data-content-container] .flex-row:nth-child(10)::before { --row-index: 10; }
-
-@keyframes borderPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* Player names */
-[data-content-container] .flex-row > div:first-child {
-  color: var(--color-font-player);
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* Scores - hot magenta glow */
-[data-content-container] .flex-row > div:last-child {
-  color: var(--color-font-score);
-  font-weight: 700;
-  text-align: right;
-  text-shadow:
-    0 0 8px var(--color-font-score),
-    0 0 16px var(--color-font-score),
-    0 0 32px color-mix(in srgb, var(--color-font-score) 50%, transparent);
-}
-
-/* Corner brackets */
+/* Wireframe corner brackets */
 [data-content-container]::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 30px;
-  height: 30px;
-  border-top: 3px solid var(--color-tertiary);
-  border-left: 3px solid var(--color-tertiary);
-  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-top: var(--laser-width) solid var(--color-tertiary);
+  border-left: var(--laser-width) solid var(--color-tertiary);
+  z-index: 100;
   box-shadow:
-    0 0 10px var(--color-tertiary);
+    0 0 4px var(--color-tertiary),
+    inset 0 0 4px var(--color-tertiary);
 }
 
 [data-content-container]::after {
@@ -245,11 +187,277 @@ html, body {
   position: absolute;
   bottom: 0;
   right: 0;
+  width: 40px;
+  height: 40px;
+  border-bottom: var(--laser-width) solid var(--color-secondary);
+  border-right: var(--laser-width) solid var(--color-secondary);
+  z-index: 100;
+  box-shadow:
+    0 0 4px var(--color-secondary),
+    inset 0 0 4px var(--color-secondary);
+}
+
+/* Header - geometric sharp style */
+[data-content-container] h1,
+[data-content-container] .title {
+  color: var(--color-font-header) !important;
+  background: transparent !important;
+  border: none;
+  border-bottom: var(--laser-width) solid var(--color-primary);
+  padding: 20px 24px !important;
+  margin: 0;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-family: 'Arial Black', 'Helvetica', sans-serif;
+  text-shadow:
+    0 0 2px var(--color-primary),
+    0 0 4px var(--color-primary);
+  position: relative;
+}
+
+/* Laser line under header */
+[data-content-container] h1::after,
+[data-content-container] .title::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: var(--laser-width);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary) 10%,
+    var(--color-primary) 90%,
+    transparent
+  );
+  box-shadow:
+    0 0 4px var(--color-primary),
+    0 0 8px var(--color-primary);
+}
+
+/* Score rows - minimal with laser accents */
+[data-score-row] {
+  background: transparent !important;
+  border: none;
+  border-left: var(--laser-width) solid var(--color-secondary);
+  margin-bottom: 0;
+  position: relative;
+}
+
+[data-score-row]:nth-child(even) {
+  border-left-color: var(--color-tertiary);
+}
+
+/* Thin horizontal separator lines between rows */
+[data-score-row]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--laser-width);
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary),
+    color-mix(in srgb, var(--color-secondary) 30%, transparent) 50%,
+    transparent
+  );
+  opacity: 0.4;
+}
+
+[data-score-row]:nth-child(even)::after {
+  background: linear-gradient(
+    90deg,
+    var(--color-tertiary),
+    color-mix(in srgb, var(--color-tertiary) 30%, transparent) 50%,
+    transparent
+  );
+}
+
+/* Left border glow effect */
+[data-score-row]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--laser-width);
+  background: var(--color-secondary);
+  box-shadow:
+    0 0 2px var(--color-secondary),
+    0 0 4px var(--color-secondary),
+    0 0 8px var(--color-secondary);
+}
+
+[data-score-row]:nth-child(even)::before {
+  background: var(--color-tertiary);
+  box-shadow:
+    0 0 2px var(--color-tertiary),
+    0 0 4px var(--color-tertiary),
+    0 0 8px var(--color-tertiary);
+}
+
+/* Player names - larger with neon glow */
+[data-score-row] > div {
+  color: var(--color-font-player);
+  font-weight: 700;
+  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 1.65em;
+  text-shadow:
+    0 0 2px var(--color-font-player),
+    0 0 4px var(--color-primary),
+    0 0 8px color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+
+/* Scores - white font with pink neon glow */
+[data-score-row] > div:last-child {
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 2.2em;
+  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  letter-spacing: 2px;
+  text-shadow:
+    0 0 4px var(--color-font-score),
+    0 0 8px var(--color-font-score),
+    0 0 12px color-mix(in srgb, var(--color-font-score) 80%, transparent);
+}
+
+/* Subheader row */
+[data-subheader-row] {
+  border-bottom: var(--laser-width) solid color-mix(in srgb, var(--color-primary) 50%, transparent);
+  background: transparent !important;
+}
+
+[data-subheader-row] > div {
+  color: var(--color-primary) !important;
+  text-shadow: 0 0 4px var(--color-primary);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
+/* Primary mixin wireframe corners */
+.primary-mixin {
+  position: relative;
+}
+
+.primary-mixin::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-top: var(--laser-width) solid var(--color-primary);
+  border-left: var(--laser-width) solid var(--color-primary);
+  z-index: 100;
+  box-shadow: 0 0 4px var(--color-primary);
+}
+
+.primary-mixin::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-top: var(--laser-width) solid var(--color-primary);
+  border-right: var(--laser-width) solid var(--color-primary);
+  z-index: 100;
+  box-shadow: 0 0 4px var(--color-primary);
+}
+
+/* Scanning laser line animation */
+@keyframes scanLine {
+  0% { top: 0; opacity: 1; }
+  100% { top: 100%; opacity: 0.3; }
+}
+
+/* Add animated scan line to display frame when fullscreen */
+[data-display-frame][data-fullscreen] .primary-mixin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--laser-width);
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    var(--color-tertiary),
+    var(--color-primary),
+    transparent
+  );
+  box-shadow:
+    0 0 4px var(--color-primary),
+    0 0 8px var(--color-tertiary);
+  animation: scanLine 4s linear infinite;
+  z-index: 1000;
+}
+
+/* Bottom wireframe corners for primary-mixin */
+.theme-padding::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-bottom: var(--laser-width) solid var(--color-secondary);
+  border-left: var(--laser-width) solid var(--color-secondary);
+  z-index: 100;
+  box-shadow: 0 0 4px var(--color-secondary);
+}
+
+.theme-padding::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-bottom: var(--laser-width) solid var(--color-secondary);
+  border-right: var(--laser-width) solid var(--color-secondary);
+  z-index: 100;
+  box-shadow: 0 0 4px var(--color-secondary);
+}
+
+/* Crosshair/target markers in corners */
+[data-display-frame][data-fullscreen]::before {
+  content: '';
+  position: fixed;
+  top: 20px;
+  left: 20px;
   width: 30px;
   height: 30px;
-  border-bottom: 3px solid var(--color-tertiary);
-  border-right: 3px solid var(--color-tertiary);
-  z-index: 10;
-  box-shadow:
-    0 0 10px var(--color-tertiary);
+  border: var(--laser-width) solid var(--color-primary);
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) center/var(--laser-width) 100% no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) center/100% var(--laser-width) no-repeat;
+  box-shadow: 0 0 4px var(--color-primary);
+  z-index: 1000;
+  opacity: 0.6;
+}
+
+[data-display-frame][data-fullscreen]::after {
+  content: '';
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border: var(--laser-width) solid var(--color-secondary);
+  background:
+    linear-gradient(var(--color-secondary), var(--color-secondary)) center/var(--laser-width) 100% no-repeat,
+    linear-gradient(var(--color-secondary), var(--color-secondary)) center/100% var(--laser-width) no-repeat;
+  box-shadow: 0 0 4px var(--color-secondary);
+  z-index: 1000;
+  opacity: 0.6;
 }

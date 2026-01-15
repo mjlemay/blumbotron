@@ -6,6 +6,7 @@ import { useScoreStore } from "../stores/scoresStore";
 import { useExperienceStore } from "../stores/experienceStore";
 import { DisplayData, ScoreDataItem, UnitItem } from "../lib/types";
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { createAvatar } from '@dicebear/core';
 import { shapes } from '@dicebear/collection';
 import { customThemeSettings } from '../lib/consts';
@@ -477,9 +478,24 @@ function DisplayTable(props: ComponentProps): JSX.Element {
     const interval = setInterval(() => {
       fetchScoresByGame(game || '');
     }, fetchIntervalSeconds * 1000);
-    
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
+
+    // Listen for score-updated events to refresh immediately
+    let unlisten: (() => void) | undefined;
+    listen('score-updated', (event: any) => {
+      const { gameId } = event.payload || {};
+      // Refresh if the update is for this game or no specific game
+      if (!gameId || gameId === game) {
+        fetchScoresByGame(game || '');
+      }
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    // Cleanup interval and listener on unmount
+    return () => {
+      clearInterval(interval);
+      if (unlisten) unlisten();
+    };
   }, [game, fetchScoresByGame, fetchIntervalSeconds]);
 
 const subHeaders = () => {
