@@ -1,6 +1,6 @@
 [package]
 name = "blumbotron"
-version = "0.1.0"
+version = "0.1.6"
 description = "A Tauri App"
 authors = ["mjlemay"]
 edition = "2021"
