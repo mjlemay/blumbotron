@@ -279,7 +279,7 @@ dependencies = [
 
 [[package]]
 name = "blumbotron"
-version = "0.1.0"
+version = "0.1.6"
 dependencies = [
  "base64 0.21.7",
  "chrono",
