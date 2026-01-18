@@ -117,10 +117,20 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
-      - name: Ad-hoc sign macOS app
+      - name: Ad-hoc sign macOS app and recreate DMG
         run: |
           # Find and sign all .app bundles with ad-hoc signature
-          find src-tauri/target/release/bundle/macos -name "*.app" -exec codesign --force --deep --sign - {} \;
+          APP_PATH=$(find src-tauri/target/release/bundle/macos -name "*.app" -print -quit)
+          echo "Signing app at: $APP_PATH"
+          codesign --force --deep --sign - "$APP_PATH"
+
+          # Verify signing
+          codesign -dv "$APP_PATH"
+
+          # Remove old DMG and create new one from signed .app
+          rm -f src-tauri/target/release/bundle/dmg/*.dmg
+          APP_NAME=$(basename "$APP_PATH" .app)
+          hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "src-tauri/target/release/bundle/dmg/${APP_NAME}.dmg"
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
