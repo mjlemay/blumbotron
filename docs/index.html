@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blumbotron - High Score Tables for Immersive Events</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            color: white;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .downloads {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .downloads h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #667eea;
+        }
+
+        .download-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .download-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .download-btn .icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .platform-name {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-info {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .release-info {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .release-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .release-info a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+            opacity: 0.8;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .downloads {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="blumbotron_logo.svg" alt="Blumbotron Logo" class="logo">
+            <h1>Blumbotron</h1>
+            <p class="tagline">High Score Tables for Immersive Events</p>
+        </header>
+
+        <div class="features">
+            <div class="feature">
+                <h3>🎮 Custom Players & Rosters</h3>
+                <p>Keep track of custom players and rosters across all your events</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Flexible Scoring</h3>
+                <p>Customize what kind of scores you track per game</p>
+            </div>
+            <div class="feature">
+                <h3>🎨 Themeable Displays</h3>
+                <p>Customize high score table displays to match your event's theme</p>
+            </div>
+            <div class="feature">
+                <h3>📴 Offline First</h3>
+                <p>All data stored locally - no wifi required</p>
+            </div>
+        </div>
+
+        <div class="downloads">
+            <h2>Download Blumbotron</h2>
+            <div class="download-buttons">
+                <a href="https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_x64.dmg" class="download-btn">
+                    <div class="icon">🍎</div>
+                    <div class="platform-name">macOS</div>
+                    <div class="file-info">.dmg (Apple Silicon & Intel)</div>
+                </a>
+                <a href="https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_x64_en-US.msi" class="download-btn">
+                    <div class="icon">🪟</div>
+                    <div class="platform-name">Windows</div>
+                    <div class="file-info">.msi installer</div>
+                </a>
+                <a href="https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_amd64.deb" class="download-btn">
+                    <div class="icon">🐧</div>
+                    <div class="platform-name">Linux</div>
+                    <div class="file-info">.deb package</div>
+                </a>
+            </div>
+            <div class="release-info">
+                <p>View all releases and additional formats on <a href="https://github.com/mjlemay/blumbotron/releases" target="_blank">GitHub Releases</a></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built with Tauri + React + TypeScript</p>
+        <p><a href="https://github.com/mjlemay/blumbotron" target="_blank">View on GitHub</a></p>
+    </footer>
+</body>
+</html>
