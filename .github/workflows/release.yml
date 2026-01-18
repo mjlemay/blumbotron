@@ -116,6 +116,11 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
+      - name: Ad-hoc sign macOS app
+        run: |
+          # Find and sign all .app bundles with ad-hoc signature
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec codesign --force --deep --sign - {} \;
+
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
