@@ -8,10 +8,24 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update version in package.json
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Update version in tauri.conf.json
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
+          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,10 +73,27 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: get_version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update version in package.json
+        shell: bash
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Update version in tauri.conf.json
+        shell: bash
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
+          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -93,10 +124,24 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update version in package.json
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Update version in tauri.conf.json
+        run: |
+          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
+          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
