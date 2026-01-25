@@ -201,6 +201,13 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
+      - name: Create version-agnostic copies for latest downloads
+        run: |
+          # Create copies with version-agnostic names for "latest" download links
+          find blumbotron-linux -name "*.deb" -exec sh -c 'cp "$1" "$(dirname "$1")/blumbotron_amd64.deb"' _ {} \;
+          find blumbotron-windows -name "*_en-US.msi" -exec sh -c 'cp "$1" "$(dirname "$1")/blumbotron_x64_en-US.msi"' _ {} \;
+          find blumbotron-macos -name "*.dmg" -exec sh -c 'cp "$1" "$(dirname "$1")/blumbotron_x64.dmg"' _ {} \;
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
