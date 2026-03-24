@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -68,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -116,6 +116,15 @@ jobs:
 
       - name: Build Tauri app
         run: npm run tauri build
+
+      - name: Free disk space before DMG creation
+        run: |
+          # Remove everything in target/release except the bundle directory
+          find src-tauri/target/release -mindepth 1 -maxdepth 1 ! -name bundle -exec rm -rf {} +
+          # Remove cargo registry/cache
+          rm -rf ~/.cargo/registry
+          rm -rf ~/.cargo/git
+          df -h .
 
       - name: Ad-hoc sign macOS app and recreate DMG
         run: |
