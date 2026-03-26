@@ -117,37 +117,20 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
-      - name: Free disk space before DMG creation
+      - name: Ad-hoc sign macOS app
         run: |
-          # Remove everything in target/release except the bundle directory
-          find src-tauri/target/release -mindepth 1 -maxdepth 1 ! -name bundle -exec rm -rf {} +
-          # Remove cargo registry/cache
-          rm -rf ~/.cargo/registry
-          rm -rf ~/.cargo/git
-          df -h .
-
-      - name: Ad-hoc sign macOS app and recreate DMG
-        run: |
-          # Find and sign all .app bundles with ad-hoc signature
           APP_PATH=$(find src-tauri/target/release/bundle/macos -name "*.app" -print -quit)
           echo "Signing app at: $APP_PATH"
           codesign --force --deep --sign - "$APP_PATH"
-
-          # Verify signing
           codesign -dv "$APP_PATH"
-
-          # Remove old DMG and create new one from signed .app
-          rm -f src-tauri/target/release/bundle/dmg/*.dmg
-          APP_NAME=$(basename "$APP_PATH" .app)
-          hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "src-tauri/target/release/bundle/dmg/${APP_NAME}.dmg"
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
           name: blumbotron-macos
           path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
             src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/bundle/dmg/*.dmg
           retention-days: 30
 
   # Raspberry Pi build temporarily disabled due to cross-compilation complexity
