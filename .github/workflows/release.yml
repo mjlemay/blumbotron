@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -98,7 +98,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -146,7 +146,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -161,20 +161,12 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
-      - name: Ad-hoc sign macOS app and recreate DMG
+      - name: Ad-hoc sign macOS app
         run: |
-          # Find and sign all .app bundles with ad-hoc signature
           APP_PATH=$(find src-tauri/target/release/bundle/macos -name "*.app" -print -quit)
           echo "Signing app at: $APP_PATH"
           codesign --force --deep --sign - "$APP_PATH"
-
-          # Verify signing
           codesign -dv "$APP_PATH"
-
-          # Remove old DMG and create new one from signed .app
-          rm -f src-tauri/target/release/bundle/dmg/*.dmg
-          APP_NAME=$(basename "$APP_PATH" .app)
-          hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "src-tauri/target/release/bundle/dmg/${APP_NAME}.dmg"
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
@@ -182,7 +174,6 @@ jobs:
           name: blumbotron-macos
           path: |
             src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app
           retention-days: 30
 
   # Raspberry Pi build temporarily disabled due to cross-compilation complexity
@@ -212,9 +203,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            blumbotron-linux/**/*
-            blumbotron-windows/**/*
-            blumbotron-macos/**/*
-          draft: false
+            blumbotron-linux/**/*.deb
+            blumbotron-linux/**/*.AppImage
+            blumbotron-windows/**/*.msi
+            blumbotron-windows/**/*.exe
+            blumbotron-macos/**/*.dmg
+          draft: true
           prerelease: false
           generate_release_notes: true 
