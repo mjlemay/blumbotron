@@ -77,6 +77,87 @@
             color: #b6b6b6;
         }
 
+        .how-to {
+            margin: 3rem 0;
+        }
+
+        .how-to h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #e8e8e8;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 2px;
+            border: 1px solid #434343;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            text-align: center;
+            background: linear-gradient(to bottom, #93bd20 0%, #659e10 100%);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #b6b6b6;
+        }
+
+        .step p {
+            color: #d7cfbe;
+            font-size: 0.95rem;
+        }
+
+        .tips {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #434343;
+            border-radius: 2px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tips h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #b6b6b6;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips li {
+            padding: 0.4rem 0;
+            color: #d7cfbe;
+            font-size: 0.95rem;
+        }
+
+        .tips li::before {
+            content: "→ ";
+            color: #93bd20;
+            font-weight: 700;
+        }
+
         .downloads {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 2px;
@@ -211,6 +292,51 @@
             <div class="feature">
                 <h3>📴 Offline First</h3>
                 <p>All data stored locally - no wifi required</p>
+            </div>
+        </div>
+
+        <div class="how-to">
+            <h2>Getting Started</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Create a Game</h3>
+                    <p>Set up a game and choose what kind of scores to track. Each game can have its own scoring system.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Add Players</h3>
+                    <p>Add players by name or scan QR codes for quick check-in. Players persist across all your events.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Build a Roster</h3>
+                    <p>Create a roster to group players for a specific event or tournament. Assign players from your list.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Record Scores</h3>
+                    <p>Enter scores as players compete. The leaderboard updates in real time.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Display the Leaderboard</h3>
+                    <p>Open a display window and project it on a second screen. Pick a theme that matches your event.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <h3>Customize the Theme</h3>
+                    <p>Switch between built-in themes or tweak colors to match your venue's aesthetic.</p>
+                </div>
+            </div>
+            <div class="tips">
+                <h3>Tips</h3>
+                <ul>
+                    <li>Use a second monitor or projector for the leaderboard display while you manage scores on your main screen</li>
+                    <li>All data is saved locally to SQLite — no internet needed, and your data is safe if the app restarts</li>
+                    <li>Back up your database at <strong>~/Library/Application Support/btron/blumbo.db</strong> (macOS) or <strong>%APPDATA%\btron\blumbo.db</strong> (Windows)</li>
+                    <li>Players and scores carry over between events — build your community over time</li>
+                </ul>
             </div>
         </div>
 
