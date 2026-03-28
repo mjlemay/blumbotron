@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blumbotron - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #f0e7d5;
+            background: #252525;
+            background: linear-gradient(to bottom, #2a2a29 0%, #1c1c1c 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+            color: #e8e8e8;
+        }
+
+        .logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e8e8e8;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #d7cfbe;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .back-link:hover {
+            color: #ffeb9b;
+            text-decoration: underline;
+        }
+
+        nav.toc {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #434343;
+            border-radius: 2px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        nav.toc h2 {
+            font-size: 1.25rem;
+            color: #b6b6b6;
+            margin-bottom: 0.75rem;
+        }
+
+        nav.toc ol {
+            padding-left: 1.25rem;
+        }
+
+        nav.toc li {
+            padding: 0.2rem 0;
+        }
+
+        nav.toc a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        nav.toc a:hover {
+            color: #ffeb9b;
+            text-decoration: underline;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: #e8e8e8;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #434343;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            color: #b6b6b6;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            color: #d7cfbe;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        ol, ul {
+            color: #d7cfbe;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            padding: 0.3rem 0;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #434343;
+            border-radius: 2px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .highlight {
+            background: rgba(147, 189, 32, 0.1);
+            border-left: 3px solid #93bd20;
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .highlight p {
+            margin-bottom: 0;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .button-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #434343;
+            border-radius: 2px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .button-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            height: 48px;
+            background: #0369a1;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .button-icon svg {
+            fill: white;
+            width: 24px;
+            height: 24px;
+        }
+
+        .button-info h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .button-info p {
+            margin-bottom: 0;
+        }
+
+        .color-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .color-table th,
+        .color-table td {
+            text-align: left;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #434343;
+            font-size: 0.9rem;
+        }
+
+        .color-table th {
+            color: #b6b6b6;
+            font-weight: 600;
+        }
+
+        .color-table td {
+            color: #d7cfbe;
+        }
+
+        kbd {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 0.1rem 0.4rem;
+            font-family: "SF Mono", Monaco, "Cascadia Mono", monospace;
+            font-size: 0.85rem;
+            color: #e8e8e8;
+        }
+
+        code {
+            font-family: "SF Mono", Monaco, "Cascadia Mono", monospace;
+            font-size: 0.85rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            color: #93bd20;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #696969;
+        }
+
+        footer a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: #ffeb9b;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .button-card {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html"><img src="blumbotron_logo.svg" alt="Blumbotron Logo" class="logo"></a>
+            <h1>Documentation</h1>
+            <p class="tagline">Everything you need to run leaderboards at your event</p>
+            <a href="index.html" class="back-link">&larr; Back to Home</a>
+        </header>
+
+        <nav class="toc">
+            <h2>Contents</h2>
+            <ol>
+                <li><a href="#creating-a-game">Creating a Game</a></li>
+                <li><a href="#adding-players">Adding Players</a></li>
+                <li><a href="#updating-scores">Updating Scores</a></li>
+                <li><a href="#themes-and-colors">Themes and Colors</a></li>
+                <li><a href="#display-buttons">Leaderboard Display Buttons</a></li>
+                <li><a href="#display-config">Display Configuration</a></li>
+                <li><a href="#data-storage">Data Storage</a></li>
+            </ol>
+        </nav>
+
+        <!-- CREATING A GAME -->
+        <section id="creating-a-game">
+            <h2>1. Creating a Game</h2>
+            <p>A game is the central unit in Blumbotron. Each game has its own scoring system, leaderboard displays, and visual theme.</p>
+
+            <h3>Create a new game</h3>
+            <ol>
+                <li>From the <strong>Home</strong> view, click <strong>Create New Game</strong>.</li>
+                <li>Enter a <strong>name</strong> for the game (minimum 3 characters).</li>
+                <li>Optionally add a <strong>description</strong>.</li>
+                <li>Optionally assign a <strong>roster</strong> to limit which players can participate.</li>
+                <li>Click <strong>Save</strong>.</li>
+            </ol>
+
+            <p>Your game is created with a default scoring unit (points) and a default leaderboard display. You can customize both from the game detail view.</p>
+
+            <h3>Game settings</h3>
+            <p>Once inside a game, use the sub-navigation tabs to configure different aspects:</p>
+            <ul>
+                <li><strong>Launch</strong> &mdash; view and manage your leaderboard displays</li>
+                <li><strong>Styles</strong> &mdash; pick a theme and customize colors and fonts</li>
+                <li><strong>Media</strong> &mdash; add background images and logos</li>
+                <li><strong>Layout</strong> &mdash; adjust padding and spacing</li>
+                <li><strong>Mechanics</strong> &mdash; configure scoring units (score, flag, or time)</li>
+            </ul>
+
+            <h3>Scoring units</h3>
+            <p>Under <strong>Mechanics</strong>, you can add one or more scoring units. Each unit defines a type of score to track:</p>
+            <ul>
+                <li><strong>Score</strong> &mdash; a numeric value (points, kills, etc.)</li>
+                <li><strong>Flag</strong> &mdash; a boolean achievement (completed/not completed)</li>
+                <li><strong>Time</strong> &mdash; a time-based value (fastest run, elapsed time, etc.)</li>
+            </ul>
+        </section>
+
+        <!-- ADDING PLAYERS -->
+        <section id="adding-players">
+            <h2>2. Adding Players</h2>
+            <p>Players are stored in a global database and persist across all of your games and events. Create them once, use them everywhere.</p>
+
+            <h3>Create a player</h3>
+            <ol>
+                <li>Navigate to the <strong>Players</strong> view from the sidebar.</li>
+                <li>Click <strong>Create New Player</strong>.</li>
+                <li>Enter a <strong>name</strong> for the player.</li>
+                <li>Optionally upload a <strong>photo</strong> or avatar.</li>
+                <li>Optionally add <strong>alternate IDs</strong> (for RFID badges or QR code scanning).</li>
+                <li>Click <strong>Save</strong>.</li>
+            </ol>
+
+            <p>Players without a photo will receive an auto-generated avatar.</p>
+
+            <h3>Organizing players with rosters</h3>
+            <p>Rosters let you group players for a specific event or tournament. When you assign a roster to a game, only those players will appear in the score entry interface.</p>
+            <ol>
+                <li>Navigate to the <strong>Rosters</strong> view from the sidebar.</li>
+                <li>Click <strong>Create New Roster</strong>.</li>
+                <li>Give the roster a <strong>name</strong> and optionally a description.</li>
+                <li>Add players to the roster's allow list.</li>
+                <li>When creating or editing a game, select this roster to filter available players.</li>
+            </ol>
+        </section>
+
+        <!-- UPDATING SCORES -->
+        <section id="updating-scores">
+            <h2>3. Updating Scores</h2>
+            <p>Scores are entered through the score entry widget on the game view.</p>
+
+            <h3>Record a score</h3>
+            <ol>
+                <li>Open a game from the <strong>Home</strong> view.</li>
+                <li>In the score entry area, <strong>search for a player</strong> by name, ID, or alternate ID.</li>
+                <li>Select the player from the results.</li>
+                <li>Enter the score value for each scoring unit.</li>
+                <li>Submit the score.</li>
+            </ol>
+
+            <div class="highlight">
+                <p><strong>Real-time updates:</strong> Score changes are broadcast to all open display windows automatically. Any leaderboard screens you have open will refresh with the latest rankings.</p>
+            </div>
+
+            <h3>Clearing scores</h3>
+            <p>To reset all scores for a specific scoring unit, go to the <strong>Mechanics</strong> tab in your game settings. Each unit has an option to clear all of its recorded scores. This is useful when re-running an event or starting a new round.</p>
+        </section>
+
+        <!-- THEMES AND COLORS -->
+        <section id="themes-and-colors">
+            <h2>4. Themes and Colors</h2>
+            <p>Each game's leaderboard can be styled independently. Customize the look from the <strong>Styles</strong> tab in the game view.</p>
+
+            <h3>Built-in themes</h3>
+            <div class="card">
+                <h3>cyTerminal</h3>
+                <p>Retro cyan and green terminal aesthetic. Great for arcade and hacker events.</p>
+            </div>
+            <div class="card">
+                <h3>neoNavigator</h3>
+                <p>80s synthwave cyberpunk look with bold neon colors.</p>
+            </div>
+            <div class="card">
+                <h3>neuralNet</h3>
+                <p>Green-on-black hacker style. Clean and minimal.</p>
+            </div>
+
+            <h3>Custom color overrides</h3>
+            <p>Enable <strong>Color Override</strong> in the Styles tab to replace any of the theme's default colors with your own. The following colors can be customized:</p>
+
+            <table class="color-table">
+                <thead>
+                    <tr>
+                        <th>Setting</th>
+                        <th>What it controls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Background</td>
+                        <td>The table and slide background color</td>
+                    </tr>
+                    <tr>
+                        <td>Text</td>
+                        <td>Default text color</td>
+                    </tr>
+                    <tr>
+                        <td>Table Header</td>
+                        <td>Background color of the header row</td>
+                    </tr>
+                    <tr>
+                        <td>Table Row</td>
+                        <td>Background color of odd rows</td>
+                    </tr>
+                    <tr>
+                        <td>Table Alt</td>
+                        <td>Background color of even/alternating rows</td>
+                    </tr>
+                    <tr>
+                        <td>Font Header</td>
+                        <td>Text color for the leaderboard title</td>
+                    </tr>
+                    <tr>
+                        <td>Font Player</td>
+                        <td>Text color for player names</td>
+                    </tr>
+                    <tr>
+                        <td>Font Score</td>
+                        <td>Text color for score values</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>The Styles tab includes a <strong>live preview</strong> so you can see your changes in real time before displaying them.</p>
+
+            <h3>Fonts</h3>
+            <p>You can set custom fonts for three areas of the leaderboard independently: the <strong>header/title</strong>, <strong>player names</strong>, and <strong>score values</strong>. Blumbotron includes 13 built-in fonts ranging from clean sans-serifs to specialty display fonts.</p>
+
+            <h3>Media</h3>
+            <p>Under the <strong>Media</strong> tab, you can upload:</p>
+            <ul>
+                <li><strong>Background image</strong> &mdash; displayed behind the leaderboard with adjustable opacity</li>
+                <li><strong>Logo image</strong> &mdash; positioned on the leaderboard with adjustable scale, position, and offset</li>
+            </ul>
+            <p>You can also toggle player avatars on or off from this tab.</p>
+        </section>
+
+        <!-- DISPLAY BUTTONS -->
+        <section id="display-buttons">
+            <h2>5. Leaderboard Display Buttons</h2>
+            <p>Each leaderboard display preview has three buttons in the <strong>bottom-right corner</strong> and a menu in the <strong>top-right corner</strong>. The three bottom buttons control how you view the leaderboard at full size.</p>
+
+            <div class="button-grid">
+                <div class="button-card">
+                    <div class="button-icon">
+                        <svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M2 2.5C2 2.22386 2.22386 2 2.5 2H5.5C5.77614 2 6 1.77614 6 1.5C6 1.22386 5.77614 1 5.5 1H2.5C1.67157 1 1 1.67157 1 2.5V5.5C1 5.77614 1.22386 6 1.5 6C1.77614 6 2 5.77614 2 5.5V2.5ZM13 2.5C13 2.22386 12.7761 2 12.5 2H9.5C9.22386 2 9 1.77614 9 1.5C9 1.22386 9.22386 1 9.5 1H12.5C13.3284 1 14 1.67157 14 2.5V5.5C14 5.77614 13.7761 6 13.5 6C13.2239 6 13 5.77614 13 5.5V2.5ZM2 12.5C2 12.7761 2.22386 13 2.5 13H5.5C5.77614 13 6 13.2239 6 13.5C6 13.7761 5.77614 14 5.5 14H2.5C1.67157 14 1 13.3284 1 12.5V9.5C1 9.22386 1.22386 9 1.5 9C1.77614 9 2 9.22386 2 9.5V12.5ZM13 12.5C13 12.7761 12.7761 13 12.5 13H9.5C9.22386 13 9 13.2239 9 13.5C9 13.7761 9.22386 14 9.5 14H12.5C13.3284 14 14 13.3284 14 12.5V9.5C14 9.22386 13.7761 9 13.5 9C13.2239 9 13 9.22386 13 9.5V12.5Z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="button-info">
+                        <h3>Fullscreen (left button)</h3>
+                        <p>Opens the leaderboard in <strong>fullscreen mode on the current window</strong>. The app's controls are hidden and the entire screen is filled with the leaderboard display. This is ideal when you want to quickly throw the leaderboard up on a secondary monitor that's mirroring or extending your display. Press <kbd>Esc</kbd> to exit fullscreen.</p>
+                    </div>
+                </div>
+
+                <div class="button-card">
+                    <div class="button-icon">
+                        <svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12V3C13 2.44771 12.5523 2 12 2H3C2.44771 2 2 2.44771 2 3V6.5C2 6.77614 2.22386 7 2.5 7C2.77614 7 3 6.77614 3 6.5V3H12V12H8.5C8.22386 12 8 12.2239 8 12.5C8 12.7761 8.22386 13 8.5 13H12ZM9 6.5V9.5C9 9.77614 8.77614 10 8.5 10C8.22386 10 8 9.77614 8 9.5V7.70711L2.85355 12.8536C2.65829 13.0488 2.34171 13.0488 2.14645 12.8536C1.95118 12.6583 1.95118 12.3417 2.14645 12.1464L7.29289 7H5.5C5.22386 7 5 6.77614 5 6.5C5 6.22386 5.22386 6 5.5 6H8.5C8.77614 6 9 6.22386 9 6.5Z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="button-info">
+                        <h3>New Window (middle button)</h3>
+                        <p>Opens the leaderboard in a <strong>separate, dedicated window</strong>. This creates an independent display window that you can drag to a second monitor or projector. The new window runs on its own and will continue to update with new scores even if you navigate away in the main app. This is the recommended option for <strong>live event setups</strong> where you need the leaderboard on a projector while managing scores on your primary screen.</p>
+                    </div>
+                </div>
+
+                <div class="button-card">
+                    <div class="button-icon">
+                        <svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M2.14645 11.1464C1.95118 11.3417 1.95118 11.6583 2.14645 11.8536C2.34171 12.0488 2.65829 12.0488 2.85355 11.8536L6 8.70711V10.5C6 10.7761 6.22386 11 6.5 11C6.77614 11 7 10.7761 7 10.5V7.5C7 7.22386 6.77614 7 6.5 7H3.5C3.22386 7 3 7.22386 3 7.5C3 7.77614 3.22386 8 3.5 8H5.29289L2.14645 11.1464ZM12.8536 3.85355C13.0488 3.65829 13.0488 3.34171 12.8536 3.14645C12.6583 2.95118 12.3417 2.95118 12.1464 3.14645L9 6.29289V4.5C9 4.22386 8.77614 4 8.5 4C8.22386 4 8 4.22386 8 4.5V7.5C8 7.77614 8.22386 8 8.5 8H11.5C11.7761 8 12 7.77614 12 7.5C12 7.22386 11.7761 7 11.5 7H9.70711L12.8536 3.85355Z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="button-info">
+                        <h3>Preview Modal (right button)</h3>
+                        <p>Opens the leaderboard in a <strong>modal dialog within the app</strong>. The display appears as a large overlay on top of the main interface. This is useful for <strong>previewing and testing</strong> your leaderboard layout, theme, and colors without opening a separate window. Close the modal to return to the main app. You can continue editing display settings while the modal is open to see changes in context.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Display menu</h3>
+            <p>The <strong>hamburger menu</strong> in the top-right corner of each display preview provides two options:</p>
+            <ul>
+                <li><strong>Edit</strong> &mdash; opens the display configuration form where you can change the title, number of rows, sort order, and more.</li>
+                <li><strong>Delete</strong> &mdash; removes the display from the game. The first display cannot be deleted, and every game must have at least one.</li>
+            </ul>
+        </section>
+
+        <!-- DISPLAY CONFIGURATION -->
+        <section id="display-config">
+            <h2>6. Display Configuration</h2>
+            <p>Each game can have <strong>multiple displays</strong>, and each display is configured independently. This lets you show different views of the same game — for example, a top-5 quick view and a full 20-row leaderboard.</p>
+
+            <h3>Display types</h3>
+            <ul>
+                <li><strong>Table</strong> &mdash; a traditional leaderboard with ranks, player names, avatars, and scores in rows and columns.</li>
+                <li><strong>Slide</strong> &mdash; a markdown-based display for showing custom text, announcements, or event information.</li>
+            </ul>
+
+            <h3>Table settings</h3>
+            <table class="color-table">
+                <thead>
+                    <tr>
+                        <th>Setting</th>
+                        <th>What it does</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Title</td>
+                        <td>Custom header text shown at the top of the leaderboard</td>
+                    </tr>
+                    <tr>
+                        <td>Rows</td>
+                        <td>Number of players to show in the table</td>
+                    </tr>
+                    <tr>
+                        <td>Offset</td>
+                        <td>Skip the first N players (useful for showing ranks 6-10 on a second display)</td>
+                    </tr>
+                    <tr>
+                        <td>Sort Direction</td>
+                        <td>Ascending or descending (highest or lowest score first)</td>
+                    </tr>
+                    <tr>
+                        <td>Sort By</td>
+                        <td>Which scoring unit to rank players by</td>
+                    </tr>
+                    <tr>
+                        <td>Filtered Units</td>
+                        <td>Which score columns to show in the table</td>
+                    </tr>
+                    <tr>
+                        <td>Show Avatars</td>
+                        <td>Toggle player photos/avatars in the table</td>
+                    </tr>
+                    <tr>
+                        <td>Show Subheaders</td>
+                        <td>Toggle column labels below the title</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- DATA STORAGE -->
+        <section id="data-storage">
+            <h2>7. Data Storage</h2>
+            <p>Blumbotron stores all data locally in a SQLite database. No internet connection is required.</p>
+
+            <h3>Database locations</h3>
+            <table class="color-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Path</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>macOS</td>
+                        <td><code>~/Library/Application Support/btron/blumbo.db</code></td>
+                    </tr>
+                    <tr>
+                        <td>Windows</td>
+                        <td><code>%APPDATA%\btron\blumbo.db</code></td>
+                    </tr>
+                    <tr>
+                        <td>Linux</td>
+                        <td><code>~/.local/share/btron/blumbo.db</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <p><strong>Backup tip:</strong> Copy the <code>blumbo.db</code> file to back up all your games, players, rosters, and scores. Restore by replacing the file at the same path.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Built with Tauri + React + TypeScript</p>
+        <p><a href="https://github.com/mjlemay/blumbotron" target="_blank">View on GitHub</a></p>
+    </footer>
+</body>
+</html>
