@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blumbotron - RFID Setup Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #f0e7d5;
+            background: #252525;
+            background: linear-gradient(to bottom, #2a2a29 0%, #1c1c1c 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+            color: #e8e8e8;
+        }
+
+        .logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e8e8e8;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #d7cfbe;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .back-link:hover {
+            color: #ffeb9b;
+            text-decoration: underline;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: #e8e8e8;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #434343;
+        }
+
+        p {
+            color: #d7cfbe;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #434343;
+            border-radius: 2px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(to bottom, #93bd20 0%, #659e10 100%);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-header h3 {
+            font-size: 1.15rem;
+            color: #e8e8e8;
+            margin: 0;
+        }
+
+        .step p {
+            margin-bottom: 0.75rem;
+        }
+
+        .step p:last-child {
+            margin-bottom: 0;
+        }
+
+        .screenshot {
+            width: 100%;
+            border: 2px dashed #555;
+            border-radius: 4px;
+            margin: 1rem 0;
+            background: rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 2px;
+        }
+
+        .screenshot-placeholder {
+            padding: 2rem;
+            text-align: center;
+            color: #696969;
+            font-size: 0.85rem;
+        }
+
+        .screenshot-placeholder .label {
+            display: block;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .screenshot-placeholder .hint {
+            display: block;
+            font-style: italic;
+            color: #555;
+        }
+
+        .highlight {
+            background: rgba(147, 189, 32, 0.1);
+            border-left: 3px solid #93bd20;
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .highlight p {
+            margin-bottom: 0;
+        }
+
+        kbd {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 0.1rem 0.4rem;
+            font-family: "SF Mono", Monaco, "Cascadia Mono", monospace;
+            font-size: 0.85rem;
+            color: #e8e8e8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #696969;
+        }
+
+        footer a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: #ffeb9b;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html"><img src="blumbotron_logo.svg" alt="Blumbotron Logo" class="logo"></a>
+            <h1>RFID Setup Guide</h1>
+            <p class="tagline">How to use RFID badges for quick player identification and score entry</p>
+            <a href="documentation.html" class="back-link">&larr; Back to Documentation</a>
+        </header>
+
+        <section>
+            <h2>How to Use RFID in Blumbotron</h2>
+
+            <p>Blumbotron supports RFID badge scanning for fast player identification. Assign an RFID tag to each player once, then scan badges to quickly select players during score entry. This guide walks through the full setup.</p>
+
+            <div class="highlight">
+                <p><strong>Requirements:</strong> You will need a USB RFID reader that presents as a keyboard input device (HID). Most inexpensive USB RFID readers work this way out of the box.</p>
+            </div>
+
+            <!-- STEP 1 -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h3>Select a Player</h3>
+                </div>
+                <p>Click on the <strong>Players</strong> icon in the left menu, then select the player you want to assign an RFID badge to.</p>
+                <div class="screenshot">
+                    <img src="screenshots/rfid-step1-select-player.png" alt="Players list with a player selected">
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h3>Open Alternate IDs</h3>
+                </div>
+                <p>On the Player Info screen, click <strong>Options</strong> in the upper right hand corner, then select <strong>Alternate IDs</strong>.</p>
+                <div class="screenshot">
+                    <img src="screenshots/rfid-step2-options-menu.png" alt="Player screen with Options menu open, showing Alternate IDs option">
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <h3>Add an RFID Alternate ID</h3>
+                </div>
+                <p>You are presented with a modal that allows you to add alternate IDs. Create a <strong>label</strong> for this ID (e.g. "Badge 1"), then click the <strong>RFID icon</strong>.</p>
+                <p>You will see both an RFID icon and a QR code icon. The input field will <strong>glow green</strong> when the RFID mode is active. Scan the RFID badge while the field is green to capture the tag ID.</p>
+                <div class="screenshot">
+                    <img src="screenshots/rfid-step3-alternate-ids.png" alt="Alternate IDs modal with RFID input active and green glow">
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <h3>Verify the Alternate ID</h3>
+                </div>
+                <p>Once completed, you will see the alternate IDs listed on the player screen underneath their name and their Blumbotron instance ID.</p>
+                <div class="screenshot">
+                    <img src="screenshots/rfid-step4-id-listed.png" alt="RFID and QR code icons for scanning">
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="step">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <h3>Use RFID for Score Entry</h3>
+                </div>
+                <p>On the game screen, in the <strong>Update Player Points</strong> section, you will see the same RFID and QR code buttons. To select a player for scoring, click the <strong>RFID button</strong> and scan the badge when the input field is green.</p>
+                <p>The player will be automatically selected and you can immediately enter their score.</p>
+                <div class="screenshot">
+                    <img src="screenshots/rfid-step5-score-entry.png" alt="Game score entry area with RFID and QR scan buttons">
+                </div>
+            </div>
+
+            <div class="highlight">
+                <p><strong>Tip:</strong> RFID scanning also works alongside QR codes. You can mix and match identification methods across your player base &mdash; some players can use badges while others use QR codes.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p><a href="documentation.html">Documentation</a></p>
+        <p>Built with Tauri + React + TypeScript</p>
+        <p><a href="https://github.com/mjlemay/blumbotron" target="_blank">View on GitHub</a></p>
+    </footer>
+</body>
+</html>
