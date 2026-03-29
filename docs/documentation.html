@@ -263,6 +263,48 @@
             text-decoration: underline;
         }
 
+        .screenshot {
+            width: 100%;
+            border: 2px dashed #555;
+            border-radius: 4px;
+            margin: 1.25rem 0;
+            background: rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 2px;
+        }
+
+        .screenshot-placeholder {
+            padding: 2rem;
+            text-align: center;
+            color: #696969;
+            font-size: 0.85rem;
+        }
+
+        .screenshot-placeholder .label {
+            display: block;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .screenshot-placeholder .hint {
+            display: block;
+            font-style: italic;
+            color: #555;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -301,6 +343,10 @@
             <h2>1. Creating a Game</h2>
             <p>A game is the central unit in Blumbotron. Each game has its own scoring system, leaderboard displays, and visual theme.</p>
 
+            <div class="screenshot">
+                <img src="screenshots/home-games.png" alt="Home view showing the Games list with Create New Game button">
+            </div>
+
             <h3>Create a new game</h3>
             <ol>
                 <li>From the <strong>Home</strong> view, click <strong>Create New Game</strong>.</li>
@@ -312,6 +358,10 @@
 
             <p>Your game is created with a default scoring unit (points) and a default leaderboard display. You can customize both from the game detail view.</p>
 
+            <div class="screenshot">
+                <img src="screenshots/create-game-form.png" alt="The Create New Game dialog with name, description, and roster fields">
+            </div>
+
             <h3>Game settings</h3>
             <p>Once inside a game, use the sub-navigation tabs to configure different aspects:</p>
             <ul>
@@ -322,7 +372,14 @@
                 <li><strong>Mechanics</strong> &mdash; configure scoring units (score, flag, or time)</li>
             </ul>
 
+            <div class="screenshot">
+                <img src="screenshots/game-tabs.png" alt="Game detail view showing the sub-navigation tabs">
+            </div>
+
             <h3>Scoring units</h3>
+            <div class="screenshot">
+                <img src="screenshots/game-mechanics.png" alt="Mechanics tab showing scoring units configuration">
+            </div>
             <p>Under <strong>Mechanics</strong>, you can add one or more scoring units. Each unit defines a type of score to track:</p>
             <ul>
                 <li><strong>Score</strong> &mdash; a numeric value (points, kills, etc.)</li>
@@ -345,6 +402,10 @@
                 <li>Optionally add <strong>alternate IDs</strong> (for RFID badges or QR code scanning).</li>
                 <li>Click <strong>Save</strong>.</li>
             </ol>
+
+            <div class="screenshot">
+                <img src="screenshots/players-list.png" alt="Players view showing the player list with avatars and names">
+            </div>
 
             <p>Players without a photo will receive an auto-generated avatar.</p>
 
@@ -373,6 +434,10 @@
                 <li>Submit the score.</li>
             </ol>
 
+            <div class="screenshot">
+                <img src="screenshots/score-entry.png" alt="Score entry area with themed leaderboard displays and player list">
+            </div>
+
             <div class="highlight">
                 <p><strong>Real-time updates:</strong> Score changes are broadcast to all open display windows automatically. Any leaderboard screens you have open will refresh with the latest rankings.</p>
             </div>
@@ -385,6 +450,10 @@
         <section id="themes-and-colors">
             <h2>4. Themes and Colors</h2>
             <p>Each game's leaderboard can be styled independently. Customize the look from the <strong>Styles</strong> tab in the game view.</p>
+
+            <div class="screenshot">
+                <img src="screenshots/styles-tab.png" alt="Styles tab with theme selector, color overrides, and live preview">
+            </div>
 
             <h3>Built-in themes</h3>
             <div class="card">
@@ -463,6 +532,10 @@
         <!-- DISPLAY BUTTONS -->
         <section id="display-buttons">
             <h2>5. Leaderboard Display Buttons</h2>
+            <div class="screenshot">
+                <img src="screenshots/display-buttons.png" alt="Close-up of the three display buttons: Fullscreen, New Window, and Preview Modal">
+            </div>
+
             <p>Each leaderboard display preview has three buttons in the <strong>bottom-right corner</strong> and a menu in the <strong>top-right corner</strong>. The three bottom buttons control how you view the leaderboard at full size.</p>
 
             <div class="button-grid">
@@ -488,7 +561,7 @@
 
                 <div class="button-card">
                     <div class="button-icon">
-                        <svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M2.14645 11.1464C1.95118 11.3417 1.95118 11.6583 2.14645 11.8536C2.34171 12.0488 2.65829 12.0488 2.85355 11.8536L6 8.70711V10.5C6 10.7761 6.22386 11 6.5 11C6.77614 11 7 10.7761 7 10.5V7.5C7 7.22386 6.77614 7 6.5 7H3.5C3.22386 7 3 7.22386 3 7.5C3 7.77614 3.22386 8 3.5 8H5.29289L2.14645 11.1464ZM12.8536 3.85355C13.0488 3.65829 13.0488 3.34171 12.8536 3.14645C12.6583 2.95118 12.3417 2.95118 12.1464 3.14645L9 6.29289V4.5C9 4.22386 8.77614 4 8.5 4C8.22386 4 8 4.22386 8 4.5V7.5C8 7.77614 8.22386 8 8.5 8H11.5C11.7761 8 12 7.77614 12 7.5C12 7.22386 11.7761 7 11.5 7H9.70711L12.8536 3.85355Z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        <svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 0.75L9.75 3H5.25L7.5 0.75ZM7.5 14.25L9.75 12H5.25L7.5 14.25ZM3 5.25L0.75 7.5L3 9.75V5.25ZM14.25 7.5L12 5.25V9.75L14.25 7.5Z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                     </div>
                     <div class="button-info">
                         <h3>Preview Modal (right button)</h3>
@@ -509,6 +582,10 @@
         <section id="display-config">
             <h2>6. Display Configuration</h2>
             <p>Each game can have <strong>multiple displays</strong>, and each display is configured independently. This lets you show different views of the same game — for example, a top-5 quick view and a full 20-row leaderboard.</p>
+
+            <div class="screenshot">
+                <img src="screenshots/display-config.png" alt="Display configuration form with title, rows, sort, and column settings">
+            </div>
 
             <h3>Display types</h3>
             <ul>
@@ -565,6 +642,10 @@
         <section id="data-storage">
             <h2>7. Data Storage</h2>
             <p>Blumbotron stores all data locally in a SQLite database. No internet connection is required.</p>
+
+            <div class="screenshot">
+                <img src="screenshots/leaderboard-themed.png" alt="A themed leaderboard display showing player rankings and scores">
+            </div>
 
             <h3>Database locations</h3>
             <table class="color-table">

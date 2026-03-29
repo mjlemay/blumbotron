@@ -20,7 +20,7 @@ import { invoke } from '@tauri-apps/api/core';
 const selectedItemModals = {
   game: {
     edit: 'editGame',
-    delete: 'deleteGa∫me',
+    delete: 'deleteGame',
   },
   player: {
     edit: 'editPlayer',
