@@ -26,3 +26,6 @@ dist-ssr
 #generated files
 drizzle/meta
 drizzle/meta/*
+
+# Promo assets
+promo/

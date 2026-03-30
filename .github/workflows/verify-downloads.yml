@@ -1,0 +1,50 @@
+name: Verify Download Links
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  verify-links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for assets to be available
+        run: sleep 30
+
+      - name: Test download links
+        run: |
+          echo "Testing download links..."
+
+          # Test macOS download
+          if curl -f -L -I "https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_x64.dmg" > /dev/null 2>&1; then
+            echo "✓ macOS download link works"
+          else
+            echo "✗ macOS download link FAILED"
+            exit 1
+          fi
+
+          # Test Windows download
+          if curl -f -L -I "https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_x64_en-US.msi" > /dev/null 2>&1; then
+            echo "✓ Windows download link works"
+          else
+            echo "✗ Windows download link FAILED"
+            exit 1
+          fi
+
+          # Test Linux download
+          if curl -f -L -I "https://github.com/mjlemay/blumbotron/releases/latest/download/blumbotron_amd64.deb" > /dev/null 2>&1; then
+            echo "✓ Linux download link works"
+          else
+            echo "✗ Linux download link FAILED"
+            exit 1
+          fi
+
+          echo ""
+          echo "All download links verified successfully!"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Download link verification failed! Check the release assets."
