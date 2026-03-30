@@ -18,6 +18,9 @@
     }
   ],
   "tagPrefix": "v",
+  "scripts": {
+    "postchangelog": "node scripts/generate-changelog.cjs && git add docs/changelog.html"
+  },
   "header": "# Changelog\n\nAll notable changes to Blumbotron will be documented in this file.\n",
   "types": [
     { "type": "feat", "section": "Features" },

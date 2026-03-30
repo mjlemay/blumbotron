@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blumbotron - Changelog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #c8d6e5;
+            background: #0a1929;
+            background: linear-gradient(to bottom, #0d2137 0%, #071320 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+            color: #e8eef4;
+        }
+
+        .logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e8eef4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .breadcrumb {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb a {
+            color: #d4a24e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .breadcrumb a:hover {
+            color: #e8c078;
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #4a6480;
+            margin: 0 0.5rem;
+        }
+
+        .breadcrumb .current {
+            color: #8faabe;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #e8eef4;
+            margin-bottom: 1rem;
+        }
+
+        .release {
+            background: rgba(10, 30, 55, 0.5);
+            border: 1px solid #1e3a5f;
+            border-radius: 2px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .release-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .release-version {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e8eef4;
+        }
+
+        .release-version a {
+            color: #e8eef4;
+            text-decoration: none;
+        }
+
+        .release-version a:hover {
+            color: #d4a24e;
+        }
+
+        .release-date {
+            font-size: 0.9rem;
+            color: #7a94ad;
+        }
+
+        .release-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            background: rgba(212, 162, 78, 0.15);
+            color: #d4a24e;
+            border: 1px solid rgba(212, 162, 78, 0.3);
+        }
+
+        .change-section {
+            margin-bottom: 1rem;
+        }
+
+        .change-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .change-section h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8faabe;
+            margin-bottom: 0.5rem;
+        }
+
+        .change-section.features h3 {
+            color: #d4a24e;
+        }
+
+        .change-section.fixes h3 {
+            color: #6ba3d6;
+        }
+
+        .change-section.performance h3 {
+            color: #7ec89e;
+        }
+
+        .change-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .change-list li {
+            padding: 0.35rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+            color: #a0b4c8;
+            font-size: 0.95rem;
+        }
+
+        .change-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.75rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4a6480;
+        }
+
+        .change-section.features .change-list li::before {
+            background: #d4a24e;
+        }
+
+        .change-section.fixes .change-list li::before {
+            background: #6ba3d6;
+        }
+
+        .change-section.performance .change-list li::before {
+            background: #7ec89e;
+        }
+
+        .change-list li a {
+            color: #4a6480;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .change-list li a:hover {
+            color: #d4a24e;
+        }
+
+        .all-releases {
+            text-align: center;
+            margin-top: 2rem;
+            color: #7a94ad;
+        }
+
+        .all-releases a {
+            color: #d4a24e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .all-releases a:hover {
+            color: #e8c078;
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #4a6480;
+        }
+
+        footer a {
+            color: #d4a24e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: #e8c078;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .release {
+                padding: 1.25rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html"><img src="blumbotron_logo.svg" alt="Blumbotron Logo" class="logo"></a>
+            <h1>Changelog</h1>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <span class="current">Changelog</span>
+        </nav>
+
+        <div class="release">
+            <div class="release-header">
+                <div class="release-version"><a href="https://github.com/mjlemay/blumbotron/compare/v0.1.11...v0.1.12">0.1.12</a></div>
+                <div class="release-date">2026-03-30</div>
+                <div class="release-tag">Latest</div>
+            </div>
+            <div class="change-section features">
+                <h3>Features</h3>
+                <ul class="change-list">
+                    <li>add activity history to player panel <a href="https://github.com/mjlemay/blumbotron/commit/09ccfb143447d693b5d181d81f7dbe4b0215becb">09ccfb1</a></li>
+                    <li>add activity view with game, roster, and player filters <a href="https://github.com/mjlemay/blumbotron/commit/b416ca1b6ef1e21f666a50d7a668be6f25190334">b416ca1</a></li>
+                </ul>
+            </div>
+            <div class="change-section fixes">
+                <h3>Bug Fixes</h3>
+                <ul class="change-list">
+                    <li>release workflow uploading hundreds of build artifacts <a href="https://github.com/mjlemay/blumbotron/commit/4b23b1c42cc65e11ead7c9a660912afc8dfe5a2f">4b23b1c</a></li>
+                    <li>skip DMG recreation on macOS CI, upload .app and Tauri DMG directly <a href="https://github.com/mjlemay/blumbotron/commit/b6242cb95b6166898ddfb56143ba460972d34885">b6242cb</a></li>
+                    <li>upgrade Node to 20 and add disk cleanup for macOS DMG <a href="https://github.com/mjlemay/blumbotron/commit/9872d52247acc748ac9f81f8adcb5a4cc7a2fa91">9872d52</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="all-releases">
+            <p>View all releases on <a href="https://github.com/mjlemay/blumbotron/releases" target="_blank">GitHub Releases</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Home</a> &middot; <a href="documentation.html">Documentation</a> &middot; <a href="rfid-guide.html">RFID Guide</a></p>
+        <p>Built with Tauri + React + TypeScript</p>
+        <p><a href="https://github.com/mjlemay/blumbotron" target="_blank">View on GitHub</a></p>
+    </footer>
+</body>
+</html>

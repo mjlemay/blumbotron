@@ -10,6 +10,7 @@
     "tauri": "tauri",
     "debug": "vite build && RUST_LOG=debug tauri dev",
     "migrate": "drizzle-kit push:sqlite",
+    "changelog": "node scripts/generate-changelog.cjs",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
     "release:major": "standard-version --release-as major",
