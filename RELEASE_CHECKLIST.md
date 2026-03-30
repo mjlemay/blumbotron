@@ -36,13 +36,15 @@ This updates version in all 3 files (`package.json`, `src-tauri/tauri.conf.json`
 
 - [ ] Test the app locally with `npm run tauri build`
 - [ ] Review the generated CHANGELOG.md
-- [ ] Merge to `main` branch
 
 ## Release
 
-- [ ] Push the tag: `git push --follow-tags origin main`
+- [ ] Push to main: `git push --follow-tags origin main`
+- [ ] The release workflow triggers automatically on push to main
 - [ ] Wait for GitHub Actions workflow to complete (~10-15 minutes)
 - [ ] Verify workflow succeeded: https://github.com/mjlemay/blumbotron/actions
+
+> **Note:** The workflow automatically skips if the version in `package.json` already has a release tag, so non-version-bump pushes won't create duplicate releases.
 
 ## Post-Release Verification
 

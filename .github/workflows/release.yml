@@ -2,30 +2,41 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      tag_exists: ${{ steps.check_tag.outputs.EXISTS }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+      - name: Check if release tag already exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
   build-linux:
+    needs: [check-version]
+    if: needs.check-version.outputs.tag_exists == 'false'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Update version in package.json
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-      - name: Update version in tauri.conf.json
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
-          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -72,28 +83,13 @@ jobs:
           retention-days: 7
 
   build-windows:
+    needs: [check-version]
+    if: needs.check-version.outputs.tag_exists == 'false'
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Extract version from tag
-        id: get_version
-        shell: bash
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Update version in package.json
-        shell: bash
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-      - name: Update version in tauri.conf.json
-        shell: bash
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
-          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -123,25 +119,13 @@ jobs:
           retention-days: 7
 
   build-macos:
+    needs: [check-version]
+    if: needs.check-version.outputs.tag_exists == 'false'
     runs-on: macos-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Update version in package.json
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-      - name: Update version in tauri.conf.json
-        run: |
-          jq --arg version "${{ steps.get_version.outputs.VERSION }}" '.version = $version' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
-          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -176,14 +160,8 @@ jobs:
             src-tauri/target/release/bundle/dmg/*.dmg
           retention-days: 7
 
-  # Raspberry Pi build temporarily disabled due to cross-compilation complexity
-  # For Raspberry Pi support:
-  # 1. Build natively on Raspberry Pi hardware, or
-  # 2. Use Docker with ARM emulation, or  
-  # 3. Set up complex cross-compilation with proper ARM64 system libraries
-
   release:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [check-version, build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -202,12 +180,14 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ needs.check-version.outputs.version }}
+          name: v${{ needs.check-version.outputs.version }}
           files: |
             blumbotron-linux/**/*.deb
             blumbotron-linux/**/*.AppImage
             blumbotron-windows/**/*.msi
             blumbotron-windows/**/*.exe
             blumbotron-macos/**/*.dmg
-          draft: true
+          draft: false
           prerelease: false
-          generate_release_notes: true 
+          generate_release_notes: true
