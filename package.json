@@ -1,7 +1,7 @@
 {
   "name": "blumbotron",
   "private": true,
-  "version": "0.1.9",
+  "version": "0.1.11",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,12 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "debug": "vite build && RUST_LOG=debug tauri dev",
-    "migrate": "drizzle-kit push:sqlite"
+    "migrate": "drizzle-kit push:sqlite",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch",
+    "release:dry": "standard-version --dry-run"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.2",
@@ -55,6 +60,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
     "drizzle-kit": "^0.31.1",
+    "standard-version": "^9.5.0",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"
   }
