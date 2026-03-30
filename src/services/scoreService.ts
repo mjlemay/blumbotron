@@ -118,6 +118,35 @@ const updateScore = async (score: ScoreDataItem) => {
   }
 };
 
+const getScoresByPlayer = async (playerSnowflake: string, limit: number) => {
+  try {
+    const result = await db
+      .select()
+      .from(scores)
+      .where(eq(scores.player, playerSnowflake))
+      .orderBy(sql`${scores.created_at} DESC`)
+      .limit(limit);
+    return result;
+  } catch (error) {
+    console.error('Error in getScoresByPlayer:', error);
+    throw error;
+  }
+};
+
+const getRecentScores = async (limit: number) => {
+  try {
+    const result = await db
+      .select()
+      .from(scores)
+      .orderBy(sql`${scores.created_at} DESC`)
+      .limit(limit);
+    return result;
+  } catch (error) {
+    console.error('Error in getRecentScores:', error);
+    throw error;
+  }
+};
+
 const deleteScore = async (Score: ScoreDataItem) => {
   const { id = -1 } = Score;
   return await db.delete(scores).where(eq(scores.id, id)).returning();
@@ -144,7 +173,9 @@ const scoreData = {
   deleteScore,
   deleteScoresByUnitId,
   getAllScoresByGame,
+  getRecentScores,
   getScore,
+  getScoresByPlayer,
   getScores,
   getUniqueScoresByGame,
   updateScore,

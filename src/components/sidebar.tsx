@@ -44,6 +44,13 @@ function Sidebar({ view }: SidebarProps): JSX.Element {
         <UiButton uiIcon="roster" isSelected={view === 'rosters'} />
         <span className="text-sm">Rosters</span>
       </div>
+      <div
+        className="flex flex-col items-center justify-center p-2"
+        onClick={() => handleViewSelect('activity')}
+      >
+        <UiButton uiIcon="activity" isSelected={view === 'activity'} />
+        <span className="text-sm">Activity</span>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import {
+  ActivityLogIcon,
   CrossCircledIcon,
   QuestionMarkCircledIcon,
   PlusCircledIcon,
@@ -77,6 +78,9 @@ function UiButton(props: UiButtonProps): JSX.Element {
         break;
       case 'mechanics':
         icon = <MixerVerticalIcon width={size} height={size} />;
+        break;
+      case 'activity':
+        icon = <ActivityLogIcon width={size} height={size} />;
         break;
       default:
         icon = <QuestionMarkCircledIcon width={size} height={size} />;

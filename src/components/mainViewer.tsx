@@ -1,4 +1,5 @@
 import { useExperienceStore } from '../stores/experienceStore';
+import ViewActivity from './viewActivity';
 import ViewHome from './viewHome';
 import ViewPlayers from './viewPlayers';
 import ViewGame from './viewGame';
@@ -36,6 +37,9 @@ function MainViewer() {
         break;
       case 'game':
         selectedView = <ViewGame />;
+        break;
+      case 'activity':
+        selectedView = <ViewActivity />;
         break;
       default:
         selectedView = <ViewHome />;

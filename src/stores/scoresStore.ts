@@ -5,6 +5,7 @@ import { emit } from '@tauri-apps/api/event';
 
 type ScoresStore = {
   scores: ScoreDataItem[];
+  recentScores: ScoreDataItem[];
   loading: boolean;
   error: string | null;
   gameScores: Record<string, ScoreDataItem[]>;
@@ -12,6 +13,7 @@ type ScoresStore = {
   fetchUniqueScoresByGame: (game: string) => Promise<void>;
   fetchScoresByGame: (game: string) => Promise<void>;
   fetchScores: () => Promise<void>;
+  fetchRecentScores: () => Promise<void>;
   fetchScore: (id: number) => Promise<void>;
   createScore: (Score: ScoreDataItem) => Promise<ScoreDataItem>;
   deleteScoresByUnitId: (unitId: number, gameSnowflake: string) => Promise<void>;
@@ -21,10 +23,24 @@ const MAGIC_LIMIT = 1000;
 
 export const useScoreStore = create<ScoresStore>((set) => ({
   scores: [],
+  recentScores: [],
   loading: false,
   error: null,
   gameScores: {},
   lastUpdated: 0,
+  fetchRecentScores: async () => {
+    set({ loading: true, error: null });
+    try {
+      const result = await scoreData.getRecentScores(MAGIC_LIMIT);
+      set({ recentScores: result as ScoreDataItem[], error: null });
+    } catch (error) {
+      console.error('Failed to fetch recent scores:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch recent scores';
+      set({ error: errorMessage, recentScores: [] });
+    } finally {
+      set({ loading: false });
+    }
+  },
   fetchScores: async () => {
     set({ loading: true, error: null });
     try {
