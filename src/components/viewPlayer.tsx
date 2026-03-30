@@ -9,7 +9,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Tabs from '@radix-ui/react-tabs';
-import { PlayerDataItem } from '../lib/types';
+import { PlayerDataItem, ScoreDataItem } from '../lib/types';
+import { scoreData } from '../services/scoreService';
 
 function ViewPlayer() {
   const { selected, setExpView, setExpSelected } = useExperienceStore(
@@ -25,6 +26,7 @@ function ViewPlayer() {
   const { players, fetchPlayers } = usePlayerStore();
   
   const [playerImageSrc, setPlayerImageSrc] = useState<string>('');
+  const [playerScores, setPlayerScores] = useState<ScoreDataItem[]>([]);
   
   // Get the fresh player data from the players store instead of just the selected state
   const selectedPlayerFromStore = (selected?.player as PlayerDataItem) || null;
@@ -65,6 +67,12 @@ function ViewPlayer() {
       fetchGames();
       fetchRosters();
       fetchPlayers(); // Ensure we have fresh player data
+      // Fetch this player's score activity
+      if (selectedPlayerFromStore.snowflake) {
+        scoreData.getScoresByPlayer(selectedPlayerFromStore.snowflake, 1000)
+          .then((results) => setPlayerScores(results as ScoreDataItem[]))
+          .catch((err) => console.error('Failed to fetch player scores:', err));
+      }
     }
   }, [selectedPlayerFromStore, fetchGames, fetchRosters, fetchPlayers]);
 
@@ -181,6 +189,44 @@ function ViewPlayer() {
     
     return false;
   });
+
+  const getGameName = (gameSnowflake: string): string => {
+    const game = games.find((g) => g.snowflake === gameSnowflake);
+    return game?.name || 'Unknown Game';
+  };
+
+  const getRosterName = (gameSnowflake: string): string | null => {
+    const game = games.find((g) => g.snowflake === gameSnowflake);
+    if (!game?.roster) return null;
+    const roster = rosters.find((r) => r.snowflake === game.roster);
+    return roster?.name || null;
+  };
+
+  const formatTimestamp = (timestamp?: string): string => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp + 'Z');
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const formatDatum = (score: ScoreDataItem): string => {
+    switch (score.unit_type) {
+      case 'flag':
+        return Number(score.datum) === 1 ? 'Completed' : 'Not completed';
+      case 'time':
+        return `${score.datum}s`;
+      default:
+        return String(score.datum);
+    }
+  };
 
   const alternateIds = () => {
     const alternateIds = selectedPlayer?.data?.alternateIds || {};
@@ -397,11 +443,61 @@ function ViewPlayer() {
             </ScrollArea.Root>
           </Tabs.Content>
           <Tabs.Content value="activity" className="flex-1 min-h-0">
-            <div className="w-full h-full rounded-b bg-slate-700/50 p-4 flex items-center justify-center">
-              <div className="bg-slate-600 rounded-lg p-8 text-center">
-                <p className="text-slate-400 text-lg">No data available</p>
-              </div>
-            </div>
+            <ScrollArea.Root className="w-full h-full rounded-b bg-slate-700/50 overflow-hidden">
+              <ScrollArea.Viewport className="h-full w-full rounded p-4">
+                {playerScores.length === 0 ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="bg-slate-600 rounded-lg p-8 text-center">
+                      <p className="text-slate-400 text-lg">No score activity for this player yet.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {playerScores.map((score) => {
+                      const rosterName = getRosterName(score.game);
+                      return (
+                        <div
+                          key={score.id}
+                          className="flex flex-row items-center gap-4 bg-slate-600/30 hover:bg-slate-600/50 rounded-md px-4 py-3 transition-colors cursor-pointer"
+                          onClick={() => {
+                            const game = games.find((g) => g.snowflake === score.game);
+                            if (game) navigateToGame(game);
+                          }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-row items-center gap-2 flex-wrap">
+                              <span className="text-slate-400">Scored</span>
+                              <span className="font-mono font-bold text-sky-400">
+                                {formatDatum(score)}
+                              </span>
+                              <span className="text-slate-400">in</span>
+                              <span className="font-medium text-slate-200">
+                                {getGameName(score.game)}
+                              </span>
+                            </div>
+                            {rosterName && (
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                Roster: {rosterName}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-shrink-0 text-xs text-slate-500 whitespace-nowrap">
+                            {formatTimestamp(score.created_at)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar
+                className="flex touch-none select-none bg-gray-700/75 p-0.5 transition-colors duration-[160ms] ease-out data-[orientation=vertical]:w-2.5"
+                orientation="vertical"
+              >
+                <ScrollArea.Thumb className="relative flex-1 bg-gray-500 rounded-[10px] before:absolute before:left-1/2 before:top-1/2 before:size-full before:min-h-11 before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2" />
+              </ScrollArea.Scrollbar>
+              <ScrollArea.Corner className="bg-slate-700/50" />
+            </ScrollArea.Root>
           </Tabs.Content>
         </Tabs.Root>
       </div>
